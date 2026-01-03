@@ -1,0 +1,97 @@
+"""
+Simple Ollama Chat Example
+
+This example demonstrates basic usage of the Agentic Assistants framework
+with Ollama for simple chat completions.
+
+Usage:
+    python examples/simple_ollama_chat.py
+    # or
+    agentic run examples/simple_ollama_chat.py
+
+Requirements:
+    - Ollama installed and running (agentic ollama start)
+    - A model pulled (agentic ollama pull llama3.2)
+"""
+
+from agentic_assistants import AgenticConfig, OllamaManager
+from agentic_assistants.core import MLFlowTracker
+from agentic_assistants.utils.logging import setup_logging, get_logger
+
+# Set up logging
+setup_logging(level="INFO")
+logger = get_logger(__name__)
+
+
+def main():
+    """Run a simple chat interaction with Ollama."""
+    # Initialize configuration
+    config = AgenticConfig()
+    logger.info(f"Using model: {config.ollama.default_model}")
+
+    # Initialize Ollama manager
+    ollama = OllamaManager(config)
+
+    # Ensure Ollama is running and model is available
+    logger.info("Checking Ollama status...")
+    ollama.ensure_running()
+    model = ollama.ensure_model()
+    logger.info(f"Model ready: {model}")
+
+    # Initialize MLFlow tracker (respects AGENTIC_MLFLOW_ENABLED env var)
+    tracker = MLFlowTracker(config)
+
+    # Define our conversation
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a helpful AI assistant. Be concise and informative.",
+        },
+        {
+            "role": "user",
+            "content": "What are the key benefits of using multi-agent systems in AI applications?",
+        },
+    ]
+
+    # Run with MLFlow tracking
+    with tracker.start_run(run_name="simple-chat-example") as run:
+        # Log parameters
+        tracker.log_param("model", model)
+        tracker.log_param("message_count", len(messages))
+
+        logger.info("Sending chat request...")
+
+        # Send chat request
+        import time
+
+        start_time = time.time()
+        response = ollama.chat(messages=messages, model=model)
+        duration = time.time() - start_time
+
+        # Extract response
+        assistant_message = response.get("message", {}).get("content", "")
+        
+        # Log metrics
+        tracker.log_metric("duration_seconds", duration)
+        tracker.log_metric("response_length", len(assistant_message))
+
+        # Log the interaction
+        tracker.log_text(assistant_message, "output/response.txt")
+
+        # Print results
+        print("\n" + "=" * 60)
+        print("RESPONSE:")
+        print("=" * 60)
+        print(assistant_message)
+        print("=" * 60)
+        print(f"\nCompleted in {duration:.2f} seconds")
+
+        if run:
+            print(f"MLFlow run: {tracker.get_run_url()}")
+
+    return assistant_message
+
+
+if __name__ == "__main__":
+    main()
+
