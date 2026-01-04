@@ -1,0 +1,37 @@
+{
+  "name": "agentic-core",
+  "version": "0.1.0",
+  "description": "Core extension for Agentic Assistants IDE",
+  "license": "MIT",
+  "keywords": [
+    "theia-extension",
+    "agentic",
+    "mlops"
+  ],
+  "files": [
+    "lib",
+    "src"
+  ],
+  "main": "lib/browser/agentic-core-frontend-module",
+  "types": "lib/browser/agentic-core-frontend-module.d.ts",
+  "dependencies": {
+    "@theia/core": "1.47.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "~5.0.4"
+  },
+  "scripts": {
+    "prepare": "yarn build",
+    "build": "tsc -b",
+    "watch": "tsc -b -w",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "lint": "tsc --noEmit"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/agentic-core-frontend-module"
+    }
+  ]
+}

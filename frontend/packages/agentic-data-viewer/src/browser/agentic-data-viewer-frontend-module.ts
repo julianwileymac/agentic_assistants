@@ -1,0 +1,40 @@
+/**
+ * Agentic Data Viewer Frontend Module
+ * 
+ * Provides data layer viewing and exploration for the Agentic IDE.
+ */
+
+import { ContainerModule } from '@theia/core/shared/inversify';
+import { FrontendApplicationContribution, WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
+import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
+import { DataService, DataServiceSymbol } from './data-service';
+import { DataExplorerWidget, DATA_EXPLORER_WIDGET_ID } from './data-explorer-widget';
+import { DataExplorerViewContribution } from './data-explorer-view-contribution';
+import { DataViewerCommandContribution } from './data-viewer-commands';
+import { DataViewerMenuContribution } from './data-viewer-menu';
+
+export default new ContainerModule(bind => {
+    // Data service
+    bind(DataService).toSelf().inSingletonScope();
+    bind(DataServiceSymbol).toService(DataService);
+
+    // Data explorer widget
+    bind(DataExplorerWidget).toSelf();
+    bind(WidgetFactory).toDynamicValue(ctx => ({
+        id: DATA_EXPLORER_WIDGET_ID,
+        createWidget: () => ctx.container.get(DataExplorerWidget)
+    })).inSingletonScope();
+
+    // View contribution
+    bindViewContribution(bind, DataExplorerViewContribution);
+    bind(FrontendApplicationContribution).toService(DataExplorerViewContribution);
+
+    // Command contribution
+    bind(DataViewerCommandContribution).toSelf().inSingletonScope();
+    bind(CommandContribution).toService(DataViewerCommandContribution);
+
+    // Menu contribution
+    bind(DataViewerMenuContribution).toSelf().inSingletonScope();
+    bind(MenuContribution).toService(DataViewerMenuContribution);
+});
+

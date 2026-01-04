@@ -1,0 +1,50 @@
+{
+  "name": "agentic-assistants-ide",
+  "version": "0.1.0",
+  "description": "Customized Theia-based IDE for Agentic Assistants",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0 <22.0.0"
+  },
+  "dependencies": {
+    "@theia/core": "1.47.0",
+    "@theia/editor": "1.47.0",
+    "@theia/filesystem": "1.47.0",
+    "@theia/workspace": "1.47.0",
+    "@theia/messages": "1.47.0",
+    "@theia/monaco": "1.47.0",
+    "@theia/navigator": "1.47.0",
+    "@theia/markers": "1.47.0",
+    "@theia/outline-view": "1.47.0",
+    "@theia/preferences": "1.47.0",
+    "@theia/search-in-workspace": "1.47.0"
+  },
+  "devDependencies": {
+    "@theia/cli": "1.47.0"
+  },
+  "scripts": {
+    "prepare": "theia build --mode development",
+    "start": "theia start --port 3001 --hostname 0.0.0.0 --plugins=local-dir:plugins",
+    "start:dev": "theia start --port 3001 --hostname 0.0.0.0 --plugins=local-dir:plugins --log-level=debug",
+    "build": "theia build --mode production"
+  },
+  "theia": {
+    "target": "browser",
+    "frontend": {
+      "config": {
+        "applicationName": "Agentic Assistants IDE",
+        "warnOnPotentiallyInsecureHostPattern": false
+      }
+    },
+    "backend": {
+      "config": {
+        "startupTimeout": 60000,
+        "resolveSystemPlugins": false,
+        "frontendConnectionTimeout": 30000
+      }
+    }
+  },
+  "resolutions": {
+    "@theia/core": "1.47.0"
+  }
+}

@@ -1,0 +1,28 @@
+# Don't copy node_modules - we install fresh in Docker
+node_modules/
+.yarn/cache/
+.yarn/install-state.gz
+
+# Build outputs
+**/lib/
+**/dist/
+**/out/
+
+# Logs
+*.log
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+

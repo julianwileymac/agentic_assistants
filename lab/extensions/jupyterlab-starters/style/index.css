@@ -1,0 +1,16 @@
+/**
+ * Starters Extension Styles
+ */
+
+/* Launcher card styling */
+.jp-LauncherCard[data-category="Agentic"],
+.jp-LauncherCard[data-category="MLOps"] {
+  border-left: 3px solid var(--jp-brand-color1);
+}
+
+.jp-LauncherCard[data-category="Agentic"]:hover,
+.jp-LauncherCard[data-category="MLOps"]:hover {
+  border-left-color: var(--jp-brand-color2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+

@@ -61,6 +61,26 @@ agentic config init
 # Windows PowerShell
 .\scripts\start.ps1
 
+### JupyterLab (new default IDE)
+
+```bash
+# Unix/macOS
+./scripts/start-lab.sh
+
+# Windows PowerShell
+.\scripts\start-lab.ps1
+```
+
+JupyterLab serves on port `3000` by default (config in `lab/jupyter_lab_config.py`). Set `MLFLOW_TRACKING_URI` to point at your MLflow server; notebooks also include the Python MLflow client. A legacy Theia IDE remains available (see Docker Compose profile `theia-ide`).
+
+> Note: Use Python 3.10–3.12 for the lab environment. The start scripts will exit if a newer Python (e.g., 3.14) is active; set `LAB_PYTHON` to an appropriate interpreter (`py -3.11` on Windows).
+
+### Docker Compose
+
+- JupyterLab default IDE: `docker-compose up -d agentic-ide`
+- MLflow server: `docker-compose up -d mlflow`
+- Legacy Theia (optional): `docker-compose --profile theia up -d theia-ide`
+
 # Or with Docker (includes Jaeger for tracing)
 docker-compose up -d
 ```

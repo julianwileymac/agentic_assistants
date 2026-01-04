@@ -1,0 +1,43 @@
+/**
+ * Agentic Core Frontend Module
+ * 
+ * This module provides the core services and contributions for the
+ * Agentic Assistants IDE extension.
+ */
+
+import { ContainerModule } from '@theia/core/shared/inversify';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
+import { AgenticBackendService, AgenticBackendServiceSymbol } from './agentic-backend-service';
+import { AgenticWebSocketClient, AgenticWebSocketClientSymbol } from './agentic-websocket-client';
+import { AgenticConfigurationContribution } from './agentic-configuration';
+import { AgenticCommandContribution } from './agentic-commands';
+import { AgenticMenuContribution } from './agentic-menu';
+import { AgenticStatusBarContribution } from './agentic-status-bar';
+
+export default new ContainerModule(bind => {
+    // Backend service for REST API communication
+    bind(AgenticBackendService).toSelf().inSingletonScope();
+    bind(AgenticBackendServiceSymbol).toService(AgenticBackendService);
+
+    // WebSocket client for real-time events
+    bind(AgenticWebSocketClient).toSelf().inSingletonScope();
+    bind(AgenticWebSocketClientSymbol).toService(AgenticWebSocketClient);
+
+    // Configuration contribution
+    bind(AgenticConfigurationContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(AgenticConfigurationContribution);
+
+    // Command contribution
+    bind(AgenticCommandContribution).toSelf().inSingletonScope();
+    bind(CommandContribution).toService(AgenticCommandContribution);
+
+    // Menu contribution
+    bind(AgenticMenuContribution).toSelf().inSingletonScope();
+    bind(MenuContribution).toService(AgenticMenuContribution);
+
+    // Status bar contribution
+    bind(AgenticStatusBarContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(AgenticStatusBarContribution);
+});
+

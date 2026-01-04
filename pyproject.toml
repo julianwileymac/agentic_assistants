@@ -11,7 +11,7 @@ packages = [{include = "agentic_assistants", from = "src"}]
 agentic = "agentic_assistants.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.12"
 click = "^8.1"
 pydantic = "^2.0"
 pydantic-settings = "^2.0"
@@ -31,13 +31,39 @@ opentelemetry-instrumentation-httpx = "^0.43b0"
 
 # Agent Frameworks
 crewai = "^0.80"
-langchain = "^0.3"
+langchain = "~0.2.16"
 langgraph = "^0.2"
-langchain-ollama = "^0.2"
+langchain-ollama = "^0.1"
+
+# HuggingFace
+transformers = "^4.40"
+huggingface_hub = "^0.22"
+smolagents = "^1.0"
+datasets = "^2.18"
 
 # Notebooks
 jupyter = "^1.0"
 ipykernel = "^6.0"
+
+# Data Layer
+pyarrow = "^15.0"
+polars = "^0.20"
+
+# Vector Databases
+lancedb = "^0.5"
+chromadb = "^0.5"
+
+# LlamaIndex
+llama-index = "^0.10"
+llama-index-embeddings-ollama = "^0.1"
+
+# Server
+fastapi = "^0.109"
+uvicorn = "^0.27"
+mcp = "^1.0"
+
+# Utilities
+pathspec = "^0.12"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

@@ -1,0 +1,89 @@
+{
+  "project": "agentic-assistants",
+  "version": "0.1.0",
+  "description": "Local MLOps framework for multi-agent AI experimentation",
+  "files": {
+    "src/agentic_assistants/__init__.py": {
+      "type": "module",
+      "purpose": "Public API exports",
+      "exports": ["AgenticConfig", "OllamaManager", "MLFlowTracker", "TelemetryManager", "track_experiment", "get_tracer"]
+    },
+    "src/agentic_assistants/__main__.py": {
+      "type": "entry",
+      "purpose": "Module entry point for python -m agentic_assistants"
+    },
+    "src/agentic_assistants/cli.py": {
+      "type": "cli",
+      "purpose": "Click-based CLI implementation",
+      "commands": {
+        "ollama": ["start", "stop", "status", "list", "pull", "delete"],
+        "mlflow": ["start", "ui", "status"],
+        "config": ["show", "init"],
+        "services": ["start", "status"],
+        "run": "Run experiment scripts"
+      }
+    },
+    "src/agentic_assistants/config.py": {
+      "type": "config",
+      "purpose": "Pydantic Settings configuration",
+      "classes": ["AgenticConfig", "OllamaSettings", "MLFlowSettings", "TelemetrySettings"]
+    },
+    "src/agentic_assistants/core/ollama.py": {
+      "type": "core",
+      "purpose": "Ollama server and model management",
+      "classes": ["OllamaManager", "ModelInfo"],
+      "exceptions": ["OllamaError", "OllamaNotFoundError", "OllamaConnectionError"]
+    },
+    "src/agentic_assistants/core/mlflow_tracker.py": {
+      "type": "core",
+      "purpose": "MLFlow experiment tracking integration",
+      "classes": ["MLFlowTracker"],
+      "functions": ["track_experiment", "start_mlflow_server"]
+    },
+    "src/agentic_assistants/core/telemetry.py": {
+      "type": "core",
+      "purpose": "OpenTelemetry tracing and metrics",
+      "classes": ["TelemetryManager", "_NoOpSpan", "_NoOpTracer", "_NoOpMeter"],
+      "functions": ["get_tracer", "get_meter", "trace_function"]
+    },
+    "src/agentic_assistants/adapters/base.py": {
+      "type": "adapter",
+      "purpose": "Base adapter with observability",
+      "classes": ["BaseAdapter"],
+      "methods": ["track_run", "track_step", "log_interaction"]
+    },
+    "src/agentic_assistants/adapters/crewai_adapter.py": {
+      "type": "adapter",
+      "purpose": "CrewAI framework integration",
+      "classes": ["CrewAIAdapter"],
+      "methods": ["run_crew", "create_ollama_agent", "create_task", "create_crew"]
+    },
+    "src/agentic_assistants/adapters/langgraph_adapter.py": {
+      "type": "adapter",
+      "purpose": "LangGraph framework integration",
+      "classes": ["LangGraphAdapter"],
+      "methods": ["run_graph", "stream_graph", "wrap_node", "create_ollama_llm", "create_state_graph"]
+    },
+    "src/agentic_assistants/utils/logging.py": {
+      "type": "utility",
+      "purpose": "Structured logging with Rich",
+      "functions": ["setup_logging", "get_logger"],
+      "classes": ["LogContext"]
+    }
+  },
+  "directories": {
+    "examples/": "Example scripts demonstrating framework usage",
+    "notebooks/": "Jupyter notebooks for interactive learning",
+    "docs/": "Markdown documentation",
+    "tests/": "Pytest test suite",
+    "scripts/": "Shell/PowerShell startup scripts",
+    "docker/": "Docker-related configuration files"
+  },
+  "patterns": {
+    "adapter": "Extend BaseAdapter, implement run(), use track_run() for observability",
+    "config": "Use Pydantic Field() with default and description",
+    "noop": "Check self.enabled before operations for graceful degradation",
+    "tracking": "Use context managers (start_run, span) for automatic cleanup"
+  }
+}
+

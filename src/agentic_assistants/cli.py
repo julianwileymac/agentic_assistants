@@ -528,6 +528,489 @@ def services_status():
 
 
 # =============================================================================
+# SESSION COMMANDS
+# =============================================================================
+
+
+@cli.group()
+def session():
+    """Manage sessions for data persistence."""
+    pass
+
+
+@session.command("list")
+def session_list():
+    """List all sessions."""
+    from agentic_assistants.core.session import SessionManager
+    
+    manager = SessionManager(AgenticConfig())
+    sessions = manager.list_sessions()
+    
+    if not sessions:
+        console.print("[yellow]No sessions found.[/yellow]")
+        console.print("Create one with: agentic session create <name>")
+        return
+    
+    table = Table(title="Sessions")
+    table.add_column("Name", style="cyan")
+    table.add_column("Created", style="dim")
+    table.add_column("Updated", style="dim")
+    
+    for s in sessions:
+        table.add_row(s["name"], s["created_at"][:19], s["updated_at"][:19])
+    
+    console.print(table)
+
+
+@session.command("create")
+@click.argument("name")
+def session_create(name: str):
+    """Create a new session."""
+    from agentic_assistants.core.session import SessionManager
+    
+    manager = SessionManager(AgenticConfig())
+    try:
+        session = manager.create_session(name)
+        console.print(f"[green]✓[/green] Created session: {name}")
+        console.print(f"  ID: {session.id}")
+    except ValueError as e:
+        console.print(f"[red]✗[/red] {e}")
+        raise SystemExit(1)
+
+
+@session.command("delete")
+@click.argument("name")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+def session_delete(name: str, yes: bool):
+    """Delete a session and all its data."""
+    from agentic_assistants.core.session import SessionManager
+    
+    if not yes:
+        if not click.confirm(f"Delete session '{name}' and all its data?"):
+            console.print("Cancelled")
+            return
+    
+    manager = SessionManager(AgenticConfig())
+    if manager.delete_session(name):
+        console.print(f"[green]✓[/green] Deleted session: {name}")
+    else:
+        console.print(f"[red]✗[/red] Session not found: {name}")
+        raise SystemExit(1)
+
+
+@session.command("info")
+@click.argument("name")
+def session_info(name: str):
+    """Show session details."""
+    from agentic_assistants.core.session import SessionManager
+    
+    manager = SessionManager(AgenticConfig())
+    s = manager.get_session(name)
+    
+    if not s:
+        console.print(f"[red]✗[/red] Session not found: {name}")
+        raise SystemExit(1)
+    
+    table = Table(title=f"Session: {name}")
+    table.add_column("Property", style="cyan")
+    table.add_column("Value")
+    
+    table.add_row("ID", s.id)
+    table.add_row("Name", s.name)
+    table.add_row("Created", s.created_at.isoformat())
+    
+    contexts = s.list_contexts()
+    table.add_row("Contexts", str(len(contexts)))
+    
+    history = s.get_chat_history(limit=5)
+    table.add_row("Chat History", f"{len(history)} recent")
+    
+    console.print(table)
+
+
+# =============================================================================
+# INDEX COMMANDS
+# =============================================================================
+
+
+@cli.command("index")
+@click.argument("path", type=click.Path(exists=True))
+@click.option("--collection", "-c", default="default", help="Collection name")
+@click.option("--patterns", "-p", multiple=True, help="File patterns (e.g., *.py)")
+@click.option("--force", "-f", is_flag=True, help="Force re-indexing")
+@click.option("--no-recursive", is_flag=True, help="Don't recurse into subdirectories")
+def index_path(
+    path: str,
+    collection: str,
+    patterns: tuple,
+    force: bool,
+    no_recursive: bool,
+):
+    """
+    Index a file or directory into the vector database.
+    
+    \b
+    Examples:
+        agentic index ./src --collection my-project
+        agentic index ./docs -p "*.md" -p "*.rst"
+        agentic index ./src --force
+    """
+    from agentic_assistants.indexing.codebase import CodebaseIndexer
+    from agentic_assistants.vectordb.base import VectorStore
+    
+    config = AgenticConfig()
+    
+    console.print(f"[cyan]Indexing:[/cyan] {path}")
+    console.print(f"  Collection: {collection}")
+    if patterns:
+        console.print(f"  Patterns: {', '.join(patterns)}")
+    
+    try:
+        store = VectorStore.create(config=config)
+        indexer = CodebaseIndexer(vector_store=store, config=config)
+        
+        path_obj = Path(path)
+        pattern_list = list(patterns) if patterns else None
+        
+        def progress_callback(current, total, file_path):
+            pct = int((current / total) * 100)
+            console.print(f"  [{pct:3d}%] {str(file_path)[-50:]}", end="\r")
+        
+        if path_obj.is_file():
+            stats = indexer.index_file(
+                path=path_obj,
+                collection=collection,
+                force=force,
+            )
+        else:
+            stats = indexer.index_directory(
+                directory=path_obj,
+                collection=collection,
+                patterns=pattern_list,
+                recursive=not no_recursive,
+                force=force,
+                progress_callback=progress_callback,
+            )
+        
+        console.print()  # Clear progress line
+        console.print(f"[green]✓[/green] Indexing complete")
+        console.print(f"  Files processed: {stats.files_processed}")
+        console.print(f"  Files skipped: {stats.files_skipped}")
+        console.print(f"  Chunks indexed: {stats.chunks_indexed}")
+        console.print(f"  Duration: {stats.duration_seconds:.2f}s")
+        
+        if stats.errors:
+            console.print(f"[yellow]  Errors: {len(stats.errors)}[/yellow]")
+            for err in stats.errors[:5]:
+                console.print(f"    - {err}")
+        
+    except Exception as e:
+        console.print(f"[red]✗[/red] Indexing failed: {e}")
+        raise SystemExit(1)
+
+
+# =============================================================================
+# SEARCH COMMANDS
+# =============================================================================
+
+
+@cli.command("search")
+@click.argument("query")
+@click.option("--collection", "-c", default="default", help="Collection to search")
+@click.option("--top-k", "-k", default=5, help="Number of results")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def search_query(query: str, collection: str, top_k: int, as_json: bool):
+    """
+    Search the vector database.
+    
+    \b
+    Examples:
+        agentic search "authentication flow"
+        agentic search "error handling" --collection my-project -k 10
+        agentic search "API endpoints" --json
+    """
+    from agentic_assistants.vectordb.base import VectorStore
+    
+    config = AgenticConfig()
+    
+    try:
+        store = VectorStore.create(config=config)
+        results = store.search(query=query, collection=collection, top_k=top_k)
+        
+        if as_json:
+            import json
+            output = {
+                "query": query,
+                "collection": collection,
+                "results": [r.to_dict() for r in results],
+            }
+            console.print(json.dumps(output, indent=2))
+            return
+        
+        if not results:
+            console.print("[yellow]No results found.[/yellow]")
+            return
+        
+        console.print(f"[cyan]Search:[/cyan] {query}")
+        console.print(f"[dim]Collection: {collection} | Results: {len(results)}[/dim]\n")
+        
+        for i, r in enumerate(results, 1):
+            file_path = r.document.metadata.get("file_path", "unknown")
+            content = r.document.content[:200] + "..." if len(r.document.content) > 200 else r.document.content
+            
+            console.print(f"[bold]{i}.[/bold] [cyan]{file_path}[/cyan] [dim](score: {r.score:.3f})[/dim]")
+            console.print(Panel(content, border_style="dim"))
+        
+    except Exception as e:
+        console.print(f"[red]✗[/red] Search failed: {e}")
+        raise SystemExit(1)
+
+
+# =============================================================================
+# SERVER COMMANDS
+# =============================================================================
+
+
+@cli.group()
+def server():
+    """Manage MCP and REST servers."""
+    pass
+
+
+@server.command("start")
+@click.option("--host", default=None, help="Host to bind to")
+@click.option("--port", "-p", default=None, type=int, help="Port to bind to")
+@click.option("--no-mcp", is_flag=True, help="Disable MCP endpoint")
+@click.option("--no-rest", is_flag=True, help="Disable REST endpoints")
+@click.option("--reload", is_flag=True, help="Enable auto-reload for development")
+def server_start(host: Optional[str], port: Optional[int], no_mcp: bool, no_rest: bool, reload: bool):
+    """Start the MCP/REST server."""
+    from agentic_assistants.server.app import start_server
+    
+    config = AgenticConfig()
+    host = host or config.server.host
+    port = port or config.server.port
+    
+    console.print(f"[yellow]Starting server on {host}:{port}...[/yellow]")
+    console.print(f"  MCP: {'disabled' if no_mcp else 'enabled'}")
+    console.print(f"  REST: {'disabled' if no_rest else 'enabled'}")
+    console.print()
+    console.print("[dim]Press Ctrl+C to stop[/dim]")
+    
+    # Override config
+    if no_mcp:
+        config._server = config.server
+        config._server.enable_mcp = False
+    if no_rest:
+        config._server = config.server
+        config._server.enable_rest = False
+    
+    try:
+        start_server(host=host, port=port, config=config, reload=reload)
+    except KeyboardInterrupt:
+        console.print("\n[green]✓[/green] Server stopped")
+
+
+@server.command("status")
+@click.option("--port", "-p", default=None, type=int, help="Port to check")
+def server_status(port: Optional[int]):
+    """Check server status."""
+    import httpx
+    
+    config = AgenticConfig()
+    port = port or config.server.port
+    
+    try:
+        response = httpx.get(f"http://localhost:{port}/health", timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            console.print(f"[green]✓[/green] Server is running on port {port}")
+            console.print(f"  Version: {data.get('version', 'unknown')}")
+            console.print(f"  Vector Store: {data.get('vector_store', 'unknown')}")
+        else:
+            console.print(f"[yellow]![/yellow] Server returned status {response.status_code}")
+    except httpx.RequestError:
+        console.print(f"[red]✗[/red] Server is not running on port {port}")
+
+
+# =============================================================================
+# COLLECTIONS COMMANDS
+# =============================================================================
+
+
+@cli.group()
+def collections():
+    """Manage vector database collections."""
+    pass
+
+
+@collections.command("list")
+def collections_list():
+    """List all collections."""
+    from agentic_assistants.vectordb.base import VectorStore
+    
+    config = AgenticConfig()
+    store = VectorStore.create(config=config)
+    
+    collection_names = store.list_collections()
+    
+    if not collection_names:
+        console.print("[yellow]No collections found.[/yellow]")
+        console.print("Create one by indexing: agentic index ./path")
+        return
+    
+    table = Table(title="Collections")
+    table.add_column("Name", style="cyan")
+    table.add_column("Documents", justify="right")
+    
+    for name in collection_names:
+        count = store.count(name)
+        table.add_row(name, str(count))
+    
+    console.print(table)
+
+
+@collections.command("delete")
+@click.argument("name")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+def collections_delete(name: str, yes: bool):
+    """Delete a collection."""
+    from agentic_assistants.vectordb.base import VectorStore
+    
+    if not yes:
+        if not click.confirm(f"Delete collection '{name}' and all its documents?"):
+            console.print("Cancelled")
+            return
+    
+    config = AgenticConfig()
+    store = VectorStore.create(config=config)
+    
+    if store.delete_collection(name):
+        console.print(f"[green]✓[/green] Deleted collection: {name}")
+    else:
+        console.print(f"[red]✗[/red] Collection not found: {name}")
+        raise SystemExit(1)
+
+
+@collections.command("info")
+@click.argument("name")
+def collections_info(name: str):
+    """Show collection details."""
+    from agentic_assistants.indexing.codebase import CodebaseIndexer
+    from agentic_assistants.vectordb.base import VectorStore
+    
+    config = AgenticConfig()
+    store = VectorStore.create(config=config)
+    indexer = CodebaseIndexer(vector_store=store, config=config)
+    
+    if name not in store.list_collections():
+        console.print(f"[red]✗[/red] Collection not found: {name}")
+        raise SystemExit(1)
+    
+    stats = indexer.get_stats(name)
+    
+    table = Table(title=f"Collection: {name}")
+    table.add_column("Property", style="cyan")
+    table.add_column("Value")
+    
+    table.add_row("Total Files", str(stats["total_files"]))
+    table.add_row("Total Chunks", str(stats["total_chunks"]))
+    table.add_row("Total Size", f"{stats['total_size_bytes'] / 1024:.1f} KB")
+    table.add_row("Vector Count", str(stats["vector_count"]))
+    
+    if stats["by_language"]:
+        table.add_row("", "")
+        table.add_row("[bold]By Language[/bold]", "")
+        for lang, info in stats["by_language"].items():
+            table.add_row(f"  {lang}", f"{info['files']} files, {info['chunks']} chunks")
+    
+    console.print(table)
+
+
+# =============================================================================
+# CONTEXT COMMANDS
+# =============================================================================
+
+
+@cli.group()
+def context():
+    """Manage AI assistant context for this codebase."""
+    pass
+
+
+@context.command("show")
+@click.option(
+    "--task",
+    "-t",
+    type=click.Choice(["understand", "add_adapter", "add_cli_command", "add_config", "debug"]),
+    default="understand",
+    help="Load context optimized for a specific task",
+)
+@click.option("--full", is_flag=True, help="Load full context (for large context windows)")
+@click.option("--copy", "copy_to_clipboard", is_flag=True, help="Copy to clipboard")
+def context_show(task: str, full: bool, copy_to_clipboard: bool):
+    """Show context for AI coding assistants."""
+    from agentic_assistants.utils.context_loader import ContextLoader
+
+    loader = ContextLoader()
+
+    if full:
+        content = loader.load_full_context()
+    else:
+        content = loader.load_for_task(task)
+
+    tokens = loader.estimate_tokens(content)
+    console.print(f"[dim]Estimated tokens: ~{tokens}[/dim]\n")
+
+    if copy_to_clipboard:
+        try:
+            import pyperclip
+
+            pyperclip.copy(content)
+            console.print("[green]✓[/green] Copied to clipboard!")
+        except ImportError:
+            console.print("[yellow]![/yellow] Install pyperclip for clipboard support: pip install pyperclip")
+            console.print(content)
+    else:
+        console.print(content)
+
+
+@context.command("summary")
+def context_summary():
+    """Show available context options and sizes."""
+    from agentic_assistants.utils.context_loader import ContextLoader
+
+    loader = ContextLoader()
+    summary = loader.get_context_summary()
+
+    table = Table(title="Available Context Options")
+    table.add_column("Type", style="cyan")
+    table.add_column("Files")
+    table.add_column("Tokens", justify="right", style="green")
+
+    table.add_row(
+        "Core",
+        ", ".join(summary["core_context"]["files"]),
+        f"~{summary['core_context']['estimated_tokens']}",
+    )
+    table.add_row(
+        "Full",
+        ", ".join(summary["full_context"]["files"]),
+        f"~{summary['full_context']['estimated_tokens']}",
+    )
+
+    for task, info in summary["tasks"].items():
+        table.add_row(
+            f"Task: {task}",
+            ", ".join([f.split("/")[-1] for f in info["files"]]),
+            f"~{info['estimated_tokens']}",
+        )
+
+    console.print(table)
+    console.print("\n[dim]Use 'agentic context show --task <task>' to load specific context[/dim]")
+
+
+# =============================================================================
 # MAIN ENTRY POINT
 # =============================================================================
 

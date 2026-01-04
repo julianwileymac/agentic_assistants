@@ -1,0 +1,31 @@
+/**
+ * Experiments View Contribution
+ * 
+ * Registers the experiments tree view in the left panel.
+ */
+
+import { injectable } from '@theia/core/shared/inversify';
+import { AbstractViewContribution } from '@theia/core/lib/browser';
+import { ExperimentsTreeWidget, EXPERIMENTS_TREE_WIDGET_ID } from './experiments-tree-widget';
+import { MLFlowCommands } from './mlflow-commands';
+
+@injectable()
+export class ExperimentsViewContribution extends AbstractViewContribution<ExperimentsTreeWidget> {
+
+    constructor() {
+        super({
+            widgetId: EXPERIMENTS_TREE_WIDGET_ID,
+            widgetName: ExperimentsTreeWidget.LABEL,
+            defaultWidgetOptions: {
+                area: 'left',
+                rank: 200
+            },
+            toggleCommandId: MLFlowCommands.TOGGLE_EXPERIMENTS_VIEW.id
+        });
+    }
+
+    async initializeLayout(): Promise<void> {
+        await this.openView({ activate: false });
+    }
+}
+

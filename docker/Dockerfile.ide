@@ -1,0 +1,88 @@
+# =============================================================================
+# Agentic Assistants - Theia IDE Dockerfile
+# =============================================================================
+# Multi-stage build for the Theia IDE frontend
+# =============================================================================
+
+FROM node:20-bullseye AS builder
+
+WORKDIR /build
+
+# Install ALL build dependencies for native modules
+# - build-essential, python3, make, g++: Basic C++ build tools
+# - libx11-dev, libxkbfile-dev: X11 libraries for GUI
+# - libsecret-1-dev: For keytar (credential storage)
+# - libudev-dev: For drivelist (disk enumeration)
+# - pkg-config: For native module configuration
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3 \
+    python-is-python3 \
+    make \
+    g++ \
+    pkg-config \
+    libx11-dev \
+    libxkbfile-dev \
+    libsecret-1-dev \
+    libudev-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure npm/node-gyp to use Python 3
+ENV PYTHON=/usr/bin/python3
+
+# Enable Corepack for Yarn
+RUN corepack enable
+
+# Copy all source files
+COPY . .
+
+# Create .yarnrc.yml with node-modules linker (required for native modules)
+RUN echo "nodeLinker: node-modules" > .yarnrc.yml && \
+    echo "enableGlobalCache: false" >> .yarnrc.yml
+
+# Install dependencies
+RUN yarn install
+
+# Build the browser application
+RUN yarn workspace browser-app build
+
+# =============================================================================
+# Production stage
+# =============================================================================
+FROM node:20-slim
+
+WORKDIR /home/theia
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    libsecret-1-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create theia user
+RUN useradd -m theia
+
+# Copy built application from builder
+COPY --from=builder /build/browser-app /home/theia/browser-app
+COPY --from=builder /build/node_modules /home/theia/node_modules
+COPY --from=builder /build/packages /home/theia/packages
+
+# Set ownership
+RUN chown -R theia:theia /home/theia
+
+# Switch to theia user
+USER theia
+
+# Set environment variables
+ENV HOME=/home/theia
+ENV SHELL=/bin/bash
+
+# Expose port
+EXPOSE 3000
+
+# Working directory for the application
+WORKDIR /home/theia/browser-app
+
+# Start Theia
+CMD ["node", "./src-gen/backend/main.js", "/home/theia/data", "--hostname=0.0.0.0", "--port=3000"]
+

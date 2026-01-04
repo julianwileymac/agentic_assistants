@@ -1,0 +1,74 @@
+/**
+ * Artifact Menu Contribution
+ * 
+ * Provides menu items for artifact commands.
+ */
+
+import { injectable } from '@theia/core/shared/inversify';
+import { MenuContribution, MenuModelRegistry, MenuPath, MAIN_MENU_BAR } from '@theia/core/lib/common';
+import { ArtifactCommands } from './artifact-commands';
+
+export namespace ArtifactMenus {
+    export const AGENTIC: MenuPath = [...MAIN_MENU_BAR, '7_agentic'];
+    export const ARTIFACTS: MenuPath = [...AGENTIC, '2_artifacts'];
+}
+
+@injectable()
+export class ArtifactMenuContribution implements MenuContribution {
+
+    registerMenus(menus: MenuModelRegistry): void {
+        // Register artifacts submenu
+        menus.registerSubmenu(ArtifactMenus.ARTIFACTS, 'Artifacts');
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.REFRESH_ARTIFACTS.id,
+            order: '1'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.VIEW_ALL.id,
+            order: '2'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.VIEW_BY_GROUP.id,
+            order: '3'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.VIEW_BY_TAG.id,
+            order: '4'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.VIEW_SHARED.id,
+            order: '5'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.ADD_TAG.id,
+            order: '10'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.ADD_TO_GROUP.id,
+            order: '11'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.SHARE_ARTIFACT.id,
+            order: '12'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.DOWNLOAD_ARTIFACT.id,
+            order: '20'
+        });
+
+        menus.registerMenuAction(ArtifactMenus.ARTIFACTS, {
+            commandId: ArtifactCommands.DELETE_ARTIFACT.id,
+            order: '30'
+        });
+    }
+}
+

@@ -26,6 +26,7 @@ Example:
 
 import functools
 import os
+import subprocess
 import time
 from contextlib import contextmanager
 from datetime import datetime
