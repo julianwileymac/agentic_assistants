@@ -5,7 +5,6 @@ This module provides:
 - Distributed tracing across agent calls
 - Metrics collection (latency, token counts, etc.)
 - Log correlation with trace IDs
-- Verbose debugging mode
 
 Example:
     >>> from agentic_assistants import AgenticConfig
@@ -22,11 +21,8 @@ Example:
 """
 
 import functools
-import logging
 import time
-import traceback
 from contextlib import contextmanager
-from datetime import datetime
 from typing import Any, Callable, Optional
 
 from agentic_assistants.config import AgenticConfig
@@ -36,127 +32,6 @@ logger = get_logger(__name__)
 
 # Global telemetry manager instance
 _telemetry_manager: Optional["TelemetryManager"] = None
-
-
-class TraceCorrelationHandler(logging.Handler):
-    """
-    Custom logging handler that adds trace context to log records.
-    
-    This enables log correlation with distributed traces by injecting
-    trace_id and span_id into each log record.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._trace_api = None
-    
-    def _get_trace_api(self):
-        if self._trace_api is None:
-            try:
-                from opentelemetry import trace
-                self._trace_api = trace
-            except ImportError:
-                pass
-        return self._trace_api
-    
-    def emit(self, record: logging.LogRecord) -> None:
-        trace_api = self._get_trace_api()
-        if trace_api is None:
-            return
-        
-        span = trace_api.get_current_span()
-        if span and span.is_recording():
-            ctx = span.get_span_context()
-            record.trace_id = format(ctx.trace_id, '032x')
-            record.span_id = format(ctx.span_id, '016x')
-            record.trace_flags = ctx.trace_flags
-        else:
-            record.trace_id = None
-            record.span_id = None
-            record.trace_flags = None
-
-
-class VerboseSpanLogger:
-    """
-    Helper class for verbose span logging and event recording.
-    """
-    
-    def __init__(self, span: Any, verbose: bool = False):
-        self.span = span
-        self.verbose = verbose
-        self._start_time = time.time()
-    
-    def log_event(self, name: str, attributes: Optional[dict] = None) -> None:
-        """Add an event to the span with timestamp."""
-        if self.span is None:
-            return
-        try:
-            event_attrs = {"timestamp": datetime.now().isoformat()}
-            if attributes:
-                event_attrs.update({k: str(v)[:1000] for k, v in attributes.items()})
-            self.span.add_event(name, attributes=event_attrs)
-            if self.verbose:
-                logger.debug(f"Span event: {name} - {event_attrs}")
-        except Exception:
-            pass
-    
-    def log_input(self, input_data: Any, truncate: int = 500) -> None:
-        """Log input data as span event."""
-        input_str = str(input_data)[:truncate]
-        self.log_event("input_received", {"input": input_str, "length": len(str(input_data))})
-        self.span.set_attribute("input.preview", input_str)
-    
-    def log_output(self, output_data: Any, truncate: int = 500) -> None:
-        """Log output data as span event."""
-        output_str = str(output_data)[:truncate]
-        self.log_event("output_generated", {"output": output_str, "length": len(str(output_data))})
-        self.span.set_attribute("output.preview", output_str)
-    
-    def log_llm_call(
-        self,
-        model: str,
-        prompt_tokens: int = 0,
-        completion_tokens: int = 0,
-        temperature: float = 0.0,
-    ) -> None:
-        """Log LLM call details."""
-        self.span.set_attribute("llm.model", model)
-        self.span.set_attribute("llm.prompt_tokens", prompt_tokens)
-        self.span.set_attribute("llm.completion_tokens", completion_tokens)
-        self.span.set_attribute("llm.total_tokens", prompt_tokens + completion_tokens)
-        self.span.set_attribute("llm.temperature", temperature)
-        self.log_event("llm_call", {
-            "model": model,
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-        })
-    
-    def log_error(self, error: Exception, include_traceback: bool = True) -> None:
-        """Log error with full details."""
-        self.span.set_attribute("error", True)
-        self.span.set_attribute("error.type", type(error).__name__)
-        self.span.set_attribute("error.message", str(error))
-        
-        if include_traceback:
-            tb = traceback.format_exc()
-            self.span.set_attribute("error.traceback", tb[:2000])
-        
-        try:
-            self.span.record_exception(error)
-        except Exception:
-            pass
-        
-        self.log_event("error_occurred", {
-            "type": type(error).__name__,
-            "message": str(error)
-        })
-    
-    def finalize(self, success: bool = True) -> None:
-        """Finalize span with duration and status."""
-        duration = time.time() - self._start_time
-        self.span.set_attribute("duration_seconds", duration)
-        self.span.set_attribute("success", success)
-        self.log_event("completed", {"success": success, "duration_seconds": duration})
 
 
 class TelemetryManager:
@@ -170,30 +45,21 @@ class TelemetryManager:
         config: Agentic configuration instance
         enabled: Whether telemetry is enabled
         service_name: Service name for traces
-        verbose: Enable verbose span logging
     """
 
-    def __init__(self, config: Optional[AgenticConfig] = None, verbose: bool = False):
+    def __init__(self, config: Optional[AgenticConfig] = None):
         """
         Initialize the telemetry manager.
         
         Args:
             config: Configuration instance. If None, uses default config.
-            verbose: Enable verbose span logging for debugging
         """
         self.config = config or AgenticConfig()
         self.enabled = self.config.telemetry_enabled
         self.service_name = self.config.telemetry.service_name
-        self.verbose = verbose
         self._tracer = None
         self._meter = None
         self._initialized = False
-        
-        # Metric instruments
-        self._duration_histogram = None
-        self._token_counter = None
-        self._request_counter = None
-        self._error_counter = None
 
         # Register as global manager
         global _telemetry_manager
@@ -207,7 +73,6 @@ class TelemetryManager:
         - Trace provider with OTLP exporter
         - Meter provider for metrics
         - Log record processor for log correlation
-        - Pre-created metric instruments for common use cases
         """
         if self._initialized or not self.enabled:
             return
@@ -254,65 +119,16 @@ class TelemetryManager:
             # Store references
             self._tracer = trace.get_tracer(self.service_name)
             self._meter = metrics.get_meter(self.service_name)
-            
-            # Pre-create common metric instruments
-            self._create_metric_instruments()
-            
-            # Set up log correlation
-            self._setup_log_correlation()
 
             self._initialized = True
             logger.info(
                 f"OpenTelemetry initialized - endpoint: {self.config.telemetry.exporter_otlp_endpoint}, "
-                f"service: {self.service_name}, verbose: {self.verbose}"
+                f"service: {self.service_name}"
             )
 
         except Exception as e:
             logger.warning(f"Failed to initialize OpenTelemetry: {e}. Telemetry disabled.")
             self.enabled = False
-    
-    def _create_metric_instruments(self) -> None:
-        """Create commonly used metric instruments."""
-        if self._meter is None:
-            return
-        
-        self._duration_histogram = self._meter.create_histogram(
-            "agent.duration",
-            description="Agent execution duration in seconds",
-            unit="s",
-        )
-        self._token_counter = self._meter.create_counter(
-            "agent.tokens",
-            description="Token usage by agents",
-            unit="tokens",
-        )
-        self._request_counter = self._meter.create_counter(
-            "agent.requests",
-            description="Number of agent requests",
-            unit="1",
-        )
-        self._error_counter = self._meter.create_counter(
-            "agent.errors",
-            description="Number of agent errors",
-            unit="1",
-        )
-    
-    def _setup_log_correlation(self) -> None:
-        """Set up log correlation with traces."""
-        # Add trace correlation handler to root logger
-        correlation_handler = TraceCorrelationHandler()
-        correlation_handler.setLevel(logging.DEBUG)
-        
-        # Create a formatter that includes trace context
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - '
-            '[trace_id=%(trace_id)s span_id=%(span_id)s] - %(message)s'
-        )
-        correlation_handler.setFormatter(formatter)
-        
-        # Add to agentic_assistants logger
-        agentic_logger = logging.getLogger("agentic_assistants")
-        agentic_logger.addHandler(correlation_handler)
 
     def get_tracer(self, name: Optional[str] = None):
         """
@@ -366,7 +182,6 @@ class TelemetryManager:
         name: str,
         attributes: Optional[dict[str, Any]] = None,
         kind: Optional[Any] = None,
-        record_exception: bool = True,
     ):
         """
         Create a span as a context manager.
@@ -375,38 +190,25 @@ class TelemetryManager:
             name: Span name
             attributes: Optional attributes to set on the span
             kind: Span kind (CLIENT, SERVER, INTERNAL, etc.)
-            record_exception: Whether to record exceptions automatically
         
         Yields:
-            VerboseSpanLogger wrapping the span instance
+            The span instance
         
         Example:
             >>> with telemetry.span("process-request", {"user_id": 123}) as span:
-            ...     span.log_input(request_data)
             ...     result = process()
-            ...     span.log_output(result)
+            ...     span.set_attribute("result_size", len(result))
         """
         if not self.enabled:
-            yield VerboseSpanLogger(_NoOpSpan(), self.verbose)
+            yield _NoOpSpan()
             return
 
         tracer = self.get_tracer()
-        with tracer.start_as_current_span(name, kind=kind, record_exception=record_exception) as span:
+        with tracer.start_as_current_span(name, kind=kind) as span:
             if attributes:
                 for key, value in attributes.items():
-                    span.set_attribute(key, str(value) if not isinstance(value, (bool, int, float)) else value)
-            
-            span.set_attribute("span.start_time", datetime.now().isoformat())
-            span_logger = VerboseSpanLogger(span, self.verbose)
-            span_logger.log_event("started", {"name": name})
-            
-            try:
-                yield span_logger
-                span_logger.finalize(success=True)
-            except Exception as e:
-                span_logger.log_error(e)
-                span_logger.finalize(success=False)
-                raise
+                    span.set_attribute(key, value)
+            yield span
 
     def record_agent_metrics(
         self,
@@ -432,6 +234,25 @@ class TelemetryManager:
             return
 
         try:
+            meter = self.get_meter()
+
+            # Get or create counters and histograms
+            duration_histogram = meter.create_histogram(
+                "agent.duration",
+                description="Agent execution duration in seconds",
+                unit="s",
+            )
+            token_counter = meter.create_counter(
+                "agent.tokens",
+                description="Token usage by agents",
+                unit="tokens",
+            )
+            request_counter = meter.create_counter(
+                "agent.requests",
+                description="Number of agent requests",
+                unit="1",
+            )
+
             # Record metrics with attributes
             attributes = {
                 "agent.name": agent_name,
@@ -439,68 +260,13 @@ class TelemetryManager:
                 "success": str(success).lower(),
             }
 
-            if self._duration_histogram:
-                self._duration_histogram.record(duration_seconds, attributes)
-            if self._token_counter:
-                self._token_counter.add(tokens_input, {**attributes, "direction": "input"})
-                self._token_counter.add(tokens_output, {**attributes, "direction": "output"})
-            if self._request_counter:
-                self._request_counter.add(1, attributes)
-            if not success and self._error_counter:
-                self._error_counter.add(1, attributes)
-            
-            if self.verbose:
-                logger.debug(
-                    f"Recorded metrics for {agent_name}: duration={duration_seconds:.3f}s, "
-                    f"tokens_in={tokens_input}, tokens_out={tokens_output}, success={success}"
-                )
+            duration_histogram.record(duration_seconds, attributes)
+            token_counter.add(tokens_input, {**attributes, "direction": "input"})
+            token_counter.add(tokens_output, {**attributes, "direction": "output"})
+            request_counter.add(1, attributes)
 
         except Exception as e:
             logger.warning(f"Failed to record agent metrics: {e}")
-    
-    def record_http_request(
-        self,
-        method: str,
-        path: str,
-        status_code: int,
-        duration_seconds: float,
-        error: Optional[str] = None,
-    ) -> None:
-        """
-        Record HTTP request metrics.
-        
-        Args:
-            method: HTTP method
-            path: Request path
-            status_code: Response status code
-            duration_seconds: Request duration
-            error: Optional error message
-        """
-        if not self.enabled:
-            return
-        
-        try:
-            meter = self.get_meter()
-            
-            http_duration = meter.create_histogram(
-                "http.server.duration",
-                description="HTTP server request duration",
-                unit="s",
-            )
-            
-            attributes = {
-                "http.method": method,
-                "http.route": path,
-                "http.status_code": status_code,
-            }
-            
-            http_duration.record(duration_seconds, attributes)
-            
-            if error and self._error_counter:
-                self._error_counter.add(1, {**attributes, "error.type": "http"})
-        
-        except Exception as e:
-            logger.warning(f"Failed to record HTTP metrics: {e}")
 
     def shutdown(self) -> None:
         """Gracefully shutdown telemetry exporters."""
@@ -541,9 +307,6 @@ class _NoOpSpan:
 
     def set_status(self, status: Any) -> None:
         pass
-    
-    def is_recording(self) -> bool:
-        return False
 
 
 class _NoOpTracer:
@@ -620,7 +383,6 @@ def trace_function(
     span_name: Optional[str] = None,
     attributes: Optional[dict[str, Any]] = None,
     record_args: bool = False,
-    record_result: bool = False,
 ) -> Callable:
     """
     Decorator to trace a function execution.
@@ -629,13 +391,12 @@ def trace_function(
         span_name: Name for the span (uses function name if None)
         attributes: Static attributes to add to the span
         record_args: Whether to record function arguments as attributes
-        record_result: Whether to record function result
     
     Returns:
         Decorated function
     
     Example:
-        >>> @trace_function(attributes={"component": "research"}, record_args=True)
+        >>> @trace_function(attributes={"component": "research"})
         >>> def research_topic(topic: str):
         ...     return find_information(topic)
     """
@@ -645,83 +406,32 @@ def trace_function(
         def wrapper(*args, **kwargs):
             name = span_name or func.__name__
             span_attrs = attributes.copy() if attributes else {}
-            span_attrs["function.name"] = func.__name__
-            span_attrs["function.module"] = func.__module__
+
+            if record_args:
+                for i, arg in enumerate(args):
+                    span_attrs[f"arg.{i}"] = str(arg)[:100]
+                for key, value in kwargs.items():
+                    span_attrs[f"kwarg.{key}"] = str(value)[:100]
 
             global _telemetry_manager
             if _telemetry_manager is None:
                 _telemetry_manager = TelemetryManager()
 
-            with _telemetry_manager.span(name, attributes=span_attrs) as span_logger:
-                if record_args:
-                    args_str = ", ".join(str(a)[:100] for a in args)
-                    kwargs_str = ", ".join(f"{k}={v!r}"[:100] for k, v in kwargs.items())
-                    span_logger.log_event("function_args", {
-                        "args": args_str,
-                        "kwargs": kwargs_str,
-                    })
-
+            with _telemetry_manager.span(name, attributes=span_attrs) as span:
+                start_time = time.time()
                 try:
                     result = func(*args, **kwargs)
-                    
-                    if record_result:
-                        span_logger.log_output(result)
-                    
+                    span.set_attribute("success", True)
                     return result
                 except Exception as e:
-                    span_logger.log_error(e)
+                    span.set_attribute("success", False)
+                    span.record_exception(e)
                     raise
+                finally:
+                    duration = time.time() - start_time
+                    span.set_attribute("duration_seconds", duration)
 
         return wrapper
 
     return decorator
 
-
-def trace_async_function(
-    span_name: Optional[str] = None,
-    attributes: Optional[dict[str, Any]] = None,
-    record_args: bool = False,
-    record_result: bool = False,
-) -> Callable:
-    """
-    Decorator to trace an async function execution.
-    
-    Same as trace_function but for async functions.
-    """
-
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            name = span_name or func.__name__
-            span_attrs = attributes.copy() if attributes else {}
-            span_attrs["function.name"] = func.__name__
-            span_attrs["function.module"] = func.__module__
-            span_attrs["async"] = True
-
-            global _telemetry_manager
-            if _telemetry_manager is None:
-                _telemetry_manager = TelemetryManager()
-
-            with _telemetry_manager.span(name, attributes=span_attrs) as span_logger:
-                if record_args:
-                    args_str = ", ".join(str(a)[:100] for a in args)
-                    kwargs_str = ", ".join(f"{k}={v!r}"[:100] for k, v in kwargs.items())
-                    span_logger.log_event("function_args", {
-                        "args": args_str,
-                        "kwargs": kwargs_str,
-                    })
-
-                try:
-                    result = await func(*args, **kwargs)
-                    
-                    if record_result:
-                        span_logger.log_output(result)
-                    
-                    return result
-                except Exception as e:
-                    span_logger.log_error(e)
-                    raise
-
-        return wrapper
-
-    return decorator

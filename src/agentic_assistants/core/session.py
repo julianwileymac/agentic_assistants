@@ -2,8 +2,7 @@
 Session management for Agentic Assistants.
 
 This module provides session persistence with SQLite for metadata
-and Parquet for large data storage. Enhanced with artifact management,
-tagging, grouping, and shared storage capabilities.
+and Parquet for large data storage.
 
 Example:
     >>> from agentic_assistants.core.session import SessionManager
@@ -11,18 +10,9 @@ Example:
     >>> session = SessionManager.get_or_create("default")
     >>> session.save_context("research_notes", context_data)
     >>> session.log_chat(messages, summary="User asked about X")
-    >>> 
-    >>> # Save an artifact with tags
-    >>> session.save_artifact(
-    ...     name="model_output",
-    ...     data=output,
-    ...     tags=["evaluation", "v1"],
-    ...     group="experiments"
-    ... )
 """
 
 import json
-import shutil
 import sqlite3
 import uuid
 from contextlib import contextmanager
@@ -30,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -69,50 +59,6 @@ class ContextEntry:
     metadata: dict = field(default_factory=dict)
 
 
-@dataclass
-class Artifact:
-    """
-    An artifact with metadata, tags, and grouping.
-    
-    Artifacts are stored files associated with sessions, supporting
-    flexible organization via tags and groups.
-    """
-    
-    id: str
-    session_id: str
-    name: str
-    path: str
-    artifact_type: str = "file"  # "file", "directory", "reference"
-    tags: list[str] = field(default_factory=list)
-    group: Optional[str] = None
-    description: Optional[str] = None
-    size_bytes: Optional[int] = None
-    checksum: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
-    metadata: dict = field(default_factory=dict)
-    is_shared: bool = False
-
-    def to_dict(self) -> dict:
-        """Convert artifact to dictionary."""
-        return {
-            "id": self.id,
-            "session_id": self.session_id,
-            "name": self.name,
-            "path": self.path,
-            "artifact_type": self.artifact_type,
-            "tags": self.tags,
-            "group": self.group,
-            "description": self.description,
-            "size_bytes": self.size_bytes,
-            "checksum": self.checksum,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "metadata": self.metadata,
-            "is_shared": self.is_shared,
-        }
-
-
 class Session:
     """
     Represents a single session with its data.
@@ -120,7 +66,6 @@ class Session:
     A session provides methods for:
     - Storing and retrieving context data
     - Logging chat interactions
-    - Managing artifacts with tagging and grouping
     - Persisting session state
     
     Attributes:
@@ -295,110 +240,6 @@ class Session:
             
             return entry_id
 
-    def save_artifact(
-        self,
-        name: str,
-        data: Union[bytes, str, Path, Any],
-        tags: Optional[list[str]] = None,
-        group: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[dict] = None,
-        shared: bool = False,
-    ) -> str:
-        """
-        Save an artifact to the session with tagging and grouping.
-        
-        Args:
-            name: Artifact name
-            data: Data to save (bytes, string, path, or serializable object)
-            tags: List of tags for organization
-            group: Group name for grouping related artifacts
-            description: Human-readable description
-            metadata: Additional metadata
-            shared: If True, save to shared storage accessible by all sessions
-        
-        Returns:
-            Artifact ID
-        
-        Example:
-            >>> artifact_id = session.save_artifact(
-            ...     name="model_results",
-            ...     data=results_dict,
-            ...     tags=["evaluation", "v1.0"],
-            ...     group="experiments",
-            ...     description="Evaluation results for model v1"
-            ... )
-        """
-        with self._lock:
-            artifact_id = str(uuid.uuid4())
-            now = datetime.utcnow()
-            
-            # Determine storage location
-            if shared:
-                base_dir = self.manager.shared_dir
-            else:
-                base_dir = self.manager.data_dir / self.id / "artifacts"
-            
-            # Create group subdirectory if specified
-            if group:
-                storage_dir = base_dir / group
-            else:
-                storage_dir = base_dir
-            
-            storage_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Determine file extension and write data
-            if isinstance(data, bytes):
-                file_path = storage_dir / f"{artifact_id}_{name}.bin"
-                file_path.write_bytes(data)
-                artifact_type = "file"
-            elif isinstance(data, Path):
-                if data.is_dir():
-                    file_path = storage_dir / f"{artifact_id}_{name}"
-                    shutil.copytree(data, file_path)
-                    artifact_type = "directory"
-                else:
-                    file_path = storage_dir / f"{artifact_id}_{data.name}"
-                    shutil.copy2(data, file_path)
-                    artifact_type = "file"
-            elif isinstance(data, str):
-                file_path = storage_dir / f"{artifact_id}_{name}.txt"
-                file_path.write_text(data)
-                artifact_type = "file"
-            else:
-                # Serialize as JSON
-                file_path = storage_dir / f"{artifact_id}_{name}.json"
-                file_path.write_text(json.dumps(data, indent=2, default=str))
-                artifact_type = "file"
-            
-            # Calculate size
-            if file_path.is_file():
-                size_bytes = file_path.stat().st_size
-            else:
-                size_bytes = sum(f.stat().st_size for f in file_path.rglob("*") if f.is_file())
-            
-            # Create artifact record
-            artifact = Artifact(
-                id=artifact_id,
-                session_id=self.id,
-                name=name,
-                path=str(file_path),
-                artifact_type=artifact_type,
-                tags=tags or [],
-                group=group,
-                description=description,
-                size_bytes=size_bytes,
-                created_at=now,
-                updated_at=now,
-                metadata=metadata or {},
-                is_shared=shared,
-            )
-            
-            self.manager._save_artifact(artifact)
-            logger.debug(f"Saved artifact '{name}' to session '{self.name}'")
-            
-            return artifact_id
-
     def add_artifact(
         self,
         name: str,
@@ -407,143 +248,45 @@ class Session:
         group: Optional[str] = None,
         metadata: Optional[dict] = None,
     ) -> str:
-        """
-        Add an existing file as an artifact reference.
-        
-        This is a legacy method - prefer save_artifact for new code.
-        
-        Args:
-            name: Artifact name
-            path: Path to the existing file
-            tag: Single tag (for backwards compatibility)
-            group: Group name
-            metadata: Additional metadata
-        
-        Returns:
-            Artifact ID
-        """
-        tags = [tag] if tag else []
+        """Add an artifact to the session."""
         with self._lock:
             artifact_id = str(uuid.uuid4())
             now = datetime.utcnow()
             
-            file_path = Path(path)
-            size_bytes = file_path.stat().st_size if file_path.exists() else None
+            with self.manager._get_connection() as conn:
+                conn.execute(
+                    """
+                    INSERT INTO artifacts (id, session_id, name, path, tag, artifact_group, created_at, metadata)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        artifact_id,
+                        self.id,
+                        name,
+                        path,
+                        tag,
+                        group,
+                        now.isoformat(),
+                        json.dumps(metadata or {}),
+                    ),
+                )
             
-            artifact = Artifact(
-                id=artifact_id,
-                session_id=self.id,
-                name=name,
-                path=path,
-                artifact_type="reference",
-                tags=tags,
-                group=group,
-                size_bytes=size_bytes,
-                created_at=now,
-                updated_at=now,
-                metadata=metadata or {},
-            )
-            
-            self.manager._save_artifact(artifact)
             return artifact_id
 
-    def get_artifact(self, artifact_id: str) -> Optional[Artifact]:
-        """
-        Get an artifact by ID.
-        
-        Args:
-            artifact_id: Artifact ID
-        
-        Returns:
-            Artifact or None if not found
-        """
-        return self.manager._get_artifact(artifact_id)
-
-    def get_artifacts(
-        self,
-        tag: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        group: Optional[str] = None,
-        include_shared: bool = True,
-    ) -> list[Artifact]:
-        """
-        Get artifacts from the session, optionally filtered.
-        
-        Args:
-            tag: Filter by single tag (for backwards compatibility)
-            tags: Filter by multiple tags (all must match)
-            group: Filter by group
-            include_shared: Include shared artifacts
-        
-        Returns:
-            List of matching artifacts
-        """
-        # Merge tag and tags
-        all_tags = tags or []
-        if tag and tag not in all_tags:
-            all_tags.append(tag)
-        
-        return self.manager._get_artifacts(
-            session_id=self.id,
-            tags=all_tags or None,
-            group=group,
-            include_shared=include_shared,
-        )
-
-    def get_artifacts_by_group(self, group: str) -> list[Artifact]:
-        """
-        Get all artifacts in a group.
-        
-        Args:
-            group: Group name
-        
-        Returns:
-            List of artifacts in the group
-        """
-        return self.get_artifacts(group=group)
-
-    def get_artifacts_by_tag(self, tag: str) -> list[Artifact]:
-        """
-        Get all artifacts with a specific tag.
-        
-        Args:
-            tag: Tag to filter by
-        
-        Returns:
-            List of artifacts with the tag
-        """
-        return self.get_artifacts(tags=[tag])
-
-    def list_artifact_groups(self) -> list[str]:
-        """
-        List all artifact groups in this session.
-        
-        Returns:
-            List of group names
-        """
-        return self.manager._list_artifact_groups(self.id)
-
-    def list_artifact_tags(self) -> list[str]:
-        """
-        List all artifact tags used in this session.
-        
-        Returns:
-            List of tag names
-        """
-        return self.manager._list_artifact_tags(self.id)
-
-    def delete_artifact(self, artifact_id: str, delete_file: bool = True) -> bool:
-        """
-        Delete an artifact.
-        
-        Args:
-            artifact_id: Artifact ID to delete
-            delete_file: Whether to delete the associated file
-        
-        Returns:
-            True if deleted, False if not found
-        """
-        return self.manager._delete_artifact(artifact_id, delete_file)
+    def get_artifacts(self, tag: Optional[str] = None, group: Optional[str] = None) -> list[dict]:
+        """Get artifacts from the session, optionally filtered by tag or group."""
+        with self.manager._get_connection() as conn:
+            query = "SELECT * FROM artifacts WHERE session_id = ?"
+            params = [self.id]
+            if tag:
+                query += " AND tag = ?"
+                params.append(tag)
+            if group:
+                query += " AND artifact_group = ?"
+                params.append(group)
+            
+            rows = conn.execute(query, params).fetchall()
+            return [dict(row) for row in rows]
 
     def get_chat_history(
         self,
@@ -601,15 +344,12 @@ class SessionManager:
     - Session creation and retrieval
     - SQLite backend for metadata storage
     - Parquet file storage for large data
-    - Artifact management with tagging and grouping
-    - Shared artifact storage
     - Thread-safe operations
     
     Attributes:
         config: Agentic configuration
         db_path: Path to SQLite database
-        data_dir: Directory for session data
-        shared_dir: Directory for shared artifacts
+        data_dir: Directory for Parquet files
     """
 
     _instances: dict[str, "SessionManager"] = {}
@@ -698,22 +438,16 @@ class SessionManager:
                     session_id TEXT NOT NULL,
                     name TEXT NOT NULL,
                     path TEXT NOT NULL,
-                    artifact_type TEXT DEFAULT 'file',
-                    tags TEXT DEFAULT '[]',
+                    tag TEXT,
                     artifact_group TEXT,
-                    description TEXT,
-                    size_bytes INTEGER,
-                    checksum TEXT,
                     created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL,
                     metadata TEXT DEFAULT '{}',
-                    is_shared INTEGER DEFAULT 0,
                     FOREIGN KEY (session_id) REFERENCES sessions(id)
                 );
                 
                 CREATE INDEX IF NOT EXISTS idx_artifacts_session ON artifacts(session_id);
+                CREATE INDEX IF NOT EXISTS idx_artifacts_tag ON artifacts(tag);
                 CREATE INDEX IF NOT EXISTS idx_artifacts_group ON artifacts(artifact_group);
-                CREATE INDEX IF NOT EXISTS idx_artifacts_shared ON artifacts(is_shared);
             """)
 
     @contextmanager
@@ -914,9 +648,10 @@ class SessionManager:
             if session is None:
                 return False
             
-            # Delete session data directory
+            # Delete Parquet files
             session_dir = self.data_dir / session.id
             if session_dir.exists():
+                import shutil
                 shutil.rmtree(session_dir)
             
             # Delete database records
@@ -930,10 +665,6 @@ class SessionManager:
                     (session.id,),
                 )
                 conn.execute(
-                    "DELETE FROM artifacts WHERE session_id = ?",
-                    (session.id,),
-                )
-                conn.execute(
                     "DELETE FROM sessions WHERE id = ?",
                     (session.id,),
                 )
@@ -943,29 +674,6 @@ class SessionManager:
             
             logger.info(f"Deleted session: {name}")
             return True
-
-    def get_shared_artifacts(
-        self,
-        tags: Optional[list[str]] = None,
-        group: Optional[str] = None,
-    ) -> list[Artifact]:
-        """
-        Get shared artifacts accessible by all sessions.
-        
-        Args:
-            tags: Filter by tags
-            group: Filter by group
-        
-        Returns:
-            List of shared artifacts
-        """
-        return self._get_artifacts(
-            session_id=None,
-            tags=tags,
-            group=group,
-            include_shared=True,
-            shared_only=True,
-        )
 
     # === Internal methods for Session class ===
 
@@ -1125,158 +833,3 @@ class SessionManager:
             
             return result
 
-    def _save_artifact(self, artifact: Artifact) -> None:
-        """Save an artifact to the database."""
-        with self._get_connection() as conn:
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO artifacts 
-                (id, session_id, name, path, artifact_type, tags, artifact_group,
-                 description, size_bytes, checksum, created_at, updated_at, metadata, is_shared)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    artifact.id,
-                    artifact.session_id,
-                    artifact.name,
-                    artifact.path,
-                    artifact.artifact_type,
-                    json.dumps(artifact.tags),
-                    artifact.group,
-                    artifact.description,
-                    artifact.size_bytes,
-                    artifact.checksum,
-                    artifact.created_at.isoformat(),
-                    artifact.updated_at.isoformat(),
-                    json.dumps(artifact.metadata),
-                    1 if artifact.is_shared else 0,
-                ),
-            )
-
-    def _get_artifact(self, artifact_id: str) -> Optional[Artifact]:
-        """Get an artifact by ID."""
-        with self._get_connection() as conn:
-            row = conn.execute(
-                "SELECT * FROM artifacts WHERE id = ?",
-                (artifact_id,),
-            ).fetchone()
-            
-            if row is None:
-                return None
-            
-            return self._row_to_artifact(row)
-
-    def _get_artifacts(
-        self,
-        session_id: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        group: Optional[str] = None,
-        include_shared: bool = True,
-        shared_only: bool = False,
-    ) -> list[Artifact]:
-        """Get artifacts with filtering."""
-        with self._get_connection() as conn:
-            conditions = []
-            params = []
-            
-            if shared_only:
-                conditions.append("is_shared = 1")
-            elif session_id:
-                if include_shared:
-                    conditions.append("(session_id = ? OR is_shared = 1)")
-                else:
-                    conditions.append("session_id = ?")
-                params.append(session_id)
-            
-            if group:
-                conditions.append("artifact_group = ?")
-                params.append(group)
-            
-            query = "SELECT * FROM artifacts"
-            if conditions:
-                query += " WHERE " + " AND ".join(conditions)
-            query += " ORDER BY created_at DESC"
-            
-            rows = conn.execute(query, params).fetchall()
-            
-            artifacts = [self._row_to_artifact(row) for row in rows]
-            
-            # Filter by tags if specified
-            if tags:
-                artifacts = [
-                    a for a in artifacts
-                    if all(tag in a.tags for tag in tags)
-                ]
-            
-            return artifacts
-
-    def _row_to_artifact(self, row) -> Artifact:
-        """Convert a database row to an Artifact."""
-        return Artifact(
-            id=row["id"],
-            session_id=row["session_id"],
-            name=row["name"],
-            path=row["path"],
-            artifact_type=row["artifact_type"],
-            tags=json.loads(row["tags"]),
-            group=row["artifact_group"],
-            description=row["description"],
-            size_bytes=row["size_bytes"],
-            checksum=row["checksum"],
-            created_at=datetime.fromisoformat(row["created_at"]),
-            updated_at=datetime.fromisoformat(row["updated_at"]),
-            metadata=json.loads(row["metadata"]),
-            is_shared=bool(row["is_shared"]),
-        )
-
-    def _list_artifact_groups(self, session_id: str) -> list[str]:
-        """List all artifact groups for a session."""
-        with self._get_connection() as conn:
-            rows = conn.execute(
-                """
-                SELECT DISTINCT artifact_group
-                FROM artifacts
-                WHERE session_id = ? AND artifact_group IS NOT NULL
-                """,
-                (session_id,),
-            ).fetchall()
-            
-            return [row["artifact_group"] for row in rows]
-
-    def _list_artifact_tags(self, session_id: str) -> list[str]:
-        """List all artifact tags for a session."""
-        with self._get_connection() as conn:
-            rows = conn.execute(
-                "SELECT tags FROM artifacts WHERE session_id = ?",
-                (session_id,),
-            ).fetchall()
-            
-            all_tags = set()
-            for row in rows:
-                tags = json.loads(row["tags"])
-                all_tags.update(tags)
-            
-            return sorted(all_tags)
-
-    def _delete_artifact(self, artifact_id: str, delete_file: bool = True) -> bool:
-        """Delete an artifact."""
-        artifact = self._get_artifact(artifact_id)
-        if artifact is None:
-            return False
-        
-        # Delete file if requested
-        if delete_file and artifact.artifact_type != "reference":
-            path = Path(artifact.path)
-            if path.exists():
-                if path.is_dir():
-                    shutil.rmtree(path)
-                else:
-                    path.unlink()
-        
-        with self._get_connection() as conn:
-            conn.execute(
-                "DELETE FROM artifacts WHERE id = ?",
-                (artifact_id,),
-            )
-        
-        return True

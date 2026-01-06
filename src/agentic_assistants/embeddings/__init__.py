@@ -1,0 +1,36 @@
+"""
+Embeddings module for Agentic Assistants.
+
+This module provides a parameterized embedding provider abstraction supporting:
+- Ollama embeddings (nomic-embed-text, mxbai-embed-large)
+- Sentence Transformers (all-MiniLM-L6-v2, etc.)
+- OpenAI embeddings (optional)
+
+Example:
+    >>> from agentic_assistants.embeddings import EmbeddingProvider
+    >>> 
+    >>> # Create with Ollama
+    >>> provider = EmbeddingProvider.create("ollama", model="nomic-embed-text")
+    >>> embedding = provider.embed("Hello, world!")
+    >>> 
+    >>> # Create with Sentence Transformers
+    >>> provider = EmbeddingProvider.create("sentence_transformers", model="all-MiniLM-L6-v2")
+    >>> embeddings = provider.embed_batch(["Hello", "World"])
+"""
+
+from agentic_assistants.embeddings.provider import (
+    EmbeddingProvider,
+    OllamaEmbeddingProvider,
+    SentenceTransformerProvider,
+    OpenAIEmbeddingProvider,
+    EmbeddingResult,
+)
+
+__all__ = [
+    "EmbeddingProvider",
+    "OllamaEmbeddingProvider",
+    "SentenceTransformerProvider",
+    "OpenAIEmbeddingProvider",
+    "EmbeddingResult",
+]
+

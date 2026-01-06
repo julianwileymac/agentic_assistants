@@ -1,6 +1,0 @@
-{
-  "packageManager": "python",
-  "packageName": "jupyterlab_mlflow",
-  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package jupyterlab_mlflow"
-}
-

@@ -4,26 +4,29 @@
 # =============================================================================
 # This script starts all services for development:
 #   1. Python backend (FastAPI + WebSocket on port 8080)
-#   2. Theia frontend (port 3000)
+#   2. IDE frontend (Theia or JupyterLab)
 #   3. MLFlow server (port 5000)
-#   4. Opens browser to Theia UI
+#   4. Opens browser to IDE UI
 #
 # Usage:
 #   ./scripts/start-dev.sh              # Start all services
 #   ./scripts/start-dev.sh --backend    # Start only Python backend
-#   ./scripts/start-dev.sh --frontend   # Start only Theia frontend
+#   ./scripts/start-dev.sh --frontend   # Start only IDE frontend
+#   ./scripts/start-dev.sh --ide jupyterlab|theia|none   # Choose IDE (default: jupyterlab)
 #   ./scripts/start-dev.sh --no-browser # Don't open browser
 # =============================================================================
 
 set -e
 
-# Parse arguments
 BACKEND_ONLY=false
 FRONTEND_ONLY=false
 NO_BROWSER=false
+IDE_CHOICE="jupyterlab"  # default to JupyterLab (Theia flaky)
+JUPYTER_PORT=${JUPYTER_PORT:-8888}
 
-for arg in "$@"; do
-    case $arg in
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
         --backend)
             BACKEND_ONLY=true
             shift
@@ -31,6 +34,10 @@ for arg in "$@"; do
         --frontend)
             FRONTEND_ONLY=true
             shift
+            ;;
+        --ide)
+            IDE_CHOICE="$2"
+            shift 2
             ;;
         --no-browser)
             NO_BROWSER=true
@@ -40,12 +47,17 @@ for arg in "$@"; do
             echo "Usage: ./scripts/start-dev.sh [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --backend      Start only the Python backend"
-            echo "  --frontend     Start only the Theia frontend"
-            echo "  --no-browser   Don't open browser after startup"
-            echo "  --help         Show this help message"
+            echo "  --backend                Start only the Python backend"
+            echo "  --frontend               Start only the IDE frontend"
+            echo "  --ide jupyterlab|theia   Choose IDE backend (default: jupyterlab)"
+            echo "  --no-browser             Don't open browser after startup"
+            echo "  --help                   Show this help message"
             echo ""
             exit 0
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $1${NC}"
+            exit 1
             ;;
     esac
 done
@@ -210,6 +222,30 @@ function start_python_backend() {
     write_warning "Backend health check timed out, but process is running. Continuing..."
     echo -e "${YELLOW}  Check backend.log if you encounter issues${NC}"
     return 0
+}
+
+function start_jupyterlab() {
+    write_section "Starting JupyterLab"
+
+    cd "$PROJECT_DIR"
+
+    # Ensure data dirs exist for notebooks and artifacts
+    mkdir -p notebooks data mlruns
+
+    # Start JupyterLab
+    write_step "Launching JupyterLab on port ${JUPYTER_PORT} (root: $PROJECT_DIR)"
+    nohup jupyter lab \
+        --ip 127.0.0.1 \
+        --port ${JUPYTER_PORT} \
+        --no-browser \
+        --NotebookApp.token='' \
+        --NotebookApp.password='' \
+        --NotebookApp.notebook_dir="$PROJECT_DIR" \
+        > jupyterlab.log 2>&1 &
+
+    JUPYTER_PID=$!
+    echo $JUPYTER_PID > .jupyter.pid
+    write_success "JupyterLab started on http://localhost:${JUPYTER_PORT}/lab (PID: $JUPYTER_PID)"
 }
 
 function start_theia_frontend() {
@@ -409,6 +445,9 @@ function show_summary() {
     echo "  - Python Backend:  http://localhost:8080"
     echo "  - MLFlow:          http://localhost:5000"
     echo "  - WebSocket:       ws://localhost:8080/ws"
+    if [ "$IDE_CHOICE" = "jupyterlab" ]; then
+        echo "  - JupyterLab:      http://localhost:${JUPYTER_PORT}/lab"
+    fi
     echo ""
     echo -e "${CYAN}API Endpoints:${NC}"
     echo "  - Experiments:     http://localhost:8080/api/v1/experiments"
@@ -438,12 +477,22 @@ if [ "$FRONTEND_ONLY" = false ]; then
 fi
 
 if [ "$BACKEND_ONLY" = false ]; then
-    start_theia_frontend || FRONTEND_OK=false
+    if [ "$IDE_CHOICE" = "theia" ]; then
+        start_theia_frontend || FRONTEND_OK=false
+    elif [ "$IDE_CHOICE" = "jupyterlab" ]; then
+        start_jupyterlab || FRONTEND_OK=false
+    else
+        write_warning "IDE disabled (--ide none). Skipping frontend."
+    fi
 fi
 
 show_summary
 
 if [ "$NO_BROWSER" = false ] && [ "$BACKEND_ONLY" = false ] && [ "$FRONTEND_OK" = true ]; then
-    open_browser "http://localhost:3000"
+    if [ "$IDE_CHOICE" = "theia" ]; then
+        open_browser "http://localhost:3000"
+    elif [ "$IDE_CHOICE" = "jupyterlab" ]; then
+        open_browser "http://localhost:${JUPYTER_PORT}/lab"
+    fi
 fi
 

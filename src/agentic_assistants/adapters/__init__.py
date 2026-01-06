@@ -10,13 +10,10 @@ These adapters wrap popular agent frameworks to provide:
 from agentic_assistants.adapters.base import BaseAdapter
 from agentic_assistants.adapters.crewai_adapter import CrewAIAdapter
 from agentic_assistants.adapters.langgraph_adapter import LangGraphAdapter
-from agentic_assistants.adapters.huggingface_adapter import HuggingFaceAdapter
-from agentic_assistants.adapters.smolagents_adapter import SmolAgentsAdapter
 
 __all__ = [
     "BaseAdapter",
     "CrewAIAdapter",
     "LangGraphAdapter",
-    "HuggingFaceAdapter",
-    "SmolAgentsAdapter",
 ]
+

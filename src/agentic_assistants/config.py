@@ -117,11 +117,15 @@ class VectorDBSettings(BaseSettings):
 
     backend: str = Field(
         default="lancedb",
-        description="Vector database backend (lancedb, chroma)",
+        description="Vector database backend (lancedb, chroma, both)",
     )
     path: Path = Field(
         default=Path("./data/vectors"),
         description="Path for vector database storage",
+    )
+    embedding_provider: str = Field(
+        default="ollama",
+        description="Embedding provider (ollama, sentence_transformers, openai)",
     )
     embedding_model: str = Field(
         default="nomic-embed-text",
@@ -130,6 +134,10 @@ class VectorDBSettings(BaseSettings):
     embedding_dimension: int = Field(
         default=768,
         description="Embedding vector dimension",
+    )
+    use_both_backends: bool = Field(
+        default=False,
+        description="Store in both LanceDB and ChromaDB simultaneously",
     )
 
 

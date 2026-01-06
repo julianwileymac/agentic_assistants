@@ -35,12 +35,6 @@ langchain = "~0.2.16"
 langgraph = "^0.2"
 langchain-ollama = "^0.1"
 
-# HuggingFace
-transformers = "^4.40"
-huggingface_hub = "^0.22"
-smolagents = "^1.0"
-datasets = "^2.18"
-
 # Notebooks
 jupyter = "^1.0"
 ipykernel = "^6.0"

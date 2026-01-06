@@ -34,6 +34,12 @@ from agentic_assistants.server.api import (
     sessions_router,
     data_router,
     config_router,
+    projects_router,
+    agents_router,
+    flows_router,
+    components_router,
+    notes_router,
+    tags_router,
 )
 
 # Import WebSocket support
@@ -216,6 +222,14 @@ def create_rest_app(
     app.include_router(sessions_router, prefix="/api/v1")
     app.include_router(data_router, prefix="/api/v1")
     app.include_router(config_router, prefix="/api/v1")
+    
+    # Control Panel API routers
+    app.include_router(projects_router, prefix="/api/v1")
+    app.include_router(agents_router, prefix="/api/v1")
+    app.include_router(flows_router, prefix="/api/v1")
+    app.include_router(components_router, prefix="/api/v1")
+    app.include_router(notes_router, prefix="/api/v1")
+    app.include_router(tags_router, prefix="/api/v1")
     
     # === Legacy Endpoints (kept for backwards compatibility) ===
     
@@ -455,6 +469,18 @@ def create_rest_app(
             
         except Exception as e:
             logger.error(f"Failed to get stats: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    @app.get("/api/v1/stats")
+    async def get_control_panel_stats():
+        """Get control panel statistics."""
+        from agentic_assistants.core.models import ControlPanelStore
+        
+        try:
+            store = ControlPanelStore.get_instance()
+            return store.get_stats()
+        except Exception as e:
+            logger.error(f"Failed to get control panel stats: {e}")
             raise HTTPException(status_code=500, detail=str(e))
     
     # Add WebSocket routes
