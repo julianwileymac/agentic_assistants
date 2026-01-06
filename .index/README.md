@@ -1,31 +1,36 @@
 # AI Assistant Index
 
-This folder contains structured indexing files for various AI coding assistants to efficiently analyze and work with the Agentic Assistants codebase.
+This folder contains condensed context for LLM copilots working on the **Agentic Assistants** framework. It summarizes architecture, APIs, start/stop procedures, and current modules.
 
 ## Structure
 
 ```
 .index/
-├── github/         # GitHub Copilot / GitHub AI Chat context
-├── cursor/         # Cursor AI rules and context
-└── context/        # Ollama and local LLM optimized context
+├── context/   # Short, LLM-optimized summaries (use these first)
+├── cursor/    # Cursor rules & quick context
+├── github/    # GitHub Copilot / GH Chat context and file index
+└── README.md  # You are here
 ```
 
-## Purpose
+## Current System Highlights (Jan 2026)
+- Unified startup: `scripts/start-dev.sh|ps1` (backend + MLFlow + UI: Web UI/Jupyter/Theia). Stop with `scripts/stop-dev.sh|ps1`.
+- Web UI (Next.js) lives in `webui/` with pages for Dashboard, Projects, Agents, Flows (YAML import/export), Components, Experiments (MLFlow), Monitoring, Knowledge Bases, Settings.
+- Backend now exposes Control Panel APIs: projects, agents, flows, components, notes, tags, stats (`src/agentic_assistants/server/api/`).
+- Persistent store for control-panel entities: `core/models.py` (SQLite).
+- Repository indexing crew, vector stores (LanceDB/Chroma), embedding providers, agentic patterns (RAG, ReAct, Chain-of-Thought, Collaboration) already integrated.
 
-Each subfolder contains tool-specific files optimized for that assistant's:
-- Context window limitations
-- Instruction format preferences
-- Integration patterns
+## Quick Start Commands
+- Start everything (default UI=Web UI, port 3000): `./scripts/start-dev.sh`
+  - Choose UI: `--ui webui|jupyterlab|theia|none`
+  - Stop all: `./scripts/stop-dev.sh`
+- Windows PowerShell: `.\\scripts\\start-dev.ps1 -UIChoice webui`
+- Web UI only: `./scripts/start-webui.sh --dev` (optional; start-dev covers it)
 
-## Usage
+## Where to look
+- Architecture: `.index/context/architecture.md`
+- API surface: `.index/context/api-surface.md`
+- Patterns: `.index/context/patterns.md`
+- Ollama/local LLM tips: `.index/context/ollama-assistant.md`
 
-### GitHub Copilot
-The main instructions are in `.github/copilot-instructions.md`. The `.index/github/` folder contains extended context for GitHub AI Chat.
-
-### Cursor
-Load rules from `.index/cursor/rules.md` into Cursor's project rules.
-
-### Ollama / Local LLMs
-Use files in `.index/context/` for condensed context that fits smaller context windows. See `ollama-assistant.md` for usage patterns.
+Keep these files fresh when core modules, APIs, or start/stop flows change.
 

@@ -3,27 +3,32 @@
 # =============================================================================
 # This script starts all services for development:
 #   1. Python backend (FastAPI + WebSocket on port 8080)
-#   2. Theia frontend (port 3000)
+#   2. UI frontend (Web UI default, port 3000) or JupyterLab / Theia
 #   3. MLFlow server (port 5000)
-#   4. Opens browser to Theia UI
+#   4. Opens browser to chosen UI
 #
 # Usage:
 #   .\scripts\start-dev.ps1              # Start all services
-#   .\scripts\start-dev.ps1 -BackendOnly # Start only Python backend
-#   .\scripts\start-dev.ps1 -FrontendOnly # Start only Theia frontend
-#   .\scripts\start-dev.ps1 -NoBrowser   # Don't open browser
+#   .\scripts\start-dev.ps1 -BackendOnly   # Start only Python backend
+#   .\scripts\start-dev.ps1 -FrontendOnly  # Start only UI
+#   .\scripts\start-dev.ps1 -UIChoice webui|jupyterlab|theia|none # Choose UI
+#   .\scripts\start-dev.ps1 -NoBrowser     # Don't open browser
 # =============================================================================
 
 param(
     [switch]$BackendOnly,
     [switch]$FrontendOnly,
     [switch]$NoBrowser,
-    [switch]$Help
+    [switch]$Help,
+    [string]$UIChoice = "webui",
+    [int]$WebUIPort = 3000,
+    [int]$JupyterPort = 8888
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectDir = Split-Path -Parent $ScriptDir
 $FrontendDir = Join-Path $ProjectDir "frontend"
+$script:SkipTheia = $false
 
 function Write-Banner {
     Write-Host ""
@@ -59,13 +64,14 @@ function Show-Help {
     Write-Host ""
     Write-Host "Options:"
     Write-Host "  -BackendOnly   Start only the Python backend"
-    Write-Host "  -FrontendOnly  Start only the Theia frontend"
+    Write-Host "  -FrontendOnly  Start only the UI frontend"
+    Write-Host "  -UIChoice      webui (default) | jupyterlab | theia | none"
     Write-Host "  -NoBrowser     Don't open browser after startup"
     Write-Host "  -Help          Show this help message"
     Write-Host ""
     Write-Host "Services:"
     Write-Host "  Python Backend:  http://localhost:8080"
-    Write-Host "  Theia IDE:       http://localhost:3000"
+    Write-Host "  Web UI:          http://localhost:3000 (default UI)"
     Write-Host "  MLFlow:          http://localhost:5000"
     Write-Host ""
 }
@@ -357,6 +363,57 @@ enableGlobalCache: true
     return $true
 }
 
+function Start-WebUI {
+    Write-Section "Starting Web UI (Next.js)"
+
+    $webuiDir = Join-Path $ProjectDir "webui"
+    if (-not (Test-Path $webuiDir)) {
+        Write-Error "Web UI directory not found at $webuiDir"
+        return $false
+    }
+
+    Set-Location $webuiDir
+
+    if (-not (Test-Path "node_modules")) {
+        Write-Step "Installing Web UI dependencies..."
+        & npm install | Select-Object -Last 5
+    } else {
+        Write-Step "Dependencies already installed"
+    }
+
+    $env:PORT = $WebUIPort
+    $webuiLog = Join-Path $ProjectDir "webui.log"
+    $webuiProcess = Start-Process -FilePath "npm" -ArgumentList "run","dev","--","--hostname","127.0.0.1","--port",$WebUIPort -RedirectStandardOutput $webuiLog -RedirectStandardError "$webuiLog.err" -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+    if ($webuiProcess) {
+        $webuiProcess.Id | Out-File (Join-Path $ProjectDir ".webui.pid")
+        Write-Success "Web UI started on http://localhost:$WebUIPort (PID: $($webuiProcess.Id))"
+        return $true
+    } else {
+        Write-Error "Failed to start Web UI"
+        return $false
+    }
+}
+
+function Start-JupyterLabUI {
+    Write-Section "Starting JupyterLab"
+    Set-Location $ProjectDir
+
+    if (-not (Test-Path "notebooks")) { New-Item -ItemType Directory -Path "notebooks" | Out-Null }
+    if (-not (Test-Path "data")) { New-Item -ItemType Directory -Path "data" | Out-Null }
+    if (-not (Test-Path "mlruns")) { New-Item -ItemType Directory -Path "mlruns" | Out-Null }
+
+    $jupyterLog = Join-Path $ProjectDir "jupyterlab.log"
+    $jupyterProcess = Start-Process -FilePath "jupyter" -ArgumentList "lab","--ip","127.0.0.1","--port",$JupyterPort,"--no-browser","--NotebookApp.token=''","--NotebookApp.password=''","--NotebookApp.notebook_dir=$ProjectDir" -RedirectStandardOutput $jupyterLog -RedirectStandardError "$jupyterLog.err" -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+    if ($jupyterProcess) {
+        $jupyterProcess.Id | Out-File (Join-Path $ProjectDir ".jupyter.pid")
+        Write-Success "JupyterLab started on http://localhost:$JupyterPort/lab (PID: $($jupyterProcess.Id))"
+        return $true
+    } else {
+        Write-Error "Failed to start JupyterLab (is it installed?)"
+        return $false
+    }
+}
+
 function Open-Browser {
     param([string]$Url)
     
@@ -372,11 +429,18 @@ function Show-Summary {
     Write-Host "================================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "Services Running:" -ForegroundColor Cyan
-    if ($script:SkipTheia) {
-        Write-Host "  - Theia IDE:       " -NoNewline
-        Write-Host "Not started (native modules need compilation)" -ForegroundColor Yellow
-    } else {
-        Write-Host "  - Theia IDE:       http://localhost:3000"
+    switch ($UIChoice.ToLower()) {
+        "webui" { Write-Host "  - Web UI:          http://localhost:$WebUIPort" }
+        "jupyterlab" { Write-Host "  - JupyterLab:      http://localhost:$JupyterPort/lab" }
+        "theia" {
+            if ($script:SkipTheia) {
+                Write-Host "  - Theia IDE:       " -NoNewline
+                Write-Host "Not started (native modules need compilation)" -ForegroundColor Yellow
+            } else {
+                Write-Host "  - Theia IDE:       http://localhost:3000"
+            }
+        }
+        default { Write-Host "  - UI:              (disabled)" }
     }
     Write-Host "  - Python Backend:  http://localhost:8080"
     Write-Host "  - MLFlow:          http://localhost:5000"
@@ -415,7 +479,25 @@ if (-not $FrontendOnly) {
 }
 
 if (-not $BackendOnly) {
-    $frontendOk = Start-TheiaFrontend
+    switch ($UIChoice.ToLower()) {
+        "theia" {
+            $frontendOk = Start-TheiaFrontend
+        }
+        "jupyterlab" {
+            $frontendOk = Start-JupyterLabUI
+        }
+        "webui" {
+            $frontendOk = Start-WebUI
+        }
+        "none" {
+            Write-Warning "UI disabled (--UIChoice none)."
+            $frontendOk = $true
+        }
+        default {
+            Write-Warning "Unknown UI choice '$UIChoice'. Skipping UI."
+            $frontendOk = $true
+        }
+    }
     if (-not $frontendOk) {
         Write-Error "Failed to start frontend"
     }
@@ -424,6 +506,10 @@ if (-not $BackendOnly) {
 Show-Summary
 
 if (-not $NoBrowser -and -not $BackendOnly) {
-    Open-Browser "http://localhost:3000"
+    switch ($UIChoice.ToLower()) {
+        "webui" { Open-Browser "http://localhost:$WebUIPort" }
+        "jupyterlab" { Open-Browser "http://localhost:$JupyterPort/lab" }
+        "theia" { Open-Browser "http://localhost:3000" }
+    }
 }
 

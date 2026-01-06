@@ -73,6 +73,17 @@ if [ -f ".mlflow.pid" ]; then
     rm -f .mlflow.pid
 fi
 
+# Stop Web UI
+if [ -f ".webui.pid" ]; then
+    PID=$(cat .webui.pid)
+    if kill -0 $PID 2>/dev/null; then
+        kill $PID 2>/dev/null || kill -9 $PID 2>/dev/null
+        echo -e "${GREEN}  [OK] Stopped Web UI (PID: $PID)${NC}"
+        STOPPED=true
+    fi
+    rm -f .webui.pid
+fi
+
 # Kill any remaining processes on our ports (if Force flag or if PIDs didn't work)
 if [ "$FORCE" = true ] || [ "$STOPPED" = false ]; then
     echo ""

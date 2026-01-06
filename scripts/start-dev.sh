@@ -9,10 +9,10 @@
 #   4. Opens browser to IDE UI
 #
 # Usage:
-#   ./scripts/start-dev.sh              # Start all services
+#   ./scripts/start-dev.sh              # Start all services (backend + Web UI)
 #   ./scripts/start-dev.sh --backend    # Start only Python backend
-#   ./scripts/start-dev.sh --frontend   # Start only IDE frontend
-#   ./scripts/start-dev.sh --ide jupyterlab|theia|none   # Choose IDE (default: jupyterlab)
+#   ./scripts/start-dev.sh --frontend   # Start only UI (Web UI / JupyterLab / Theia)
+#   ./scripts/start-dev.sh --ide|--ui webui|jupyterlab|theia|none   # Choose UI (default: webui)
 #   ./scripts/start-dev.sh --no-browser # Don't open browser
 # =============================================================================
 
@@ -21,8 +21,9 @@ set -e
 BACKEND_ONLY=false
 FRONTEND_ONLY=false
 NO_BROWSER=false
-IDE_CHOICE="jupyterlab"  # default to JupyterLab (Theia flaky)
+IDE_CHOICE="webui"  # default to Web UI (Theia flaky)
 JUPYTER_PORT=${JUPYTER_PORT:-8888}
+WEBUI_PORT=${WEBUI_PORT:-3000}
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -35,7 +36,7 @@ while [[ $# -gt 0 ]]; do
             FRONTEND_ONLY=true
             shift
             ;;
-        --ide)
+        --ide|--ui)
             IDE_CHOICE="$2"
             shift 2
             ;;
@@ -75,6 +76,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 GRAY='\033[0;90m'
 NC='\033[0m' # No Color
+SKIP_THEIA=false
 
 function write_banner() {
     echo ""
@@ -415,6 +417,60 @@ EOF
     return 0
 }
 
+function start_webui() {
+    write_section "Starting Web UI (Next.js)"
+
+    WEBUI_DIR="$PROJECT_DIR/webui"
+
+    if [ ! -d "$WEBUI_DIR" ]; then
+        write_error "Web UI directory not found at $WEBUI_DIR"
+        write_step "Run: npx create-next-app webui  (already scaffolded in repo)"
+        return 1
+    fi
+
+    cd "$WEBUI_DIR"
+
+    # Ensure dependencies
+    if [ ! -d "node_modules" ]; then
+        write_step "Installing Web UI dependencies..."
+        npm install >/dev/null 2>&1 || npm install
+    else
+        write_step "Dependencies already installed"
+    fi
+
+    # Start Next.js (dev server for fast reload)
+    write_step "Starting Next.js dev server on port ${WEBUI_PORT}..."
+    PORT=${WEBUI_PORT} npm run dev -- --hostname 127.0.0.1 > "$PROJECT_DIR/webui.log" 2>&1 &
+    WEBUI_PID=$!
+    echo $WEBUI_PID > "$PROJECT_DIR/.webui.pid"
+    write_success "Web UI started on http://localhost:${WEBUI_PORT} (PID: $WEBUI_PID)"
+
+    echo -n "  Waiting for Web UI"
+    for i in {1..60}; do
+        sleep 1
+
+        if ! kill -0 $WEBUI_PID 2>/dev/null; then
+            echo ""
+            write_error "Web UI process died. Check webui.log for errors."
+            return 1
+        fi
+
+        if command -v curl &> /dev/null; then
+            if curl -s --connect-timeout 2 http://localhost:${WEBUI_PORT} > /dev/null 2>&1; then
+                echo ""
+                write_success "Web UI is ready"
+                return 0
+            fi
+        fi
+
+        echo -n "."
+    done
+
+    echo ""
+    write_warning "Web UI health check timed out, but process is running. Continuing..."
+    return 0
+}
+
 function open_browser() {
     write_section "Opening Browser"
     write_step "Opening $1"
@@ -437,17 +493,27 @@ function show_summary() {
     echo -e "${GREEN}================================================================${NC}"
     echo ""
     echo -e "${CYAN}Services Running:${NC}"
-    if [ "$SKIP_THEIA" = true ]; then
-        echo "  - Theia IDE:       ${YELLOW}Not started (native modules need compilation)${NC}"
-    else
-        echo "  - Theia IDE:       http://localhost:3000"
-    fi
+    case "$IDE_CHOICE" in
+        webui)
+            echo "  - Web UI:          http://localhost:${WEBUI_PORT}"
+            ;;
+        jupyterlab)
+            echo "  - JupyterLab:      http://localhost:${JUPYTER_PORT}/lab"
+            ;;
+        theia)
+            if [ "$SKIP_THEIA" = true ]; then
+                echo "  - Theia IDE:       ${YELLOW}Not started (native modules need compilation)${NC}"
+            else
+                echo "  - Theia IDE:       http://localhost:3000"
+            fi
+            ;;
+        *)
+            echo "  - UI:              (disabled)"
+            ;;
+    esac
     echo "  - Python Backend:  http://localhost:8080"
     echo "  - MLFlow:          http://localhost:5000"
     echo "  - WebSocket:       ws://localhost:8080/ws"
-    if [ "$IDE_CHOICE" = "jupyterlab" ]; then
-        echo "  - JupyterLab:      http://localhost:${JUPYTER_PORT}/lab"
-    fi
     echo ""
     echo -e "${CYAN}API Endpoints:${NC}"
     echo "  - Experiments:     http://localhost:8080/api/v1/experiments"
@@ -477,22 +543,38 @@ if [ "$FRONTEND_ONLY" = false ]; then
 fi
 
 if [ "$BACKEND_ONLY" = false ]; then
-    if [ "$IDE_CHOICE" = "theia" ]; then
-        start_theia_frontend || FRONTEND_OK=false
-    elif [ "$IDE_CHOICE" = "jupyterlab" ]; then
-        start_jupyterlab || FRONTEND_OK=false
-    else
-        write_warning "IDE disabled (--ide none). Skipping frontend."
-    fi
+    case "$IDE_CHOICE" in
+        theia)
+            start_theia_frontend || FRONTEND_OK=false
+            ;;
+        jupyterlab)
+            start_jupyterlab || FRONTEND_OK=false
+            ;;
+        webui)
+            start_webui || FRONTEND_OK=false
+            ;;
+        none)
+            write_warning "UI disabled (--ide none). Skipping frontend."
+            ;;
+        *)
+            write_warning "Unknown UI choice '$IDE_CHOICE'. Skipping frontend."
+            ;;
+    esac
 fi
 
 show_summary
 
 if [ "$NO_BROWSER" = false ] && [ "$BACKEND_ONLY" = false ] && [ "$FRONTEND_OK" = true ]; then
-    if [ "$IDE_CHOICE" = "theia" ]; then
-        open_browser "http://localhost:3000"
-    elif [ "$IDE_CHOICE" = "jupyterlab" ]; then
-        open_browser "http://localhost:${JUPYTER_PORT}/lab"
-    fi
+    case "$IDE_CHOICE" in
+        theia)
+            open_browser "http://localhost:3000"
+            ;;
+        jupyterlab)
+            open_browser "http://localhost:${JUPYTER_PORT}/lab"
+            ;;
+        webui)
+            open_browser "http://localhost:${WEBUI_PORT}"
+            ;;
+    esac
 fi
 

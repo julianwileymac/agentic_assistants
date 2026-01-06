@@ -68,6 +68,21 @@ if (Test-Path $mlflowPath) {
     Remove-Item $mlflowPath -ErrorAction SilentlyContinue
 }
 
+# Stop Web UI
+$webuiPath = Join-Path $ProjectDir ".webui.pid"
+if (Test-Path $webuiPath) {
+    $pid = Get-Content $webuiPath
+    try {
+        $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+        if ($process) {
+            Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+            Write-Host "  [OK] Stopped Web UI (PID: $pid)" -ForegroundColor Green
+            $stopped = $true
+        }
+    } catch {}
+    Remove-Item $webuiPath -ErrorAction SilentlyContinue
+}
+
 # Kill any remaining processes on our ports (if Force flag or if PIDs didn't work)
 if ($Force -or -not $stopped) {
     Write-Host ""
