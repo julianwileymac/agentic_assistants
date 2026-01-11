@@ -18,6 +18,12 @@ Agentic Assistants is designed for:
 - [API Reference](api_reference.md) - Python API documentation
 - [Configuration](configuration.md) - Configuration options
 - [Architecture](architecture.md) - System design overview
+- [Server](server.md) - REST + WebSocket + MCP server overview
+- [Web UI Control Panel](control_panel_webui.md) - Next.js control panel usage and architecture
+- [Indexing & Context](indexing_and_context.md) - Vector indexing/search and `.index/` context packs
+- [Pipelines](pipelines.md) - Kedro-inspired pipelines and runners
+- [Knowledge Bases](knowledge_bases.md) - Vector/RAG/Hybrid knowledge base APIs
+- [Infrastructure](infrastructure.md) - Docker, k8s, MinIO/Redis/Feast integrations
 
 ## Getting Started
 
@@ -30,8 +36,12 @@ cd agentic_assistants
 poetry install
 
 # Start services
-./scripts/start.sh  # Unix
-.\scripts\start.ps1  # Windows
+./scripts/start-dev.sh  # Linux/macOS/Git Bash
+.\scripts\start-dev.ps1  # Windows PowerShell
+
+# Optional: start the Web UI Control Panel
+./scripts/start-webui.sh  # Linux/macOS/Git Bash
+.\scripts\start-webui.ps1  # Windows PowerShell
 
 # Pull a model
 agentic ollama pull llama3.2
@@ -65,6 +75,17 @@ agentic run examples/simple_ollama_chat.py
 - **No API Keys Required**: Run experiments without external dependencies
 - **Privacy**: Keep your data on your machine
 
+### Server + UI
+
+- **FastAPI Server**: REST APIs, WebSocket streaming (`/ws`), and MCP (`/mcp`)
+- **Web UI Control Panel**: Projects, agents, flows, pipelines, knowledge, monitoring, Kubernetes
+
+### Indexing, Knowledge, and Pipelines
+
+- **Indexing/Search**: Chunking + indexing into vector stores (LanceDB/Chroma) via CLI/server
+- **Knowledge Bases**: Vector/RAG/Hybrid knowledge base abstractions on top of vector search
+- **Pipelines**: Kedro-inspired pipeline DAG + runners + templates (ingestion/monitoring)
+
 ## Project Structure
 
 ```
@@ -72,10 +93,18 @@ agentic_assistants/
 ├── src/agentic_assistants/    # Main package
 │   ├── core/                   # Core components (Ollama, MLFlow, Telemetry)
 │   ├── adapters/               # Framework adapters (CrewAI, LangGraph)
+│   ├── server/                 # FastAPI REST + WebSocket + MCP server
+│   ├── indexing/               # Chunking + codebase indexing
+│   ├── knowledge/              # Knowledge base abstractions (vector/rag/hybrid)
+│   ├── pipelines/              # Kedro-inspired pipelines + runners + templates
+│   ├── kubernetes/             # Kubernetes + storage integrations
 │   └── utils/                  # Utilities (logging)
 ├── examples/                   # Example scripts
 ├── notebooks/                  # Jupyter notebooks
 ├── docs/                       # Documentation
+├── webui/                      # Next.js control panel UI
+├── k8s/                        # Kubernetes manifests (kustomize)
+├── docker/                     # Dockerfiles and OTEL collector config
 ├── scripts/                    # Startup/shutdown scripts
 └── tests/                      # Test suite
 ```

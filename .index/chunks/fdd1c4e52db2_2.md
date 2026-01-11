@@ -1,0 +1,19 @@
+# Chunk: fdd1c4e52db2_2
+
+- source: `webui/.next/dev/server/chunks/ssr/[root-of-the-server]__f3da85fa._.js`
+- lines: 48-58
+- chunk: 3/3
+
+```
+ect$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$src$2f$app$2f$library$2f$page$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/src/app/library/page.tsx [app-rsc] (client reference proxy)");
+;
+__turbopack_context__.n(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$src$2f$app$2f$library$2f$page$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__);
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/src/app/library/page.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/src/app/library/page.tsx [app-rsc] (ecmascript)"));
+}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__f3da85fa._.js.map
+```

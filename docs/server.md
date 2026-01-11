@@ -1,0 +1,69 @@
+# Server (REST + WebSocket + MCP)
+
+Agentic Assistants includes a FastAPI backend that powers:
+
+- REST APIs (including Control Panel endpoints under `/api/v1/*`)
+- WebSocket streaming for events/logs (`/ws`)
+- MCP (Model Context Protocol) over WebSocket (`/mcp`)
+
+## Running the server
+
+### CLI
+
+```bash
+agentic server start
+```
+
+Common options:
+
+```bash
+agentic server start --host 127.0.0.1 --port 8080 --reload
+agentic server start --no-mcp
+agentic server start --no-rest
+```
+
+### Programmatic
+
+```python
+from agentic_assistants.server.app import start_server
+
+start_server(host="127.0.0.1", port=8080, reload=False)
+```
+
+## API surface (high-level)
+
+### Health + legacy endpoints
+
+- `GET /health`
+- `POST /chat`
+- `POST /search`
+- `POST /index`
+- `GET /collections`
+- `GET /stats`
+- `WS /ws` and `WS /ws/{client_id}`
+
+### Control Panel REST routers (`/api/v1/*`)
+
+The backend includes routers for:
+
+- **Projects**: `/api/v1/projects/*`
+- **Agents**: `/api/v1/agents/*`
+- **Flows**: `/api/v1/flows/*`
+- **Components**: `/api/v1/components/*`
+- **Notes**: `/api/v1/notes/*`
+- **Tags**: `/api/v1/tags/*`
+- **Data sources + catalog**: `/api/v1/datasources/*`
+- **Generation**: `/api/v1/generate/*`
+- **Pipelines**: `/api/v1/pipelines/*`
+- **Kubernetes**: `/api/v1/kubernetes/*`
+
+## WebSockets
+
+- **`/ws`** is used for real-time events/log streaming to UIs.
+- **`/mcp`** is the MCP endpoint (WebSocket) for model context protocol interactions.
+
+## Notes
+
+- CORS is currently permissive by default (useful for local development).
+- The Web UI Control Panel (`webui/`) is designed to talk to this server (default `http://localhost:8080`).
+

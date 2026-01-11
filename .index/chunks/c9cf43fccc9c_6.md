@@ -1,0 +1,69 @@
+# Chunk: c9cf43fccc9c_6
+
+- source: `.venv-lab/Lib/site-packages/pip/_vendor/packaging/specifiers.py`
+- lines: 437-498
+- chunk: 7/15
+
+```
+equal(self, prospective: Version, spec: str) -> bool:
+        # NB: Local version identifiers are NOT permitted in the version
+        # specifier, so local version labels can be universally removed from
+        # the prospective version.
+        return Version(prospective.public) >= Version(spec)
+
+    def _compare_less_than(self, prospective: Version, spec_str: str) -> bool:
+        # Convert our spec to a Version instance, since we'll want to work with
+        # it as a version.
+        spec = Version(spec_str)
+
+        # Check to see if the prospective version is less than the spec
+        # version. If it's not we can short circuit and just return False now
+        # instead of doing extra unneeded work.
+        if not prospective < spec:
+            return False
+
+        # This special case is here so that, unless the specifier itself
+        # includes is a pre-release version, that we do not accept pre-release
+        # versions for the version mentioned in the specifier (e.g. <3.1 should
+        # not match 3.1.dev0, but should match 3.0.dev0).
+        if not spec.is_prerelease and prospective.is_prerelease:
+            if Version(prospective.base_version) == Version(spec.base_version):
+                return False
+
+        # If we've gotten to here, it means that prospective version is both
+        # less than the spec version *and* it's not a pre-release of the same
+        # version in the spec.
+        return True
+
+    def _compare_greater_than(self, prospective: Version, spec_str: str) -> bool:
+        # Convert our spec to a Version instance, since we'll want to work with
+        # it as a version.
+        spec = Version(spec_str)
+
+        # Check to see if the prospective version is greater than the spec
+        # version. If it's not we can short circuit and just return False now
+        # instead of doing extra unneeded work.
+        if not prospective > spec:
+            return False
+
+        # This special case is here so that, unless the specifier itself
+        # includes is a post-release version, that we do not accept
+        # post-release versions for the version mentioned in the specifier
+        # (e.g. >3.1 should not match 3.0.post0, but should match 3.2.post0).
+        if not spec.is_postrelease and prospective.is_postrelease:
+            if Version(prospective.base_version) == Version(spec.base_version):
+                return False
+
+        # Ensure that we do not allow a local version of the version mentioned
+        # in the specifier, which is technically greater than, to match.
+        if prospective.local is not None:
+            if Version(prospective.base_version) == Version(spec.base_version):
+                return False
+
+        # If we've gotten to here, it means that prospective version is both
+        # greater than the spec version *and* it's not a pre-release of the
+        # same version in the spec.
+        return True
+
+    def _compare_arbitrary(self, prospective: Version, spec: str) -> bool:
+```

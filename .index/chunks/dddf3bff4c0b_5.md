@@ -1,0 +1,83 @@
+# Chunk: dddf3bff4c0b_5
+
+- source: `.venv-lab/Lib/site-packages/nbformat/v4/nbformat.v4.4.schema.json`
+- lines: 385-460
+- chunk: 6/6
+
+```
+     "required": ["output_type"],
+      "properties": {
+        "output_type": {
+          "description": "Type of cell output.",
+          "not": {
+            "enum": ["execute_result", "display_data", "stream", "error"]
+          }
+        }
+      }
+    },
+
+    "misc": {
+      "metadata_name": {
+        "description": "The cell's name. If present, must be a non-empty string. Cell names are expected to be unique across all the cells in a given notebook. This criterion cannot be checked by the json schema and must be established by an additional check.",
+        "type": "string",
+        "pattern": "^.+$"
+      },
+      "metadata_tags": {
+        "description": "The cell's tags. Tags must be unique, and must not contain commas.",
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[^,]+$"
+        }
+      },
+      "attachments": {
+        "description": "Media attachments (e.g. inline images), stored as mimebundle keyed by filename.",
+        "type": "object",
+        "patternProperties": {
+          ".*": {
+            "description": "The attachment's data stored as a mimebundle.",
+            "$ref": "#/definitions/misc/mimebundle"
+          }
+        }
+      },
+      "source": {
+        "description": "Contents of the cell, represented as an array of lines.",
+        "$ref": "#/definitions/misc/multiline_string"
+      },
+      "execution_count": {
+        "description": "The code cell's prompt number. Will be null if the cell has not been run.",
+        "type": ["integer", "null"],
+        "minimum": 0
+      },
+      "mimebundle": {
+        "description": "A mime-type keyed dictionary of data",
+        "type": "object",
+        "additionalProperties": {
+          "description": "mimetype output (e.g. text/plain), represented as either an array of strings or a string.",
+          "$ref": "#/definitions/misc/multiline_string"
+        },
+        "patternProperties": {
+          "^application/(.*\\+)?json$": {
+            "description": "Mimetypes with JSON output, can be any type"
+          }
+        }
+      },
+      "output_metadata": {
+        "description": "Cell output metadata.",
+        "type": "object",
+        "additionalProperties": true
+      },
+      "multiline_string": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        ]
+      }
+    }
+  }
+}
+```

@@ -1,0 +1,105 @@
+# Chunk: faa33d6d5ecf_0
+
+- source: `.venv-lab/Lib/site-packages/httpcore/_async/http11.py`
+- lines: 1-98
+- chunk: 1/6
+
+```
+from __future__ import annotations
+
+import enum
+import logging
+import ssl
+import time
+import types
+import typing
+
+import h11
+
+from .._backends.base import AsyncNetworkStream
+from .._exceptions import (
+    ConnectionNotAvailable,
+    LocalProtocolError,
+    RemoteProtocolError,
+    WriteError,
+    map_exceptions,
+)
+from .._models import Origin, Request, Response
+from .._synchronization import AsyncLock, AsyncShieldCancellation
+from .._trace import Trace
+from .interfaces import AsyncConnectionInterface
+
+logger = logging.getLogger("httpcore.http11")
+
+
+# A subset of `h11.Event` types supported by `_send_event`
+H11SendEvent = typing.Union[
+    h11.Request,
+    h11.Data,
+    h11.EndOfMessage,
+]
+
+
+class HTTPConnectionState(enum.IntEnum):
+    NEW = 0
+    ACTIVE = 1
+    IDLE = 2
+    CLOSED = 3
+
+
+class AsyncHTTP11Connection(AsyncConnectionInterface):
+    READ_NUM_BYTES = 64 * 1024
+    MAX_INCOMPLETE_EVENT_SIZE = 100 * 1024
+
+    def __init__(
+        self,
+        origin: Origin,
+        stream: AsyncNetworkStream,
+        keepalive_expiry: float | None = None,
+    ) -> None:
+        self._origin = origin
+        self._network_stream = stream
+        self._keepalive_expiry: float | None = keepalive_expiry
+        self._expire_at: float | None = None
+        self._state = HTTPConnectionState.NEW
+        self._state_lock = AsyncLock()
+        self._request_count = 0
+        self._h11_state = h11.Connection(
+            our_role=h11.CLIENT,
+            max_incomplete_event_size=self.MAX_INCOMPLETE_EVENT_SIZE,
+        )
+
+    async def handle_async_request(self, request: Request) -> Response:
+        if not self.can_handle_request(request.url.origin):
+            raise RuntimeError(
+                f"Attempted to send request to {request.url.origin} on connection "
+                f"to {self._origin}"
+            )
+
+        async with self._state_lock:
+            if self._state in (HTTPConnectionState.NEW, HTTPConnectionState.IDLE):
+                self._request_count += 1
+                self._state = HTTPConnectionState.ACTIVE
+                self._expire_at = None
+            else:
+                raise ConnectionNotAvailable()
+
+        try:
+            kwargs = {"request": request}
+            try:
+                async with Trace(
+                    "send_request_headers", logger, request, kwargs
+                ) as trace:
+                    await self._send_request_headers(**kwargs)
+                async with Trace("send_request_body", logger, request, kwargs) as trace:
+                    await self._send_request_body(**kwargs)
+            except WriteError:
+                # If we get a write error while we're writing the request,
+                # then we supress this error and move on to attempting to
+                # read the response. Servers can sometimes close the request
+                # pre-emptively and then respond with a well formed HTTP
+                # error response.
+                pass
+
+            async with Trace(
+```

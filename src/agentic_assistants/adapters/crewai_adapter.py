@@ -5,6 +5,7 @@ This adapter wraps CrewAI crews and agents to provide:
 - MLFlow experiment tracking for crew runs
 - OpenTelemetry tracing for agent interactions
 - Standardized metrics and logging
+- Kubernetes deployment support
 
 Example:
     >>> from crewai import Agent, Task, Crew
@@ -22,6 +23,13 @@ Example:
     ...     crew,
     ...     inputs={"topic": "AI agents"},
     ...     experiment_name="research-experiment"
+    ... )
+    >>> 
+    >>> # Deploy to Kubernetes
+    >>> deployment = await adapter.deploy_crew(
+    ...     crew_id="my-crew",
+    ...     name="research-crew",
+    ...     model_endpoint="http://ollama.model-serving:11434"
     ... )
 """
 
@@ -285,3 +293,133 @@ class CrewAIAdapter(BaseAdapter):
             **kwargs,
         )
 
+    async def deploy_crew(
+        self,
+        crew_id: str,
+        name: str,
+        namespace: Optional[str] = None,
+        replicas: int = 1,
+        model_endpoint: Optional[str] = None,
+        tools: Optional[list[str]] = None,
+        env_vars: Optional[dict[str, str]] = None,
+        cpu_request: str = "100m",
+        cpu_limit: str = "1000m",
+        memory_request: str = "256Mi",
+        memory_limit: str = "1Gi",
+    ) -> Any:
+        """
+        Deploy a CrewAI crew to Kubernetes.
+        
+        This method creates a Kubernetes deployment for running the crew
+        as a persistent service.
+        
+        Args:
+            crew_id: Unique identifier for the crew
+            name: Deployment name
+            namespace: Kubernetes namespace (uses default if None)
+            replicas: Number of replicas
+            model_endpoint: LLM endpoint URL (e.g., Ollama service)
+            tools: List of tools to include
+            env_vars: Additional environment variables
+            cpu_request: CPU request
+            cpu_limit: CPU limit
+            memory_request: Memory request
+            memory_limit: Memory limit
+        
+        Returns:
+            DeploymentInfo if successful
+        
+        Example:
+            >>> deployment = await adapter.deploy_crew(
+            ...     crew_id="research-crew-001",
+            ...     name="research-crew",
+            ...     model_endpoint="http://ollama.model-serving:11434",
+            ...     replicas=2
+            ... )
+        """
+        from agentic_assistants.kubernetes import (
+            DeploymentManager,
+            AgentDeploymentConfig,
+            ResourceRequirements,
+        )
+        
+        deployer = DeploymentManager(config=self.config)
+        
+        resources = ResourceRequirements(
+            cpu_request=cpu_request,
+            cpu_limit=cpu_limit,
+            memory_request=memory_request,
+            memory_limit=memory_limit,
+        )
+        
+        config = AgentDeploymentConfig(
+            agent_id=crew_id,
+            name=name,
+            namespace=namespace or self.config.kubernetes.default_deploy_namespace,
+            replicas=replicas,
+            framework="crewai",
+            model_endpoint=model_endpoint,
+            tools=tools or [],
+            env_vars=env_vars or {},
+            resources=resources,
+        )
+        
+        deployment = await deployer.deploy_agent(config)
+        
+        if deployment:
+            logger.info(f"Deployed crew {name} to Kubernetes")
+        else:
+            logger.error(f"Failed to deploy crew {name}")
+        
+        return deployment
+
+    async def undeploy_crew(
+        self,
+        name: str,
+        namespace: Optional[str] = None,
+    ) -> bool:
+        """
+        Remove a crew deployment from Kubernetes.
+        
+        Args:
+            name: Deployment name
+            namespace: Kubernetes namespace
+        
+        Returns:
+            True if successfully deleted
+        """
+        from agentic_assistants.kubernetes import DeploymentManager
+        
+        deployer = DeploymentManager(config=self.config)
+        ns = namespace or self.config.kubernetes.default_deploy_namespace
+        
+        success = await deployer.delete_deployment(name, ns)
+        
+        if success:
+            logger.info(f"Undeployed crew {name} from Kubernetes")
+        else:
+            logger.error(f"Failed to undeploy crew {name}")
+        
+        return success
+
+    async def get_crew_deployment_status(
+        self,
+        name: str,
+        namespace: Optional[str] = None,
+    ) -> dict:
+        """
+        Get the status of a crew deployment.
+        
+        Args:
+            name: Deployment name
+            namespace: Kubernetes namespace
+        
+        Returns:
+            Deployment status dict
+        """
+        from agentic_assistants.kubernetes import DeploymentManager
+        
+        deployer = DeploymentManager(config=self.config)
+        ns = namespace or self.config.kubernetes.default_deploy_namespace
+        
+        return await deployer.get_deployment_status(name, ns)

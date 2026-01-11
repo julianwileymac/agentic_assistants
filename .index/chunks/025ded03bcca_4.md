@@ -1,0 +1,92 @@
+# Chunk: 025ded03bcca_4
+
+- source: `.venv-lab/Lib/site-packages/jedi/third_party/typeshed/third_party/2and3/mock.pyi`
+- lines: 316-401
+- chunk: 5/6
+
+```
+        new_callable: Optional[Any] = ...,
+            **kwargs: Any,
+        ) -> _patch[Union[MagicMock, AsyncMock]]: ...
+        @overload
+        def object(
+            self,
+            target: Any,
+            attribute: Text,
+            new: _T = ...,
+            spec: Optional[Any] = ...,
+            create: bool = ...,
+            spec_set: Optional[Any] = ...,
+            autospec: Optional[Any] = ...,
+            new_callable: Optional[Any] = ...,
+            **kwargs: Any,
+        ) -> _patch[_T]: ...
+    else:
+        @overload
+        def object(  # type: ignore
+            self,
+            target: Any,
+            attribute: Text,
+            *,
+            spec: Optional[Any] = ...,
+            create: bool = ...,
+            spec_set: Optional[Any] = ...,
+            autospec: Optional[Any] = ...,
+            new_callable: Optional[Any] = ...,
+            **kwargs: Any,
+        ) -> _patch[MagicMock]: ...
+        @overload
+        def object(
+            self,
+            target: Any,
+            attribute: Text,
+            new: _T = ...,
+            spec: Optional[Any] = ...,
+            create: bool = ...,
+            spec_set: Optional[Any] = ...,
+            autospec: Optional[Any] = ...,
+            new_callable: Optional[Any] = ...,
+            **kwargs: Any,
+        ) -> _patch[_T]: ...
+    def multiple(
+        self,
+        target: Any,
+        spec: Optional[Any] = ...,
+        create: bool = ...,
+        spec_set: Optional[Any] = ...,
+        autospec: Optional[Any] = ...,
+        new_callable: Optional[Any] = ...,
+        **kwargs: _T,
+    ) -> _patch[_T]: ...
+    def stopall(self) -> None: ...
+
+patch: _patcher
+
+class MagicMixin:
+    def __init__(self, *args: Any, **kw: Any) -> None: ...
+
+class NonCallableMagicMock(MagicMixin, NonCallableMock):
+    def mock_add_spec(self, spec: Any, spec_set: bool = ...) -> None: ...
+
+class MagicMock(MagicMixin, Mock):
+    def mock_add_spec(self, spec: Any, spec_set: bool = ...) -> None: ...
+
+if sys.version_info >= (3, 8):
+    class AsyncMockMixin(Base):
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+        async def _execute_mock_call(self, *args: Any, **kwargs: Any) -> Any: ...
+        def assert_awaited(self) -> None: ...
+        def assert_awaited_once(self) -> None: ...
+        def assert_awaited_with(self, *args: Any, **kwargs: Any) -> None: ...
+        def assert_awaited_once_with(self, *args: Any, **kwargs: Any) -> None: ...
+        def assert_any_await(self, *args: Any, **kwargs: Any) -> None: ...
+        def assert_has_awaits(self, calls: _CallList, any_order: bool = ...) -> None: ...
+        def assert_not_awaited(self) -> None: ...
+        def reset_mock(self, *args, **kwargs) -> None: ...
+        await_count: int
+        await_args: Optional[_Call]
+        await_args_list: _CallList
+    class AsyncMagicMixin(MagicMixin):
+        def __init__(self, *args: Any, **kw: Any) -> None: ...
+    class AsyncMock(AsyncMockMixin, AsyncMagicMixin, Mock): ...
+```

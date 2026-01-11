@@ -1,0 +1,68 @@
+# Chunk: ba5b20aaac1f_20
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 959-1019
+- chunk: 21/98
+
+```
+rmalized;
+}
+function isInterceptionAppRoute(route) {
+    return route.interceptionMarker !== undefined && route.interceptingRoute !== undefined && route.interceptedRoute !== undefined;
+}
+function parseAppRoute(pathname, normalized) {
+    const pathnameSegments = pathname.split('/').filter(Boolean);
+    // Build segments array with static and dynamic segments
+    const segments = [];
+    // Parse if this is an interception route.
+    let interceptionMarker;
+    let interceptingRoute;
+    let interceptedRoute;
+    for (const segment of pathnameSegments){
+        // Parse the segment into an AppSegment.
+        const appSegment = parseAppRouteSegment(segment);
+        if (!appSegment) {
+            continue;
+        }
+        if (normalized && (appSegment.type === 'route-group' || appSegment.type === 'parallel-route')) {
+            throw Object.defineProperty(new __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$invariant$2d$error$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["InvariantError"](`${pathname} is being parsed as a normalized route, but it has a route group or parallel route segment.`), "__NEXT_ERROR_CODE", {
+                value: "E923",
+                enumerable: false,
+                configurable: true
+            });
+        }
+        segments.push(appSegment);
+        if (appSegment.interceptionMarker) {
+            const parts = pathname.split(appSegment.interceptionMarker);
+            if (parts.length !== 2) {
+                throw Object.defineProperty(new Error(`Invalid interception route: ${pathname}`), "__NEXT_ERROR_CODE", {
+                    value: "E924",
+                    enumerable: false,
+                    configurable: true
+                });
+            }
+            interceptingRoute = normalized ? parseAppRoute(parts[0], true) : parseAppRoute(parts[0], false);
+            interceptedRoute = normalized ? parseAppRoute(parts[1], true) : parseAppRoute(parts[1], false);
+            interceptionMarker = appSegment.interceptionMarker;
+        }
+    }
+    const dynamicSegments = segments.filter((segment)=>segment.type === 'dynamic');
+    return {
+        normalized,
+        pathname,
+        segments,
+        dynamicSegments,
+        interceptionMarker,
+        interceptingRoute,
+        interceptedRoute
+    };
+} //# sourceMappingURL=app.js.map
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/shared/lib/router/utils/parse-loader-tree.js [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "parseLoaderTree",
+    ()=>parseLoaderTree
+]);
+```

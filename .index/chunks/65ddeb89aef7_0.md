@@ -1,0 +1,106 @@
+# Chunk: 65ddeb89aef7_0
+
+- source: `webui/.next/build/chunks/[root-of-the-server]__1359ec9e._.js`
+- lines: 1-99
+- chunk: 1/7
+
+```
+module.exports = [
+"[turbopack-node]/globals.ts [postcss] (ecmascript)", ((__turbopack_context__, module, exports) => {
+
+// @ts-ignore
+process.turbopack = {};
+}),
+"[externals]/node:net [external] (node:net, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("node:net", () => require("node:net"));
+
+module.exports = mod;
+}),
+"[externals]/node:stream [external] (node:stream, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("node:stream", () => require("node:stream"));
+
+module.exports = mod;
+}),
+"[turbopack-node]/compiled/stacktrace-parser/index.js [postcss] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "parse",
+    ()=>parse
+]);
+if (typeof __nccwpck_require__ !== "undefined") __nccwpck_require__.ab = ("TURBOPACK compile-time value", "/ROOT/compiled/stacktrace-parser") + "/";
+var n = "<unknown>";
+function parse(e) {
+    var r = e.split("\n");
+    return r.reduce(function(e, r) {
+        var n = parseChrome(r) || parseWinjs(r) || parseGecko(r) || parseNode(r) || parseJSC(r);
+        if (n) {
+            e.push(n);
+        }
+        return e;
+    }, []);
+}
+var a = /^\s*at (.*?) ?\(((?:file|https?|blob|chrome-extension|native|eval|webpack|<anonymous>|\/|[a-z]:\\|\\\\).*?)(?::(\d+))?(?::(\d+))?\)?\s*$/i;
+var l = /\((\S*)(?::(\d+))(?::(\d+))\)/;
+function parseChrome(e) {
+    var r = a.exec(e);
+    if (!r) {
+        return null;
+    }
+    var u = r[2] && r[2].indexOf("native") === 0;
+    var t = r[2] && r[2].indexOf("eval") === 0;
+    var i = l.exec(r[2]);
+    if (t && i != null) {
+        r[2] = i[1];
+        r[3] = i[2];
+        r[4] = i[3];
+    }
+    return {
+        file: !u ? r[2] : null,
+        methodName: r[1] || n,
+        arguments: u ? [
+            r[2]
+        ] : [],
+        lineNumber: r[3] ? +r[3] : null,
+        column: r[4] ? +r[4] : null
+    };
+}
+var u = /^\s*at (?:((?:\[object object\])?.+) )?\(?((?:file|ms-appx|https?|webpack|blob):.*?):(\d+)(?::(\d+))?\)?\s*$/i;
+function parseWinjs(e) {
+    var r = u.exec(e);
+    if (!r) {
+        return null;
+    }
+    return {
+        file: r[2],
+        methodName: r[1] || n,
+        arguments: [],
+        lineNumber: +r[3],
+        column: r[4] ? +r[4] : null
+    };
+}
+var t = /^\s*(.*?)(?:\((.*?)\))?(?:^|@)((?:file|https?|blob|chrome|webpack|resource|\[native).*?|[^@]*bundle)(?::(\d+))?(?::(\d+))?\s*$/i;
+var i = /(\S+) line (\d+)(?: > eval line \d+)* > eval/i;
+function parseGecko(e) {
+    var r = t.exec(e);
+    if (!r) {
+        return null;
+    }
+    var a = r[3] && r[3].indexOf(" > eval") > -1;
+    var l = i.exec(r[3]);
+    if (a && l != null) {
+        r[3] = l[1];
+        r[4] = l[2];
+        r[5] = null;
+    }
+    return {
+        file: r[3],
+        methodName: r[1] || n,
+        arguments: r[2] ? r[2].split(",") : [],
+        lineNumber: r[4] ? +r[4] : null,
+        column: r[5] ? +r[5] : null
+    };
+}
+```

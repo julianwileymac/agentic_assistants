@@ -1,0 +1,140 @@
+# Chunk: a3be15a24edc_2
+
+- source: `.venv-lab/Lib/site-packages/prompt_toolkit/output/base.py`
+- lines: 201-333
+- chunk: 3/3
+
+```
+position(self) -> int:
+        "For Windows only."
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_default_color_depth(self) -> ColorDepth:
+        """
+        Get default color depth for this output.
+
+        This value will be used if no color depth was explicitly passed to the
+        `Application`.
+
+        .. note::
+
+            If the `$PROMPT_TOOLKIT_COLOR_DEPTH` environment variable has been
+            set, then `outputs.defaults.create_output` will pass this value to
+            the implementation as the default_color_depth, which is returned
+            here. (This is not used when the output corresponds to a
+            prompt_toolkit SSH/Telnet session.)
+        """
+
+
+class DummyOutput(Output):
+    """
+    For testing. An output class that doesn't render anything.
+    """
+
+    def fileno(self) -> int:
+        "There is no sensible default for fileno()."
+        raise NotImplementedError
+
+    def encoding(self) -> str:
+        return "utf-8"
+
+    def write(self, data: str) -> None:
+        pass
+
+    def write_raw(self, data: str) -> None:
+        pass
+
+    def set_title(self, title: str) -> None:
+        pass
+
+    def clear_title(self) -> None:
+        pass
+
+    def flush(self) -> None:
+        pass
+
+    def erase_screen(self) -> None:
+        pass
+
+    def enter_alternate_screen(self) -> None:
+        pass
+
+    def quit_alternate_screen(self) -> None:
+        pass
+
+    def enable_mouse_support(self) -> None:
+        pass
+
+    def disable_mouse_support(self) -> None:
+        pass
+
+    def erase_end_of_line(self) -> None:
+        pass
+
+    def erase_down(self) -> None:
+        pass
+
+    def reset_attributes(self) -> None:
+        pass
+
+    def set_attributes(self, attrs: Attrs, color_depth: ColorDepth) -> None:
+        pass
+
+    def disable_autowrap(self) -> None:
+        pass
+
+    def enable_autowrap(self) -> None:
+        pass
+
+    def cursor_goto(self, row: int = 0, column: int = 0) -> None:
+        pass
+
+    def cursor_up(self, amount: int) -> None:
+        pass
+
+    def cursor_down(self, amount: int) -> None:
+        pass
+
+    def cursor_forward(self, amount: int) -> None:
+        pass
+
+    def cursor_backward(self, amount: int) -> None:
+        pass
+
+    def hide_cursor(self) -> None:
+        pass
+
+    def show_cursor(self) -> None:
+        pass
+
+    def set_cursor_shape(self, cursor_shape: CursorShape) -> None:
+        pass
+
+    def reset_cursor_shape(self) -> None:
+        pass
+
+    def ask_for_cpr(self) -> None:
+        pass
+
+    def bell(self) -> None:
+        pass
+
+    def enable_bracketed_paste(self) -> None:
+        pass
+
+    def disable_bracketed_paste(self) -> None:
+        pass
+
+    def scroll_buffer_to_prompt(self) -> None:
+        pass
+
+    def get_size(self) -> Size:
+        return Size(rows=40, columns=80)
+
+    def get_rows_below_cursor_position(self) -> int:
+        return 40
+
+    def get_default_color_depth(self) -> ColorDepth:
+        return ColorDepth.DEPTH_1_BIT
+```

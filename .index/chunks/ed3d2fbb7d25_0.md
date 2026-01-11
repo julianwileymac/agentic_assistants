@@ -1,0 +1,39 @@
+# Chunk: ed3d2fbb7d25_0
+
+- source: `frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-7f5c5b.js`
+- lines: 1-32
+- chunk: 1/6
+
+```
+"use strict";
+(self["webpackChunkbrowser_app"] = self["webpackChunkbrowser_app"] || []).push([["vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-7f5c5b"],{
+
+/***/ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\node_modules\\@theia\\filesystem\\lib\\browser\\download\\file-download-command-contribution.js"
+/*!********************************************************************************************************************************************************************!*\
+  !*** C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\frontend\node_modules\@theia\filesystem\lib\browser\download\file-download-command-contribution.js ***!
+  \********************************************************************************************************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+
+// *****************************************************************************
+// Copyright (C) 2018 TypeFox and others.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License v. 2.0 which is available at
+// http://www.eclipse.org/legal/epl-2.0.
+//
+// This Source Code may also be made available under the following Secondary
+// Licenses when the conditions for such availability set forth in the Eclipse
+// Public License v. 2.0 are satisfied: GNU General Public License, version 2
+// with the GNU Classpath Exception which is available at
+// https://www.gnu.org/software/classpath/license.html.
+//
+// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+// *****************************************************************************
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FileDownloadCommands = exports.FileDownloadCommandContribution = void 0;
+const tslib_1 = __webpack_require__(/*! tslib */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\node_modules\\tslib\\tslib.es6.mjs");
+const inversify_1 = __webpack_require__(/*! @theia/core/shared/inversify */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\node_modules\\@theia\\core\\shared\\inversify\\index.js");
+const browser_1 = __webpack_require__(/*! @theia/core/lib/browser/browser */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\node_modules\\@theia\\core\\lib\\browser\\browser.js");
+const environment_1 = __webpack_require__(/*! @theia/core/shared/@theia/application-package/lib/environment */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\node_modules\\@theia\\core\\shared\\@theia\\application-package\\lib\\environment\\index.js");
+```

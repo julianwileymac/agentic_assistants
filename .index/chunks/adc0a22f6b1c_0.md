@@ -1,0 +1,24 @@
+# Chunk: adc0a22f6b1c_0
+
+- source: `.venv-lab/share/jupyter/lab/schemas/@jupyterlab/filebrowser-extension/open-browser-tab.json`
+- lines: 1-17
+- chunk: 1/1
+
+```
+{
+  "title": "File Browser Open Browser Tab",
+  "description": "File Browser Open Browser Tab settings.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "filebrowser:open-browser-tab",
+        "selector": ".jp-DirListing-item[data-isdir=\"false\"]",
+        "rank": 1.6
+      }
+    ]
+  },
+  "properties": {},
+  "additionalProperties": false,
+  "type": "object"
+}
+```

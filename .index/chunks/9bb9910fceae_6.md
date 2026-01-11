@@ -1,0 +1,48 @@
+# Chunk: 9bb9910fceae_6
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_d03fbca8._.js`
+- lines: 283-323
+- chunk: 7/98
+
+```
+sistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$trace$2f$tracer$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/lib/trace/tracer.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$trace$2f$constants$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/lib/trace/constants.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+function wrapApiHandler(page, handler) {
+    return (...args)=>{
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$trace$2f$tracer$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getTracer"])().setRootSpanAttribute('next.route', page);
+        // Call API route method
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$trace$2f$tracer$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getTracer"])().trace(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$trace$2f$constants$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["NodeSpan"].runHandler, {
+            spanName: `executing api route (pages) ${page}`
+        }, ()=>handler(...args));
+    };
+}
+function sendStatusCode(res, statusCode) {
+    res.statusCode = statusCode;
+    return res;
+}
+function redirect(res, statusOrUrl, url) {
+    if (typeof statusOrUrl === 'string') {
+        url = statusOrUrl;
+        statusOrUrl = 307;
+    }
+    if (typeof statusOrUrl !== 'number' || typeof url !== 'string') {
+        throw Object.defineProperty(new Error(`Invalid redirect arguments. Please use a single argument URL, e.g. res.redirect('/destination') or use a status code and URL, e.g. res.redirect(307, '/destination').`), "__NEXT_ERROR_CODE", {
+            value: "E389",
+            enumerable: false,
+            configurable: true
+        });
+    }
+    res.writeHead(statusOrUrl, {
+        Location: url
+    });
+    res.write(url);
+    res.end();
+    return res;
+}
+function checkIsOnDemandRevalidate(req, previewProps) {
+    const headers = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$adapters$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["HeadersAdapter"].from(req.headers);
+```

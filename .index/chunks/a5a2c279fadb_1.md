@@ -1,0 +1,103 @@
+# Chunk: a5a2c279fadb_1
+
+- source: `scripts/generate_index.py`
+- lines: 121-216
+- chunk: 2/14
+
+```
+parent)
+    path.write_text(text, encoding="utf-8")
+
+
+def write_json(path: Path, obj: Any) -> None:
+    ensure_dir(path.parent)
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def load_gitignore_spec(repo_root: Path) -> Any:
+    if pathspec is None:
+        return None
+    gi = repo_root / ".gitignore"
+    if not gi.exists():
+        return None
+    patterns = gi.read_text(encoding="utf-8", errors="ignore").splitlines()
+    patterns = [p for p in patterns if p.strip() and not p.strip().startswith("#")]
+    try:
+        return pathspec.PathSpec.from_lines("gitwildmatch", patterns)
+    except Exception:
+        return None
+
+
+def should_ignore(rel_path: str, ignore_spec: Any, extra_patterns: list[str]) -> bool:
+    # Extra patterns first (fast).
+    for pat in extra_patterns:
+        if pathspec is not None:
+            try:
+                spec = pathspec.PathSpec.from_lines("gitwildmatch", [pat])
+                if spec.match_file(rel_path):
+                    return True
+            except Exception:
+                pass
+        # Fallback: substring-ish match for common directory names.
+        if pat in {".git", ".index", "node_modules", "__pycache__", ".venv", "venv", "py11_venv", ".next"}:
+            if f"/{pat}/" in f"/{rel_path}/":
+                return True
+    if ignore_spec is None:
+        return False
+    try:
+        return bool(ignore_spec.match_file(rel_path))
+    except Exception:
+        return False
+
+
+@dataclass(frozen=True)
+class FileRecord:
+    path: str
+    sha256: str
+    size_bytes: int
+    mtime_epoch: float
+    language: Optional[str]
+    line_count: Optional[int]
+    binary: bool
+
+
+@dataclass(frozen=True)
+class ChunkRecord:
+    id: str
+    path: str
+    source_path: str
+    chunk_index: int
+    total_chunks: int
+    start_line: int
+    end_line: int
+    sha256: str
+
+
+def iter_repo_files(repo_root: Path, ignore_spec: Any, extra_patterns: list[str]) -> Iterable[Path]:
+    for root, dirs, files in os.walk(repo_root):
+        root_path = Path(root)
+        # Prune ignored directories
+        rel_root = root_path.relative_to(repo_root).as_posix()
+        pruned = []
+        for d in list(dirs):
+            rel_dir = f"{rel_root}/{d}" if rel_root != "." else d
+            if should_ignore(rel_dir, ignore_spec, extra_patterns):
+                pruned.append(d)
+        for d in pruned:
+            dirs.remove(d)
+
+        for name in files:
+            file_path = root_path / name
+            rel = file_path.relative_to(repo_root).as_posix()
+            if should_ignore(rel, ignore_spec, extra_patterns):
+                continue
+            yield file_path
+
+
+def chunk_text_by_chars(text: str, chunk_chars: int, overlap_chars: int) -> list[tuple[int, int, str]]:
+    if not text:
+        return []
+    if chunk_chars <= 0:
+        return [(1, max(1, text.count("\n") + 1), text)]
+
+```

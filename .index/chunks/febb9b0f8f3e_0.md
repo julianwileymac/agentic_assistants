@@ -1,0 +1,92 @@
+# Chunk: febb9b0f8f3e_0
+
+- source: `.venv-lab/Lib/site-packages/httpx-0.28.1.dist-info/METADATA`
+- lines: 1-86
+- chunk: 1/3
+
+```
+Metadata-Version: 2.3
+Name: httpx
+Version: 0.28.1
+Summary: The next generation HTTP client.
+Project-URL: Changelog, https://github.com/encode/httpx/blob/master/CHANGELOG.md
+Project-URL: Documentation, https://www.python-httpx.org
+Project-URL: Homepage, https://github.com/encode/httpx
+Project-URL: Source, https://github.com/encode/httpx
+Author-email: Tom Christie <tom@tomchristie.com>
+License: BSD-3-Clause
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Framework :: Trio
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.8
+Requires-Dist: anyio
+Requires-Dist: certifi
+Requires-Dist: httpcore==1.*
+Requires-Dist: idna
+Provides-Extra: brotli
+Requires-Dist: brotli; (platform_python_implementation == 'CPython') and extra == 'brotli'
+Requires-Dist: brotlicffi; (platform_python_implementation != 'CPython') and extra == 'brotli'
+Provides-Extra: cli
+Requires-Dist: click==8.*; extra == 'cli'
+Requires-Dist: pygments==2.*; extra == 'cli'
+Requires-Dist: rich<14,>=10; extra == 'cli'
+Provides-Extra: http2
+Requires-Dist: h2<5,>=3; extra == 'http2'
+Provides-Extra: socks
+Requires-Dist: socksio==1.*; extra == 'socks'
+Provides-Extra: zstd
+Requires-Dist: zstandard>=0.18.0; extra == 'zstd'
+Description-Content-Type: text/markdown
+
+<p align="center">
+  <a href="https://www.python-httpx.org/"><img width="350" height="208" src="https://raw.githubusercontent.com/encode/httpx/master/docs/img/butterfly.png" alt='HTTPX'></a>
+</p>
+
+<p align="center"><strong>HTTPX</strong> <em>- A next-generation HTTP client for Python.</em></p>
+
+<p align="center">
+<a href="https://github.com/encode/httpx/actions">
+    <img src="https://github.com/encode/httpx/workflows/Test%20Suite/badge.svg" alt="Test Suite">
+</a>
+<a href="https://pypi.org/project/httpx/">
+    <img src="https://badge.fury.io/py/httpx.svg" alt="Package version">
+</a>
+</p>
+
+HTTPX is a fully featured HTTP client library for Python 3. It includes **an integrated command line client**, has support for both **HTTP/1.1 and HTTP/2**, and provides both **sync and async APIs**.
+
+---
+
+Install HTTPX using pip:
+
+```shell
+$ pip install httpx
+```
+
+Now, let's get started:
+
+```pycon
+>>> import httpx
+>>> r = httpx.get('https://www.example.org/')
+>>> r
+<Response [200 OK]>
+>>> r.status_code
+200
+>>> r.headers['content-type']
+'text/html; charset=UTF-8'
+>>> r.text
+'<!doctype html>\n<html>\n<head>\n<title>Example Domain</title>...'
+```
+```

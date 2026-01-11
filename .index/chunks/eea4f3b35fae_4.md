@@ -1,0 +1,60 @@
+# Chunk: eea4f3b35fae_4
+
+- source: `.venv-lab/Lib/site-packages/nbformat/v4/nbformat.v4.1.schema.json`
+- lines: 332-384
+- chunk: 5/5
+
+```
+
+        }
+      },
+      "attachments": {
+        "description": "Media attachments (e.g. inline images), stored as mimebundle keyed by filename.",
+        "type": "object",
+        "patternProperties": {
+          ".*": {
+            "description": "The attachment's data stored as a mimebundle.",
+            "$ref": "#/definitions/misc/mimebundle"
+          }
+        }
+      },
+      "source": {
+        "description": "Contents of the cell, represented as an array of lines.",
+        "$ref": "#/definitions/misc/multiline_string"
+      },
+      "execution_count": {
+        "description": "The code cell's prompt number. Will be null if the cell has not been run.",
+        "type": ["integer", "null"],
+        "minimum": 0
+      },
+      "mimebundle": {
+        "description": "A mime-type keyed dictionary of data",
+        "type": "object",
+        "additionalProperties": {
+          "description": "mimetype output (e.g. text/plain), represented as either an array of strings or a string.",
+          "$ref": "#/definitions/misc/multiline_string"
+        },
+        "patternProperties": {
+          "^application/(.*\\+)?json$": {
+            "description": "Mimetypes with JSON output, can be any type"
+          }
+        }
+      },
+      "output_metadata": {
+        "description": "Cell output metadata.",
+        "type": "object",
+        "additionalProperties": true
+      },
+      "multiline_string": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        ]
+      }
+    }
+  }
+}
+```

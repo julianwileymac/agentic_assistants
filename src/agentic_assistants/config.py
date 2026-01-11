@@ -239,6 +239,279 @@ class DataLayerSettings(BaseSettings):
     )
 
 
+class IndexingSettings(BaseSettings):
+    """Configuration for codebase indexing."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="INDEXING_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    version: str = Field(
+        default="2.0",
+        description="Current indexing schema version",
+    )
+    auto_index_new_projects: bool = Field(
+        default=False,
+        description="Automatically index new projects (prompts user by default)",
+    )
+    chunk_size: int = Field(
+        default=1024,
+        description="Default chunk size for indexing",
+    )
+    chunk_overlap: int = Field(
+        default=128,
+        description="Overlap between chunks",
+    )
+    max_file_size_mb: int = Field(
+        default=1,
+        description="Maximum file size to index in MB",
+    )
+    excluded_patterns: list[str] = Field(
+        default_factory=lambda: [
+            "*.pyc", "__pycache__", "node_modules", ".git",
+            "*.egg-info", "dist", "build", ".venv", "venv"
+        ],
+        description="Patterns to exclude from indexing",
+    )
+
+
+class KubernetesSettings(BaseSettings):
+    """Configuration for Kubernetes cluster connection and management."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="K8S_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable Kubernetes cluster integration",
+    )
+    kubeconfig_path: Optional[str] = Field(
+        default=None,
+        description="Path to kubeconfig file (uses default if None)",
+    )
+    context: Optional[str] = Field(
+        default=None,
+        description="Kubernetes context to use (uses current-context if None)",
+    )
+    namespace: str = Field(
+        default="agentic",
+        description="Default namespace for deployments",
+    )
+    cluster_endpoint: Optional[str] = Field(
+        default=None,
+        description="Direct cluster API endpoint (alternative to kubeconfig)",
+    )
+    cluster_token: Optional[str] = Field(
+        default=None,
+        description="Bearer token for cluster authentication",
+    )
+    verify_ssl: bool = Field(
+        default=True,
+        description="Verify SSL certificates for cluster connections",
+    )
+    default_deploy_namespace: str = Field(
+        default="agentic-workloads",
+        description="Namespace for deploying agents and flows",
+    )
+    enable_distributed: bool = Field(
+        default=True,
+        description="Enable distributed computing with Dask/Ray",
+    )
+    model_serving_namespace: str = Field(
+        default="model-serving",
+        description="Namespace for LLM model deployments",
+    )
+    # Resource defaults
+    default_cpu_request: str = Field(
+        default="100m",
+        description="Default CPU request for deployments",
+    )
+    default_memory_request: str = Field(
+        default="256Mi",
+        description="Default memory request for deployments",
+    )
+    default_cpu_limit: str = Field(
+        default="1000m",
+        description="Default CPU limit for deployments",
+    )
+    default_memory_limit: str = Field(
+        default="1Gi",
+        description="Default memory limit for deployments",
+    )
+
+
+class MinIOSettings(BaseSettings):
+    """Configuration for MinIO/S3-compatible object storage."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="MINIO_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable MinIO storage integration",
+    )
+    endpoint: str = Field(
+        default="minio.data-services.svc.cluster.local:9000",
+        description="MinIO server endpoint",
+    )
+    external_endpoint: Optional[str] = Field(
+        default=None,
+        description="External MinIO endpoint for access outside cluster",
+    )
+    access_key: Optional[str] = Field(
+        default=None,
+        description="MinIO access key",
+    )
+    secret_key: Optional[str] = Field(
+        default=None,
+        description="MinIO secret key",
+    )
+    secure: bool = Field(
+        default=False,
+        description="Use HTTPS for MinIO connections",
+    )
+    default_bucket: str = Field(
+        default="agentic-artifacts",
+        description="Default bucket for artifact storage",
+    )
+    model_bucket: str = Field(
+        default="model-cache",
+        description="Bucket for cached model files",
+    )
+    region: str = Field(
+        default="us-east-1",
+        description="S3 region (for compatibility)",
+    )
+
+
+class ServiceConfig(BaseSettings):
+    """Configuration for an external service resource."""
+
+    model_config = SettingsConfigDict(extra="ignore")
+
+    name: str = Field(default="", description="Service name")
+    service_type: str = Field(
+        default="api_endpoint",
+        description="Service type (web_ui, api_endpoint, file_store, background_service, database, ml_deployment)",
+    )
+    endpoint_url: str = Field(default="", description="Service endpoint URL")
+    health_endpoint: Optional[str] = Field(default=None, description="Health check endpoint")
+    auth_type: Optional[str] = Field(default=None, description="Authentication type (none, api_key, oauth, basic)")
+    credentials_ref: Optional[str] = Field(default=None, description="Reference to credentials in secrets store")
+    config_yaml: str = Field(default="", description="Additional service configuration in YAML")
+
+
+class GitConfig(BaseSettings):
+    """Configuration for git integration."""
+
+    model_config = SettingsConfigDict(extra="ignore")
+
+    remote_url: Optional[str] = Field(default=None, description="Git remote URL")
+    branch: str = Field(default="main", description="Default branch")
+    auto_sync: bool = Field(default=False, description="Automatically sync with remote")
+    ssh_key_ref: Optional[str] = Field(default=None, description="Reference to SSH key in secrets store")
+
+
+class ProjectSettings(BaseSettings):
+    """
+    Project-specific configuration with persistence support.
+    
+    Project configuration is persisted to projects/{project_id}/config.yaml
+    """
+    
+    model_config = SettingsConfigDict(
+        env_prefix="AGENTIC_PROJECT_",
+        extra="ignore",
+    )
+    
+    project_id: Optional[str] = Field(default=None, description="Project ID")
+    git: Optional[GitConfig] = Field(default=None, description="Git configuration")
+    auto_index: bool = Field(default=False, description="Enable automatic codebase indexing")
+    indexing_version: str = Field(default="2.0", description="Indexing schema version used")
+    data_sources: list[str] = Field(default_factory=list, description="List of DataSource IDs")
+    services: dict[str, ServiceConfig] = Field(default_factory=dict, description="Associated services")
+    environment_vars: dict[str, str] = Field(default_factory=dict, description="Project environment variables")
+    
+    @classmethod
+    def load_for_project(cls, project_id: str, base_dir: Path = Path("./projects")) -> "ProjectSettings":
+        """Load configuration for a specific project."""
+        config_file = base_dir / project_id / "config.yaml"
+        
+        if config_file.exists():
+            with open(config_file, "r") as f:
+                data = yaml.safe_load(f) or {}
+            
+            # Parse nested configs
+            if "git" in data and data["git"]:
+                data["git"] = GitConfig(**data["git"])
+            if "services" in data:
+                data["services"] = {
+                    k: ServiceConfig(**v) for k, v in data["services"].items()
+                }
+            
+            return cls(project_id=project_id, **data)
+        
+        return cls(project_id=project_id)
+    
+    def save(self, base_dir: Path = Path("./projects")) -> None:
+        """Persist project configuration to file."""
+        if not self.project_id:
+            return
+        
+        config_file = base_dir / self.project_id / "config.yaml"
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        data = {
+            "auto_index": self.auto_index,
+            "indexing_version": self.indexing_version,
+            "data_sources": self.data_sources,
+            "environment_vars": self.environment_vars,
+        }
+        
+        if self.git:
+            data["git"] = {
+                "remote_url": self.git.remote_url,
+                "branch": self.git.branch,
+                "auto_sync": self.git.auto_sync,
+                "ssh_key_ref": self.git.ssh_key_ref,
+            }
+        
+        if self.services:
+            data["services"] = {
+                k: {
+                    "name": v.name,
+                    "service_type": v.service_type,
+                    "endpoint_url": v.endpoint_url,
+                    "health_endpoint": v.health_endpoint,
+                    "auth_type": v.auth_type,
+                    "credentials_ref": v.credentials_ref,
+                    "config_yaml": v.config_yaml,
+                }
+                for k, v in self.services.items()
+            }
+        
+        with open(config_file, "w") as f:
+            yaml.dump(data, f, default_flow_style=False)
+    
+    def update(self, **kwargs) -> None:
+        """Update project configuration and persist."""
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        self.save()
+
+
 class UserConfig(BaseSettings):
     """
     User-specific configuration with persistence support.
@@ -512,9 +785,13 @@ class AgenticConfig(BaseSettings):
     _session: Optional[SessionSettings] = None
     _server: Optional[ServerSettings] = None
     _data_layer: Optional[DataLayerSettings] = None
+    _indexing: Optional[IndexingSettings] = None
+    _kubernetes: Optional[KubernetesSettings] = None
+    _minio: Optional[MinIOSettings] = None
     _user: Optional[UserConfig] = None
     _session_config: Optional[SessionConfig] = None
     _global: Optional[GlobalConfig] = None
+    _project: Optional[ProjectSettings] = None
 
     @property
     def ollama(self) -> OllamaSettings:
@@ -564,6 +841,34 @@ class AgenticConfig(BaseSettings):
         if self._data_layer is None:
             self._data_layer = DataLayerSettings()
         return self._data_layer
+
+    @property
+    def indexing(self) -> IndexingSettings:
+        """Get indexing configuration."""
+        if self._indexing is None:
+            self._indexing = IndexingSettings()
+        return self._indexing
+
+    @property
+    def kubernetes(self) -> KubernetesSettings:
+        """Get Kubernetes configuration."""
+        if self._kubernetes is None:
+            self._kubernetes = KubernetesSettings()
+        return self._kubernetes
+
+    @property
+    def minio(self) -> MinIOSettings:
+        """Get MinIO storage configuration."""
+        if self._minio is None:
+            self._minio = MinIOSettings()
+        return self._minio
+
+    @property
+    def project(self) -> ProjectSettings:
+        """Get project configuration."""
+        if self._project is None:
+            self._project = ProjectSettings()
+        return self._project
 
     @property
     def user(self) -> UserConfig:
@@ -623,6 +928,31 @@ class AgenticConfig(BaseSettings):
         
         return config
     
+    @classmethod
+    def for_project(cls, project_id: str, user_id: Optional[str] = None, **kwargs) -> "AgenticConfig":
+        """
+        Create a configuration instance for a specific project.
+        
+        Args:
+            project_id: The project identifier
+            user_id: Optional user identifier
+            **kwargs: Additional configuration overrides
+        
+        Returns:
+            AgenticConfig instance with project-specific settings
+        """
+        config = cls(**kwargs)
+        config._project = ProjectSettings.load_for_project(project_id, config.data_dir / "projects")
+        
+        if user_id:
+            config._user = UserConfig.load_for_user(user_id, config.users_dir)
+        
+        return config
+    
+    def switch_project(self, project_id: str) -> None:
+        """Switch to a different project's configuration."""
+        self._project = ProjectSettings.load_for_project(project_id, self.data_dir / "projects")
+    
     def switch_user(self, user_id: str) -> None:
         """Switch to a different user's configuration."""
         self._user = UserConfig.load_for_user(user_id, self.users_dir)
@@ -639,6 +969,8 @@ class AgenticConfig(BaseSettings):
             self._user.save()
         if self._session_config is not None and self._session_config.session_id:
             self._session_config.save(self.data_dir / "sessions")
+        if self._project is not None and self._project.project_id:
+            self._project.save(self.data_dir / "projects")
     
     def reload(self) -> None:
         """Reload all configuration from files."""
@@ -723,6 +1055,37 @@ class AgenticConfig(BaseSettings):
                 "persist_interactions": self.session_config.persist_interactions,
                 "context_window_size": self.session_config.context_window_size,
             },
+            "indexing": {
+                "version": self.indexing.version,
+                "auto_index_new_projects": self.indexing.auto_index_new_projects,
+                "chunk_size": self.indexing.chunk_size,
+                "chunk_overlap": self.indexing.chunk_overlap,
+                "max_file_size_mb": self.indexing.max_file_size_mb,
+            },
+            "kubernetes": {
+                "enabled": self.kubernetes.enabled,
+                "kubeconfig_path": self.kubernetes.kubeconfig_path,
+                "context": self.kubernetes.context,
+                "namespace": self.kubernetes.namespace,
+                "cluster_endpoint": self.kubernetes.cluster_endpoint,
+                "default_deploy_namespace": self.kubernetes.default_deploy_namespace,
+                "enable_distributed": self.kubernetes.enable_distributed,
+                "model_serving_namespace": self.kubernetes.model_serving_namespace,
+            },
+            "minio": {
+                "enabled": self.minio.enabled,
+                "endpoint": self.minio.endpoint,
+                "external_endpoint": self.minio.external_endpoint,
+                "secure": self.minio.secure,
+                "default_bucket": self.minio.default_bucket,
+                "model_bucket": self.minio.model_bucket,
+            },
+            "project": {
+                "project_id": self.project.project_id,
+                "auto_index": self.project.auto_index,
+                "indexing_version": self.project.indexing_version,
+                "data_sources": self.project.data_sources,
+            },
         }
     
     def to_yaml(self) -> str:
@@ -749,4 +1112,6 @@ class AgenticConfig(BaseSettings):
         (self.data_dir / "artifacts").mkdir(parents=True, exist_ok=True)
         (self.data_dir / "shared").mkdir(parents=True, exist_ok=True)
         (self.data_dir / "vectors").mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "projects").mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "datasources").mkdir(parents=True, exist_ok=True)
 

@@ -1,0 +1,79 @@
+# Chunk: b3f4ef4ef0cd_3
+
+- source: `.venv-lab/Lib/site-packages/setuptools/_vendor/packaging/_parser.py`
+- lines: 284-355
+- chunk: 4/4
+
+```
+PARENTHESIS",
+            around="marker expression",
+        ):
+            tokenizer.consume("WS")
+            marker: MarkerAtom = _parse_marker(tokenizer)
+            tokenizer.consume("WS")
+    else:
+        marker = _parse_marker_item(tokenizer)
+    tokenizer.consume("WS")
+    return marker
+
+
+def _parse_marker_item(tokenizer: Tokenizer) -> MarkerItem:
+    """
+    marker_item = WS? marker_var WS? marker_op WS? marker_var WS?
+    """
+    tokenizer.consume("WS")
+    marker_var_left = _parse_marker_var(tokenizer)
+    tokenizer.consume("WS")
+    marker_op = _parse_marker_op(tokenizer)
+    tokenizer.consume("WS")
+    marker_var_right = _parse_marker_var(tokenizer)
+    tokenizer.consume("WS")
+    return (marker_var_left, marker_op, marker_var_right)
+
+
+def _parse_marker_var(tokenizer: Tokenizer) -> MarkerVar:
+    """
+    marker_var = VARIABLE | QUOTED_STRING
+    """
+    if tokenizer.check("VARIABLE"):
+        return process_env_var(tokenizer.read().text.replace(".", "_"))
+    elif tokenizer.check("QUOTED_STRING"):
+        return process_python_str(tokenizer.read().text)
+    else:
+        tokenizer.raise_syntax_error(
+            message="Expected a marker variable or quoted string"
+        )
+
+
+def process_env_var(env_var: str) -> Variable:
+    if env_var in ("platform_python_implementation", "python_implementation"):
+        return Variable("platform_python_implementation")
+    else:
+        return Variable(env_var)
+
+
+def process_python_str(python_str: str) -> Value:
+    value = ast.literal_eval(python_str)
+    return Value(str(value))
+
+
+def _parse_marker_op(tokenizer: Tokenizer) -> Op:
+    """
+    marker_op = IN | NOT IN | OP
+    """
+    if tokenizer.check("IN"):
+        tokenizer.read()
+        return Op("in")
+    elif tokenizer.check("NOT"):
+        tokenizer.read()
+        tokenizer.expect("WS", expected="whitespace after 'not'")
+        tokenizer.expect("IN", expected="'in' after 'not'")
+        return Op("not in")
+    elif tokenizer.check("OP"):
+        return Op(tokenizer.read().text)
+    else:
+        return tokenizer.raise_syntax_error(
+            "Expected marker operator, one of "
+            "<=, <, !=, ==, >=, >, ~=, ===, in, not in"
+        )
+```

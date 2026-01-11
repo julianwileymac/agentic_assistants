@@ -1,0 +1,36 @@
+# Chunk: a2c9a11ccc5a_0
+
+- source: `.venv-lab/Lib/site-packages/pycparser-2.23.dist-info/METADATA`
+- lines: 1-29
+- chunk: 1/1
+
+```
+Metadata-Version: 2.1
+Name: pycparser
+Version: 2.23
+Summary: C parser in Python
+Home-page: https://github.com/eliben/pycparser
+Author: Eli Bendersky
+Author-email: eliben@gmail.com
+Maintainer: Eli Bendersky
+License: BSD-3-Clause
+Platform: Cross Platform
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.8
+License-File: LICENSE
+
+
+        pycparser is a complete parser of the C language, written in
+        pure Python using the PLY parsing library.
+        It parses C code into an AST and can serve as a front-end for
+        C compilers or analysis tools.
+    
+```

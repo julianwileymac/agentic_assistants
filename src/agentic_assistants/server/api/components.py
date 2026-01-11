@@ -77,7 +77,24 @@ def _get_store() -> ControlPanelStore:
     return ControlPanelStore.get_instance()
 
 
-VALID_CATEGORIES = {"tool", "agent", "task", "pattern", "utility", "template"}
+# Extended categories for Dify/RAGFlow-inspired workflow
+VALID_CATEGORIES = {
+    # Original categories
+    "tool",          # Reusable agent tools
+    "agent",         # Agent templates
+    "task",          # Task definitions
+    "pattern",       # Agentic patterns (RAG, ReAct, etc.)
+    "utility",       # Utility functions
+    "template",      # Project templates
+    # New categories for extended functionality
+    "datasource_handler",  # Data source connection handlers
+    "embedding_model",     # Custom embedding configurations
+    "prompt_template",     # Reusable prompt templates
+    "workflow_node",       # Dify-style workflow nodes
+    "retrieval_strategy",  # RAG retrieval strategies
+    "llm_wrapper",         # LLM integration wrappers
+    "crew_config",         # CrewAI crew configurations
+}
 
 
 # === Endpoints ===
@@ -188,12 +205,702 @@ async def list_categories() -> dict:
     """List all valid component categories."""
     return {
         "categories": [
-            {"id": "tool", "name": "Tool", "description": "Reusable agent tools"},
-            {"id": "agent", "name": "Agent", "description": "Agent templates"},
-            {"id": "task", "name": "Task", "description": "Task definitions"},
-            {"id": "pattern", "name": "Pattern", "description": "Agentic patterns (RAG, ReAct, etc.)"},
-            {"id": "utility", "name": "Utility", "description": "Utility functions"},
-            {"id": "template", "name": "Template", "description": "Project templates"},
+            # Core categories
+            {"id": "tool", "name": "Tool", "description": "Reusable agent tools", "group": "core"},
+            {"id": "agent", "name": "Agent", "description": "Agent templates", "group": "core"},
+            {"id": "task", "name": "Task", "description": "Task definitions", "group": "core"},
+            {"id": "pattern", "name": "Pattern", "description": "Agentic patterns (RAG, ReAct, etc.)", "group": "core"},
+            {"id": "utility", "name": "Utility", "description": "Utility functions", "group": "core"},
+            {"id": "template", "name": "Template", "description": "Project templates", "group": "core"},
+            # Extended categories
+            {"id": "datasource_handler", "name": "Data Source Handler", "description": "Custom data source connection handlers", "group": "data"},
+            {"id": "embedding_model", "name": "Embedding Model", "description": "Custom embedding configurations", "group": "ai"},
+            {"id": "prompt_template", "name": "Prompt Template", "description": "Reusable prompt templates", "group": "ai"},
+            {"id": "workflow_node", "name": "Workflow Node", "description": "Dify-style workflow nodes", "group": "workflow"},
+            {"id": "retrieval_strategy", "name": "Retrieval Strategy", "description": "RAG retrieval strategies", "group": "data"},
+            {"id": "llm_wrapper", "name": "LLM Wrapper", "description": "LLM integration wrappers", "group": "ai"},
+            {"id": "crew_config", "name": "Crew Configuration", "description": "CrewAI crew configurations", "group": "workflow"},
+        ],
+        "groups": [
+            {"id": "core", "name": "Core Components"},
+            {"id": "ai", "name": "AI & Language Models"},
+            {"id": "data", "name": "Data & Retrieval"},
+            {"id": "workflow", "name": "Workflow & Orchestration"},
         ]
+    }
+
+
+# === Base Components from Installed Packages ===
+
+BASE_COMPONENTS = [
+    # CrewAI components
+    {
+        "name": "CrewAIAgent",
+        "category": "agent",
+        "description": "Base CrewAI agent template with role, goal, and backstory configuration",
+        "language": "python",
+        "code": '''"""CrewAI Agent Template.
+
+A base template for creating CrewAI agents with standard configuration.
+"""
+
+from crewai import Agent
+
+def create_agent(
+    role: str,
+    goal: str,
+    backstory: str,
+    tools: list = None,
+    verbose: bool = True,
+    allow_delegation: bool = False,
+) -> Agent:
+    """Create a CrewAI agent with the specified configuration.
+    
+    Args:
+        role: The agent's role in the crew
+        goal: The agent's goal
+        backstory: The agent's backstory for context
+        tools: List of tools the agent can use
+        verbose: Enable verbose logging
+        allow_delegation: Allow delegating tasks to other agents
+    
+    Returns:
+        Configured CrewAI Agent instance
+    """
+    return Agent(
+        role=role,
+        goal=goal,
+        backstory=backstory,
+        tools=tools or [],
+        verbose=verbose,
+        allow_delegation=allow_delegation,
+    )
+''',
+        "usage_example": '''from crewai import Crew, Task
+
+# Create an agent
+researcher = create_agent(
+    role="Senior Researcher",
+    goal="Find and analyze relevant information",
+    backstory="You are an expert researcher with years of experience",
+    tools=[search_tool, scrape_tool],
+)
+
+# Create a task
+task = Task(
+    description="Research the latest AI developments",
+    expected_output="A summary of recent AI advancements",
+    agent=researcher,
+)
+
+# Create and run crew
+crew = Crew(agents=[researcher], tasks=[task])
+result = crew.kickoff()
+''',
+        "tags": ["crewai", "agent", "template"],
+        "metadata": {"package": "crewai", "version": ">=0.28.0"},
+    },
+    # LangGraph workflow
+    {
+        "name": "LangGraphWorkflow",
+        "category": "pattern",
+        "description": "LangGraph state machine workflow template for multi-step agent orchestration",
+        "language": "python",
+        "code": '''"""LangGraph Workflow Template.
+
+A base template for creating state machine workflows with LangGraph.
+"""
+
+from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, END
+
+class WorkflowState(TypedDict):
+    """State for the workflow."""
+    messages: list
+    current_step: str
+    data: dict
+
+
+def create_workflow():
+    """Create a LangGraph workflow with standard structure.
+    
+    Returns:
+        Compiled StateGraph ready for execution
+    """
+    workflow = StateGraph(WorkflowState)
+    
+    # Define nodes
+    def process_input(state: WorkflowState) -> WorkflowState:
+        """Process initial input."""
+        return {"current_step": "processed", **state}
+    
+    def analyze(state: WorkflowState) -> WorkflowState:
+        """Analyze the data."""
+        return {"current_step": "analyzed", **state}
+    
+    def decide_next(state: WorkflowState) -> str:
+        """Decide the next step."""
+        if state.get("data", {}).get("complete"):
+            return "end"
+        return "analyze"
+    
+    # Add nodes to graph
+    workflow.add_node("process", process_input)
+    workflow.add_node("analyze", analyze)
+    
+    # Add edges
+    workflow.set_entry_point("process")
+    workflow.add_edge("process", "analyze")
+    workflow.add_conditional_edges("analyze", decide_next, {"analyze": "analyze", "end": END})
+    
+    return workflow.compile()
+''',
+        "usage_example": '''# Create and run the workflow
+workflow = create_workflow()
+
+# Initial state
+initial_state = {
+    "messages": [],
+    "current_step": "start",
+    "data": {"input": "Some data to process"},
+}
+
+# Run the workflow
+result = workflow.invoke(initial_state)
+print(result)
+''',
+        "tags": ["langgraph", "workflow", "state-machine"],
+        "metadata": {"package": "langgraph", "version": ">=0.0.1"},
+    },
+    # RAG Retriever
+    {
+        "name": "RAGRetriever",
+        "category": "tool",
+        "description": "RAG retrieval tool using LlamaIndex for semantic document search",
+        "language": "python",
+        "code": '''"""RAG Retriever Tool.
+
+A retrieval tool using LlamaIndex for semantic document search.
+"""
+
+from typing import Optional, List
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.core.retrievers import VectorIndexRetriever
+
+
+class RAGRetriever:
+    """RAG-based document retriever using LlamaIndex."""
+    
+    def __init__(
+        self,
+        index: Optional[VectorStoreIndex] = None,
+        top_k: int = 5,
+    ):
+        """Initialize the retriever.
+        
+        Args:
+            index: Pre-built VectorStoreIndex
+            top_k: Number of results to retrieve
+        """
+        self.index = index
+        self.top_k = top_k
+        self._retriever = None
+    
+    def from_directory(self, path: str) -> "RAGRetriever":
+        """Build index from a directory of documents.
+        
+        Args:
+            path: Path to documents directory
+        
+        Returns:
+            Self for chaining
+        """
+        documents = SimpleDirectoryReader(path).load_data()
+        self.index = VectorStoreIndex.from_documents(documents)
+        return self
+    
+    def retrieve(self, query: str) -> List[dict]:
+        """Retrieve relevant documents.
+        
+        Args:
+            query: Search query
+        
+        Returns:
+            List of retrieved documents with scores
+        """
+        if self.index is None:
+            raise ValueError("Index not initialized. Call from_directory first.")
+        
+        if self._retriever is None:
+            self._retriever = VectorIndexRetriever(
+                index=self.index,
+                similarity_top_k=self.top_k,
+            )
+        
+        nodes = self._retriever.retrieve(query)
+        return [
+            {
+                "content": node.node.text,
+                "score": node.score,
+                "metadata": node.node.metadata,
+            }
+            for node in nodes
+        ]
+''',
+        "usage_example": '''# Create retriever from documents
+retriever = RAGRetriever(top_k=3).from_directory("./docs")
+
+# Retrieve relevant documents
+results = retriever.retrieve("How do I configure the system?")
+for doc in results:
+    print(f"Score: {doc['score']:.2f}")
+    print(f"Content: {doc['content'][:200]}...")
+''',
+        "tags": ["rag", "retrieval", "llama-index"],
+        "metadata": {"package": "llama-index", "version": ">=0.10.0"},
+    },
+    # Ollama Embedder
+    {
+        "name": "OllamaEmbedder",
+        "category": "embedding_model",
+        "description": "Embedding model configuration using Ollama for local embeddings",
+        "language": "python",
+        "code": '''"""Ollama Embedding Model.
+
+Configuration for using Ollama as an embedding provider.
+"""
+
+from typing import List, Optional
+from langchain_ollama import OllamaEmbeddings
+
+
+class OllamaEmbedder:
+    """Embedding model using Ollama."""
+    
+    def __init__(
+        self,
+        model: str = "nomic-embed-text",
+        base_url: str = "http://localhost:11434",
+    ):
+        """Initialize the Ollama embedder.
+        
+        Args:
+            model: Ollama model name for embeddings
+            base_url: Ollama server URL
+        """
+        self.model = model
+        self.base_url = base_url
+        self._embeddings = None
+    
+    @property
+    def embeddings(self) -> OllamaEmbeddings:
+        """Get the LangChain embeddings instance."""
+        if self._embeddings is None:
+            self._embeddings = OllamaEmbeddings(
+                model=self.model,
+                base_url=self.base_url,
+            )
+        return self._embeddings
+    
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a single query text.
+        
+        Args:
+            text: Text to embed
+        
+        Returns:
+            Embedding vector
+        """
+        return self.embeddings.embed_query(text)
+    
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """Embed multiple documents.
+        
+        Args:
+            texts: List of texts to embed
+        
+        Returns:
+            List of embedding vectors
+        """
+        return self.embeddings.embed_documents(texts)
+''',
+        "usage_example": '''# Create embedder
+embedder = OllamaEmbedder(model="nomic-embed-text")
+
+# Embed a query
+query_embedding = embedder.embed_query("What is machine learning?")
+print(f"Embedding dimension: {len(query_embedding)}")
+
+# Embed documents
+docs = ["Document 1 content", "Document 2 content"]
+doc_embeddings = embedder.embed_documents(docs)
+''',
+        "tags": ["ollama", "embeddings", "langchain"],
+        "metadata": {"package": "langchain-ollama", "version": ">=0.1.0"},
+    },
+    # MLFlow Logger
+    {
+        "name": "MLFlowLogger",
+        "category": "utility",
+        "description": "MLFlow experiment tracking utility for logging metrics, parameters, and artifacts",
+        "language": "python",
+        "code": '''"""MLFlow Experiment Logger.
+
+Utility for tracking ML experiments with MLFlow.
+"""
+
+import mlflow
+from typing import Any, Dict, Optional
+from pathlib import Path
+
+
+class MLFlowLogger:
+    """MLFlow experiment logger."""
+    
+    def __init__(
+        self,
+        experiment_name: str,
+        tracking_uri: str = "http://localhost:5000",
+    ):
+        """Initialize the MLFlow logger.
+        
+        Args:
+            experiment_name: Name of the experiment
+            tracking_uri: MLFlow tracking server URI
+        """
+        self.experiment_name = experiment_name
+        mlflow.set_tracking_uri(tracking_uri)
+        mlflow.set_experiment(experiment_name)
+        self._run = None
+    
+    def start_run(self, run_name: Optional[str] = None) -> "MLFlowLogger":
+        """Start a new run.
+        
+        Args:
+            run_name: Optional name for the run
+        
+        Returns:
+            Self for chaining
+        """
+        self._run = mlflow.start_run(run_name=run_name)
+        return self
+    
+    def log_params(self, params: Dict[str, Any]) -> "MLFlowLogger":
+        """Log parameters.
+        
+        Args:
+            params: Dictionary of parameters
+        
+        Returns:
+            Self for chaining
+        """
+        mlflow.log_params(params)
+        return self
+    
+    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None) -> "MLFlowLogger":
+        """Log metrics.
+        
+        Args:
+            metrics: Dictionary of metrics
+            step: Optional step number
+        
+        Returns:
+            Self for chaining
+        """
+        mlflow.log_metrics(metrics, step=step)
+        return self
+    
+    def log_artifact(self, path: str) -> "MLFlowLogger":
+        """Log an artifact.
+        
+        Args:
+            path: Path to artifact file
+        
+        Returns:
+            Self for chaining
+        """
+        mlflow.log_artifact(path)
+        return self
+    
+    def end_run(self) -> None:
+        """End the current run."""
+        if self._run:
+            mlflow.end_run()
+            self._run = None
+    
+    def __enter__(self):
+        self.start_run()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_run()
+        return False
+''',
+        "usage_example": '''# Use as context manager
+with MLFlowLogger("my-experiment") as logger:
+    logger.log_params({"learning_rate": 0.01, "epochs": 100})
+    
+    for epoch in range(100):
+        loss = train_epoch()
+        logger.log_metrics({"loss": loss}, step=epoch)
+    
+    logger.log_artifact("model.pkl")
+''',
+        "tags": ["mlflow", "experiment-tracking", "logging"],
+        "metadata": {"package": "mlflow", "version": ">=2.0.0"},
+    },
+    # Vector Search Tool
+    {
+        "name": "VectorSearchTool",
+        "category": "tool",
+        "description": "Vector similarity search tool supporting LanceDB and ChromaDB backends",
+        "language": "python",
+        "code": '''"""Vector Search Tool.
+
+A unified vector search tool supporting multiple backends.
+"""
+
+from typing import List, Dict, Any, Optional, Literal
+from abc import ABC, abstractmethod
+
+
+class VectorSearchTool:
+    """Unified vector search tool."""
+    
+    def __init__(
+        self,
+        backend: Literal["lancedb", "chromadb"] = "lancedb",
+        collection: str = "default",
+        db_path: str = "./data/vectors",
+    ):
+        """Initialize the vector search tool.
+        
+        Args:
+            backend: Vector database backend
+            collection: Collection name
+            db_path: Path to database storage
+        """
+        self.backend = backend
+        self.collection = collection
+        self.db_path = db_path
+        self._db = None
+        self._table = None
+    
+    def _init_lancedb(self):
+        """Initialize LanceDB backend."""
+        import lancedb
+        self._db = lancedb.connect(self.db_path)
+    
+    def _init_chromadb(self):
+        """Initialize ChromaDB backend."""
+        import chromadb
+        self._db = chromadb.PersistentClient(path=self.db_path)
+    
+    def add(
+        self,
+        texts: List[str],
+        embeddings: List[List[float]],
+        metadata: Optional[List[Dict]] = None,
+        ids: Optional[List[str]] = None,
+    ) -> None:
+        """Add documents to the collection.
+        
+        Args:
+            texts: Document texts
+            embeddings: Document embeddings
+            metadata: Optional metadata for each document
+            ids: Optional IDs for each document
+        """
+        if self._db is None:
+            if self.backend == "lancedb":
+                self._init_lancedb()
+            else:
+                self._init_chromadb()
+        
+        # Implementation depends on backend
+        raise NotImplementedError("Implement for specific backend")
+    
+    def search(
+        self,
+        query_embedding: List[float],
+        top_k: int = 5,
+        filter_metadata: Optional[Dict] = None,
+    ) -> List[Dict[str, Any]]:
+        """Search for similar documents.
+        
+        Args:
+            query_embedding: Query embedding vector
+            top_k: Number of results
+            filter_metadata: Optional metadata filter
+        
+        Returns:
+            List of results with text, score, and metadata
+        """
+        raise NotImplementedError("Implement for specific backend")
+''',
+        "usage_example": '''# Create search tool
+search = VectorSearchTool(backend="lancedb", collection="docs")
+
+# Add documents
+embeddings = embed_documents(["Doc 1", "Doc 2", "Doc 3"])
+search.add(
+    texts=["Doc 1", "Doc 2", "Doc 3"],
+    embeddings=embeddings,
+)
+
+# Search
+query_emb = embed_query("find relevant documents")
+results = search.search(query_emb, top_k=5)
+''',
+        "tags": ["vector-search", "lancedb", "chromadb"],
+        "metadata": {"packages": ["lancedb", "chromadb"]},
+    },
+    # Prompt Template
+    {
+        "name": "StructuredPromptTemplate",
+        "category": "prompt_template",
+        "description": "Structured prompt template with variable substitution and validation",
+        "language": "python",
+        "code": '''"""Structured Prompt Template.
+
+A flexible prompt template system with validation.
+"""
+
+import re
+from typing import Dict, List, Optional, Any
+from string import Template
+
+
+class StructuredPromptTemplate:
+    """Structured prompt template with validation."""
+    
+    def __init__(
+        self,
+        template: str,
+        required_vars: Optional[List[str]] = None,
+        default_values: Optional[Dict[str, Any]] = None,
+    ):
+        """Initialize the prompt template.
+        
+        Args:
+            template: Template string with {var} placeholders
+            required_vars: List of required variables
+            default_values: Default values for optional variables
+        """
+        self.template = template
+        self.required_vars = required_vars or []
+        self.default_values = default_values or {}
+        
+        # Extract variables from template
+        self.variables = set(re.findall(r'\\{(\\w+)\\}', template))
+    
+    def validate(self, **kwargs) -> tuple[bool, List[str]]:
+        """Validate that all required variables are provided.
+        
+        Returns:
+            Tuple of (is_valid, list of missing variables)
+        """
+        provided = set(kwargs.keys()) | set(self.default_values.keys())
+        missing = [v for v in self.required_vars if v not in provided]
+        return len(missing) == 0, missing
+    
+    def format(self, **kwargs) -> str:
+        """Format the template with provided values.
+        
+        Args:
+            **kwargs: Variable values
+        
+        Returns:
+            Formatted prompt string
+        
+        Raises:
+            ValueError: If required variables are missing
+        """
+        is_valid, missing = self.validate(**kwargs)
+        if not is_valid:
+            raise ValueError(f"Missing required variables: {missing}")
+        
+        # Merge defaults with provided values
+        values = {**self.default_values, **kwargs}
+        
+        # Use safe substitution
+        result = self.template
+        for var, value in values.items():
+            result = result.replace(f"{{{var}}}", str(value))
+        
+        return result
+    
+    def get_variables(self) -> Dict[str, str]:
+        """Get all variables with their status.
+        
+        Returns:
+            Dict mapping variable name to status (required/optional/default)
+        """
+        result = {}
+        for var in self.variables:
+            if var in self.required_vars:
+                result[var] = "required"
+            elif var in self.default_values:
+                result[var] = f"default: {self.default_values[var]}"
+            else:
+                result[var] = "optional"
+        return result
+''',
+        "usage_example": '''# Create a template
+template = StructuredPromptTemplate(
+    template=\"\"\"You are a {role} assistant.
+
+Your task is to {task}.
+
+Context:
+{context}
+
+Please respond in {format} format.
+\"\"\",
+    required_vars=["role", "task"],
+    default_values={"format": "markdown"},
+)
+
+# Format the template
+prompt = template.format(
+    role="research",
+    task="analyze the provided data",
+    context="Sales data from Q1 2024...",
+)
+print(prompt)
+''',
+        "tags": ["prompt", "template", "llm"],
+        "metadata": {},
+    },
+]
+
+
+@router.post("/base/install")
+async def install_base_components() -> dict:
+    """Install base components from installed packages."""
+    store = _get_store()
+    installed = []
+    skipped = []
+    errors = []
+    
+    for component_data in BASE_COMPONENTS:
+        try:
+            # Check if component already exists
+            existing, _ = store.list_components(search=component_data["name"])
+            if any(c.name == component_data["name"] for c in existing):
+                skipped.append(component_data["name"])
+                continue
+            
+            # Create component
+            component = store.create_component(**component_data)
+            installed.append(component.name)
+        except Exception as e:
+            errors.append(f"{component_data['name']}: {str(e)}")
+    
+    return {
+        "installed": installed,
+        "skipped": skipped,
+        "errors": errors,
+        "total_base_components": len(BASE_COMPONENTS),
     }
 

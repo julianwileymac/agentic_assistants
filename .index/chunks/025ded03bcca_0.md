@@ -1,0 +1,106 @@
+# Chunk: 025ded03bcca_0
+
+- source: `.venv-lab/Lib/site-packages/jedi/third_party/typeshed/third_party/2and3/mock.pyi`
+- lines: 1-99
+- chunk: 1/6
+
+```
+import sys
+from typing import Any, Callable, Generic, List, Mapping, Optional, Sequence, Text, Tuple, Type, TypeVar, Union, overload
+
+_F = TypeVar("_F", bound=Callable[..., Any])
+_T = TypeVar("_T")
+_TT = TypeVar("_TT", bound=Type[Any])
+_R = TypeVar("_R")
+
+__all__ = [
+    "Mock",
+    "MagicMock",
+    "patch",
+    "sentinel",
+    "DEFAULT",
+    "ANY",
+    "call",
+    "create_autospec",
+    "AsyncMock",
+    "FILTER_DIR",
+    "NonCallableMock",
+    "NonCallableMagicMock",
+    "mock_open",
+    "PropertyMock",
+    "seal",
+]
+__version__: str
+
+FILTER_DIR: Any
+
+class _slotted: ...
+
+class _SentinelObject:
+    name: Any
+    def __init__(self, name: Any) -> None: ...
+
+class _Sentinel:
+    def __init__(self) -> None: ...
+    def __getattr__(self, name: str) -> Any: ...
+
+sentinel: Any
+DEFAULT: Any
+
+class _Call(Tuple[Any, ...]):
+    def __new__(
+        cls, value: Any = ..., name: Optional[Any] = ..., parent: Optional[Any] = ..., two: bool = ..., from_kall: bool = ...
+    ) -> Any: ...
+    name: Any
+    parent: Any
+    from_kall: Any
+    def __init__(
+        self, value: Any = ..., name: Optional[Any] = ..., parent: Optional[Any] = ..., two: bool = ..., from_kall: bool = ...
+    ) -> None: ...
+    def __eq__(self, other: Any) -> bool: ...
+    __ne__: Any
+    def __call__(self, *args: Any, **kwargs: Any) -> _Call: ...
+    def __getattr__(self, attr: Any) -> Any: ...
+    def count(self, *args: Any, **kwargs: Any) -> Any: ...
+    def index(self, *args: Any, **kwargs: Any) -> Any: ...
+    def call_list(self) -> Any: ...
+
+call: _Call
+
+class _CallList(List[_Call]):
+    def __contains__(self, value: Any) -> bool: ...
+
+class _MockIter:
+    obj: Any
+    def __init__(self, obj: Any) -> None: ...
+    def __iter__(self) -> Any: ...
+    def __next__(self) -> Any: ...
+
+class Base:
+    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
+class NonCallableMock(Base, Any):  # type: ignore
+    def __new__(__cls, *args: Any, **kw: Any) -> NonCallableMock: ...
+    def __init__(
+        self,
+        spec: Union[List[str], object, Type[object], None] = ...,
+        wraps: Optional[Any] = ...,
+        name: Optional[str] = ...,
+        spec_set: Union[List[str], object, Type[object], None] = ...,
+        parent: Optional[NonCallableMock] = ...,
+        _spec_state: Optional[Any] = ...,
+        _new_name: str = ...,
+        _new_parent: Optional[NonCallableMock] = ...,
+        _spec_as_instance: bool = ...,
+        _eat_self: Optional[bool] = ...,
+        unsafe: bool = ...,
+        **kwargs: Any,
+    ) -> None: ...
+    def __getattr__(self, name: str) -> Any: ...
+    if sys.version_info >= (3, 8):
+        def _calls_repr(self, prefix: str = ...) -> str: ...
+        def assert_called_with(self, *args: Any, **kwargs: Any) -> None: ...
+        def assert_not_called(self) -> None: ...
+        def assert_called_once_with(self, *args: Any, **kwargs: Any) -> None: ...
+        def _format_mock_failure_message(self, args: Any, kwargs: Any, action: str = ...) -> str: ...
+```

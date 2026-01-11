@@ -4,6 +4,10 @@ Codebase indexing for vector database.
 This module provides functionality to index entire codebases
 into the vector database for semantic search.
 
+Version History:
+    1.0: Initial indexing schema
+    2.0: Added project-level indexing and version tracking
+
 Example:
     >>> from agentic_assistants.indexing import CodebaseIndexer
     >>> from agentic_assistants.vectordb import VectorStore
@@ -11,6 +15,9 @@ Example:
     >>> store = VectorStore.create("lancedb")
     >>> indexer = CodebaseIndexer(store)
     >>> indexer.index_directory("./src", collection="my-project")
+    >>> 
+    >>> # Project-level indexing
+    >>> indexer.index_project("project-123", "./project/src")
 """
 
 import hashlib
@@ -18,7 +25,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.indexing.chunker import DocumentChunker, ChunkingStrategy
@@ -27,6 +34,9 @@ from agentic_assistants.utils.logging import get_logger
 from agentic_assistants.vectordb.base import Document, VectorStore
 
 logger = get_logger(__name__)
+
+# Indexing schema version - increment on breaking changes
+INDEXING_VERSION = "2.0"
 
 
 @dataclass
@@ -508,5 +518,269 @@ class CodebaseIndexer:
             "total_size_bytes": total_size,
             "by_language": languages,
             "vector_count": self.vector_store.count(collection),
+            "version": INDEXING_VERSION,
         }
+    
+    # =========================================================================
+    # Project-Level Indexing
+    # =========================================================================
+    
+    def _get_project_collection(self, project_id: str) -> str:
+        """Get the collection name for a project."""
+        return f"project-{project_id}"
+    
+    def index_project(
+        self,
+        project_id: str,
+        directory: Union[str, Path],
+        force: bool = False,
+        patterns: Optional[list[str]] = None,
+        progress_callback: Optional[callable] = None,
+    ) -> Dict[str, Any]:
+        """
+        Index a project's codebase with version tracking.
+        
+        This method:
+        1. Checks if the project needs re-indexing
+        2. Updates the IndexingState in the database
+        3. Performs incremental or full indexing
+        
+        Args:
+            project_id: Project ID
+            directory: Directory to index
+            force: Force full re-indexing
+            patterns: File patterns to include
+            progress_callback: Callback for progress updates
+        
+        Returns:
+            Dictionary with indexing results
+        """
+        from agentic_assistants.core.models import ControlPanelStore
+        
+        store = ControlPanelStore.get_instance()
+        collection = self._get_project_collection(project_id)
+        
+        # Get or create indexing state
+        state = store.get_or_create_indexing_state(project_id, collection)
+        
+        # Check if re-index needed
+        needs_reindex = force or self.needs_reindex(project_id)
+        
+        if not needs_reindex and state.status == "completed":
+            return {
+                "status": "skipped",
+                "reason": "Already indexed and up to date",
+                "project_id": project_id,
+                "version": state.version,
+                "file_count": state.file_count,
+                "chunk_count": state.chunk_count,
+            }
+        
+        # Update state to indexing
+        store.update_indexing_state(
+            project_id,
+            status="indexing",
+            version=INDEXING_VERSION,
+            error_message=None,
+        )
+        
+        try:
+            # If version changed, clear and re-index
+            if state.version != INDEXING_VERSION and state.status == "completed":
+                logger.info(f"Version changed ({state.version} -> {INDEXING_VERSION}), clearing collection")
+                self.clear_collection(collection)
+                force = True
+            
+            # Perform indexing
+            stats = self.index_directory(
+                directory=directory,
+                collection=collection,
+                patterns=patterns,
+                recursive=True,
+                force=force,
+                additional_metadata={"project_id": project_id},
+                progress_callback=progress_callback,
+            )
+            
+            # Update state with results
+            store.update_indexing_state(
+                project_id,
+                status="completed",
+                version=INDEXING_VERSION,
+                file_count=stats.files_processed,
+                chunk_count=stats.chunks_indexed,
+                last_indexed=datetime.utcnow(),
+                error_message=None if not stats.errors else "; ".join(stats.errors[:5]),
+            )
+            
+            return {
+                "status": "completed",
+                "project_id": project_id,
+                "version": INDEXING_VERSION,
+                "files_processed": stats.files_processed,
+                "files_skipped": stats.files_skipped,
+                "chunks_indexed": stats.chunks_indexed,
+                "duration_seconds": stats.duration_seconds,
+                "errors": stats.errors[:10] if stats.errors else [],
+            }
+            
+        except Exception as e:
+            logger.error(f"Project indexing failed for {project_id}: {e}")
+            
+            # Update state with error
+            store.update_indexing_state(
+                project_id,
+                status="failed",
+                error_message=str(e)[:500],
+            )
+            
+            return {
+                "status": "failed",
+                "project_id": project_id,
+                "error": str(e),
+            }
+    
+    def needs_reindex(self, project_id: str) -> bool:
+        """
+        Check if a project needs re-indexing.
+        
+        Re-indexing is needed if:
+        - Project has never been indexed
+        - Indexing version has changed
+        - Previous indexing failed
+        
+        Args:
+            project_id: Project ID
+        
+        Returns:
+            True if re-indexing is needed
+        """
+        from agentic_assistants.core.models import ControlPanelStore
+        
+        store = ControlPanelStore.get_instance()
+        state = store.get_or_create_indexing_state(project_id)
+        
+        # Never indexed
+        if state.last_indexed is None:
+            return True
+        
+        # Version mismatch
+        if state.version != INDEXING_VERSION:
+            return True
+        
+        # Previous failure
+        if state.status == "failed":
+            return True
+        
+        return False
+    
+    def get_project_index_state(self, project_id: str) -> Dict[str, Any]:
+        """
+        Get indexing state for a project.
+        
+        Args:
+            project_id: Project ID
+        
+        Returns:
+            State dictionary
+        """
+        from agentic_assistants.core.models import ControlPanelStore
+        
+        store = ControlPanelStore.get_instance()
+        state = store.get_or_create_indexing_state(project_id)
+        
+        return {
+            "project_id": project_id,
+            "collection_name": state.collection_name,
+            "version": state.version,
+            "current_version": INDEXING_VERSION,
+            "status": state.status,
+            "file_count": state.file_count,
+            "chunk_count": state.chunk_count,
+            "last_indexed": state.last_indexed.isoformat() if state.last_indexed else None,
+            "needs_reindex": self.needs_reindex(project_id),
+            "error_message": state.error_message,
+        }
+    
+    def clear_project_index(self, project_id: str) -> bool:
+        """
+        Clear all indexed data for a project.
+        
+        Args:
+            project_id: Project ID
+        
+        Returns:
+            True if cleared successfully
+        """
+        from agentic_assistants.core.models import ControlPanelStore
+        
+        collection = self._get_project_collection(project_id)
+        success = self.clear_collection(collection)
+        
+        if success:
+            # Reset indexing state
+            store = ControlPanelStore.get_instance()
+            store.update_indexing_state(
+                project_id,
+                status="idle",
+                file_count=0,
+                chunk_count=0,
+                last_indexed=None,
+                error_message=None,
+            )
+        
+        return success
+    
+    @staticmethod
+    def get_current_version() -> str:
+        """Get the current indexing schema version."""
+        return INDEXING_VERSION
+    
+    def upgrade_all_projects(
+        self,
+        project_directories: Dict[str, Union[str, Path]],
+        force: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Upgrade indexing for all projects to current version.
+        
+        This is useful for batch migration when the indexing schema changes.
+        
+        Args:
+            project_directories: Map of project_id -> directory path
+            force: Force re-indexing even if version matches
+        
+        Returns:
+            Dictionary with results per project
+        """
+        results = {
+            "total": len(project_directories),
+            "upgraded": 0,
+            "skipped": 0,
+            "failed": 0,
+            "projects": {},
+        }
+        
+        for project_id, directory in project_directories.items():
+            if not force and not self.needs_reindex(project_id):
+                results["skipped"] += 1
+                results["projects"][project_id] = {"status": "skipped"}
+                continue
+            
+            try:
+                result = self.index_project(project_id, directory, force=force)
+                results["projects"][project_id] = result
+                
+                if result["status"] == "completed":
+                    results["upgraded"] += 1
+                elif result["status"] == "skipped":
+                    results["skipped"] += 1
+                else:
+                    results["failed"] += 1
+                    
+            except Exception as e:
+                results["failed"] += 1
+                results["projects"][project_id] = {"status": "failed", "error": str(e)}
+        
+        return results
 

@@ -1,0 +1,16 @@
+# Chunk: 97ebcfb6cc6a_0
+
+- source: `.venv-lab/Lib/site-packages/jedi/third_party/typeshed/stdlib/3/glob.pyi`
+- lines: 1-9
+- chunk: 1/1
+
+```
+from typing import AnyStr, Iterator, List, Union
+
+def glob0(dirname: AnyStr, pattern: AnyStr) -> List[AnyStr]: ...
+def glob1(dirname: AnyStr, pattern: AnyStr) -> List[AnyStr]: ...
+def glob(pathname: AnyStr, *, recursive: bool = ...) -> List[AnyStr]: ...
+def iglob(pathname: AnyStr, *, recursive: bool = ...) -> Iterator[AnyStr]: ...
+def escape(pathname: AnyStr) -> AnyStr: ...
+def has_magic(s: Union[str, bytes]) -> bool: ...  # undocumented
+```

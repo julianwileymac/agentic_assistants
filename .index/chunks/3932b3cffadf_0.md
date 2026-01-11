@@ -1,0 +1,75 @@
+# Chunk: 3932b3cffadf_0
+
+- source: `theia-ide/extensions/agentic-extension/package.json`
+- lines: 1-68
+- chunk: 1/1
+
+```
+{
+  "name": "agentic-assistants-extension",
+  "displayName": "Agentic Assistants",
+  "description": "Integration with Agentic Assistants framework",
+  "version": "0.1.0",
+  "publisher": "agentic",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:agenticDataLayer",
+    "onCommand:agentic.startExperiment",
+    "onCommand:agentic.stopExperiment",
+    "onCommand:agentic.runScript"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentic-assistants",
+          "title": "Agentic Assistants",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "agentic-assistants": [
+        {
+          "id": "agenticDataLayer",
+          "name": "Data Layer"
+        },
+        {
+          "id": "agenticExperiments",
+          "name": "Experiments"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "agentic.startExperiment",
+        "title": "Agentic: Start MLFlow Experiment"
+      },
+      {
+        "command": "agentic.stopExperiment",
+        "title": "Agentic: Stop MLFlow Experiment"
+      },
+      {
+        "command": "agentic.runScript",
+        "title": "Agentic: Run Script with Memory Spec"
+      }
+    ],
+    "configuration": {
+      "title": "Agentic Assistants",
+      "properties": {
+        "agentic.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "URL of the Agentic Assistants API"
+        }
+      }
+    }
+  }
+}
+```

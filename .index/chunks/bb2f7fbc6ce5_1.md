@@ -1,0 +1,9 @@
+# Chunk: bb2f7fbc6ce5_1
+
+- source: `.venv-lab/share/jupyter/lab/static/6874.bb2f7fbc6ce56eecc800.js`
+- lines: 1-1
+- chunk: 2/2
+
+```
+T)){e.eatWhile(/[\w\.]/);return"number"}if(o.test(T)){e.eatWhile(o);return"operator"}if(T=="["){e.eatWhile(/[\w_\]]/);return"number"}e.eatWhile(/[\w\$_]/);var n=e.current();if(i.propertyIsEnumerable(n))return"keyword";if(C.propertyIsEnumerable(n))return"atom";if(r.propertyIsEnumerable(n))return"deleted";return"variable"}function l(e){return function(t,T){var n=false,E,i=false;while((E=t.next())!=null){if(E==e&&!n){var C=t.peek();if(C){C=C.toLowerCase();if(C=="b"||C=="h"||C=="o")t.next()}i=true;break}n=!n&&E=="\\"}if(i||!(n||N))T.tokenize=null;return"string"}}function A(e,t,T,n,E){this.indented=e;this.column=t;this.type=T;this.align=n;this.prev=E}function O(e,t,T){var n=e.indented;if(e.context&&e.context.type=="statement")n=e.context.indented;return e.context=new A(n,t,T,null,e.context)}function U(e){var t=e.context.type;if(t==")"||t=="]"||t=="}")e.indented=e.context.indented;return e.context=e.context.prev}const s={name:"ttcn",startState:function(){return{tokenize:null,context:new A(0,0,"top",false),indented:0,startOfLine:true}},token:function(e,t){var T=t.context;if(e.sol()){if(T.align==null)T.align=false;t.indented=e.indentation();t.startOfLine=true}if(e.eatSpace())return null;a=null;var n=(t.tokenize||_)(e,t);if(n=="comment")return n;if(T.align==null)T.align=true;if((a==";"||a==":"||a==",")&&T.type=="statement"){U(t)}else if(a=="{")O(t,e.column(),"}");else if(a=="[")O(t,e.column(),"]");else if(a=="(")O(t,e.column(),")");else if(a=="}"){while(T.type=="statement")T=U(t);if(T.type=="}")T=U(t);while(T.type=="statement")T=U(t)}else if(a==T.type)U(t);else if(I&&((T.type=="}"||T.type=="top")&&a!=";"||T.type=="statement"&&a=="newstatement"))O(t,e.column(),"statement");t.startOfLine=false;return n},languageData:{indentOnInput:/^\s*[{}]$/,commentTokens:{line:"#"}}}}}]);
+```

@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: agentic
+
+resources:
+  # Namespace
+  - namespace.yaml
+  
+  # Config
+  - configmap.yaml
+  
+  # Core services
+  - agentic/deployment.yaml
+  - agentic/ingress.yaml
+  
+  # MLFlow
+  - mlflow/mlflow-deployment.yaml
+  
+  # Redis Cache
+  - redis/redis-deployment.yaml
+  - redis/redis-configmap.yaml
+  
+  # CronJobs
+  - cronjobs/data-sync-cronjob.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: agentic-assistants
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: agentic-assistants
+    newTag: latest

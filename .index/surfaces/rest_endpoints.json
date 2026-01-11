@@ -1,0 +1,2126 @@
+{
+  "generated_at": "2026-01-11T03:10:02.545684+00:00",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 258,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/chat",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 268,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 285,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/sessions",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 291,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{name}",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 301,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/artifacts/tag",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 310,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/data/read",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 327,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/mlflow/experiment/start",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 338,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/search",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 350,
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/index",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 386,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/collections",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 429,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/collections/{name}",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 450,
+      "tags": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/collections/{name}",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 466,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/stats",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 484,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/stats",
+      "file": "src/agentic_assistants/server/rest.py",
+      "lineno": 496,
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/agents",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 88
+    },
+    {
+      "method": "POST",
+      "path": "/agents",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 110
+    },
+    {
+      "method": "GET",
+      "path": "/agents/{agent_id}",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 135
+    },
+    {
+      "method": "PUT",
+      "path": "/agents/{agent_id}",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 147
+    },
+    {
+      "method": "DELETE",
+      "path": "/agents/{agent_id}",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 161
+    },
+    {
+      "method": "POST",
+      "path": "/agents/{agent_id}/deploy",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 172
+    },
+    {
+      "method": "POST",
+      "path": "/agents/{agent_id}/run",
+      "router_prefix": "/agents",
+      "tags": [
+        "agents"
+      ],
+      "file": "src/agentic_assistants/server/api/agents.py",
+      "lineno": 184
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 341
+    },
+    {
+      "method": "POST",
+      "path": "/artifacts",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 368
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 402
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}/download",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 416
+    },
+    {
+      "method": "PATCH",
+      "path": "/artifacts/{artifact_id}",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 438
+    },
+    {
+      "method": "DELETE",
+      "path": "/artifacts/{artifact_id}",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 454
+    },
+    {
+      "method": "POST",
+      "path": "/artifacts/{artifact_id}/tags",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 467
+    },
+    {
+      "method": "POST",
+      "path": "/artifacts/{artifact_id}/groups",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 486
+    },
+    {
+      "method": "POST",
+      "path": "/artifacts/{artifact_id}/share",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 505
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts/groups/list",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 519
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts/tags/list",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 528
+    },
+    {
+      "method": "GET",
+      "path": "/artifacts/shared/list",
+      "router_prefix": "/artifacts",
+      "tags": [
+        "artifacts"
+      ],
+      "file": "src/agentic_assistants/server/api/artifacts.py",
+      "lineno": 537
+    },
+    {
+      "method": "GET",
+      "path": "/components",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 102
+    },
+    {
+      "method": "POST",
+      "path": "/components",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 131
+    },
+    {
+      "method": "GET",
+      "path": "/components/{component_id}",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 160
+    },
+    {
+      "method": "PUT",
+      "path": "/components/{component_id}",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 172
+    },
+    {
+      "method": "DELETE",
+      "path": "/components/{component_id}",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 192
+    },
+    {
+      "method": "GET",
+      "path": "/components/categories/list",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 203
+    },
+    {
+      "method": "POST",
+      "path": "/components/base/install",
+      "router_prefix": "/components",
+      "tags": [
+        "components"
+      ],
+      "file": "src/agentic_assistants/server/api/components.py",
+      "lineno": 878
+    },
+    {
+      "method": "GET",
+      "path": "/config",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 307
+    },
+    {
+      "method": "GET",
+      "path": "/config/export",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 316
+    },
+    {
+      "method": "POST",
+      "path": "/config/reset",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 325
+    },
+    {
+      "method": "GET",
+      "path": "/config/global",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 336
+    },
+    {
+      "method": "PATCH",
+      "path": "/config/global",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 345
+    },
+    {
+      "method": "GET",
+      "path": "/config/ollama",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 358
+    },
+    {
+      "method": "PATCH",
+      "path": "/config/ollama",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 367
+    },
+    {
+      "method": "GET",
+      "path": "/config/mlflow",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 376
+    },
+    {
+      "method": "PATCH",
+      "path": "/config/mlflow",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 385
+    },
+    {
+      "method": "GET",
+      "path": "/config/vectordb",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 394
+    },
+    {
+      "method": "GET",
+      "path": "/config/server",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 403
+    },
+    {
+      "method": "GET",
+      "path": "/config/user",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 412
+    },
+    {
+      "method": "PATCH",
+      "path": "/config/user",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 421
+    },
+    {
+      "method": "GET",
+      "path": "/config/session",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 430
+    },
+    {
+      "method": "PATCH",
+      "path": "/config/session",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 439
+    },
+    {
+      "method": "GET",
+      "path": "/config/validate",
+      "router_prefix": "/config",
+      "tags": [
+        "config"
+      ],
+      "file": "src/agentic_assistants/server/api/config.py",
+      "lineno": 448
+    },
+    {
+      "method": "GET",
+      "path": "/data/files",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 216
+    },
+    {
+      "method": "GET",
+      "path": "/data/file",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 245
+    },
+    {
+      "method": "GET",
+      "path": "/data/read",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 258
+    },
+    {
+      "method": "POST",
+      "path": "/data/write",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 298
+    },
+    {
+      "method": "DELETE",
+      "path": "/data/file",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 321
+    },
+    {
+      "method": "GET",
+      "path": "/data/schema",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 334
+    },
+    {
+      "method": "GET",
+      "path": "/data/preview",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 363
+    },
+    {
+      "method": "GET",
+      "path": "/data/query",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 396
+    },
+    {
+      "method": "GET",
+      "path": "/data/cache/stats",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 457
+    },
+    {
+      "method": "POST",
+      "path": "/data/cache/clear",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 483
+    },
+    {
+      "method": "POST",
+      "path": "/data/convert",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 494
+    },
+    {
+      "method": "GET",
+      "path": "/data/supported-formats",
+      "router_prefix": "/data",
+      "tags": [
+        "data"
+      ],
+      "file": "src/agentic_assistants/server/api/data.py",
+      "lineno": 523
+    },
+    {
+      "method": "GET",
+      "path": "/datasources",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 133
+    },
+    {
+      "method": "POST",
+      "path": "/datasources",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 167
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/types",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 197
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/{datasource_id}",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 206
+    },
+    {
+      "method": "PUT",
+      "path": "/datasources/{datasource_id}",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 218
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasources/{datasource_id}",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 236
+    },
+    {
+      "method": "POST",
+      "path": "/datasources/{datasource_id}/test",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 251
+    },
+    {
+      "method": "POST",
+      "path": "/datasources/test",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 266
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/{datasource_id}/schema",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 292
+    },
+    {
+      "method": "POST",
+      "path": "/datasources/{datasource_id}/index",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 312
+    },
+    {
+      "method": "POST",
+      "path": "/datasources/{datasource_id}/promote",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 332
+    },
+    {
+      "method": "POST",
+      "path": "/datasources/{datasource_id}/link",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 345
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/project/{project_id}",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 370
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/catalog/search",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 388
+    },
+    {
+      "method": "GET",
+      "path": "/datasources/catalog/stats",
+      "router_prefix": "/datasources",
+      "tags": [
+        "datasources"
+      ],
+      "file": "src/agentic_assistants/server/api/datasources.py",
+      "lineno": 413
+    },
+    {
+      "method": "GET",
+      "path": "/experiments",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 172
+    },
+    {
+      "method": "POST",
+      "path": "/experiments",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 206
+    },
+    {
+      "method": "GET",
+      "path": "/experiments/{experiment_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 229
+    },
+    {
+      "method": "PATCH",
+      "path": "/experiments/{experiment_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 248
+    },
+    {
+      "method": "DELETE",
+      "path": "/experiments/{experiment_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 273
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/{experiment_id}/restore",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 288
+    },
+    {
+      "method": "GET",
+      "path": "/experiments/{experiment_id}/runs",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 306
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/{experiment_id}/runs",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 335
+    },
+    {
+      "method": "GET",
+      "path": "/experiments/runs/{run_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 358
+    },
+    {
+      "method": "PATCH",
+      "path": "/experiments/runs/{run_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 373
+    },
+    {
+      "method": "DELETE",
+      "path": "/experiments/runs/{run_id}",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 401
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/runs/{run_id}/end",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 416
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/runs/{run_id}/metrics",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 432
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/runs/{run_id}/params",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 461
+    },
+    {
+      "method": "POST",
+      "path": "/experiments/runs/{run_id}/tags",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 482
+    },
+    {
+      "method": "GET",
+      "path": "/experiments/runs/{run_id}/artifacts",
+      "router_prefix": "/experiments",
+      "tags": [
+        "experiments"
+      ],
+      "file": "src/agentic_assistants/server/api/experiments.py",
+      "lineno": 503
+    },
+    {
+      "method": "GET",
+      "path": "/flows",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 141
+    },
+    {
+      "method": "POST",
+      "path": "/flows",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 163
+    },
+    {
+      "method": "GET",
+      "path": "/flows/{flow_id}",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 195
+    },
+    {
+      "method": "PUT",
+      "path": "/flows/{flow_id}",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 207
+    },
+    {
+      "method": "DELETE",
+      "path": "/flows/{flow_id}",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 230
+    },
+    {
+      "method": "GET",
+      "path": "/flows/{flow_id}/validate",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 241
+    },
+    {
+      "method": "POST",
+      "path": "/flows/{flow_id}/run",
+      "router_prefix": "/flows",
+      "tags": [
+        "flows"
+      ],
+      "file": "src/agentic_assistants/server/api/flows.py",
+      "lineno": 259
+    },
+    {
+      "method": "POST",
+      "path": "/generate/prompt",
+      "router_prefix": "/generate",
+      "tags": [
+        "generation"
+      ],
+      "file": "src/agentic_assistants/server/api/generation.py",
+      "lineno": 328
+    },
+    {
+      "method": "POST",
+      "path": "/generate/component",
+      "router_prefix": "/generate",
+      "tags": [
+        "generation"
+      ],
+      "file": "src/agentic_assistants/server/api/generation.py",
+      "lineno": 356
+    },
+    {
+      "method": "POST",
+      "path": "/generate/from-notes",
+      "router_prefix": "/generate",
+      "tags": [
+        "generation"
+      ],
+      "file": "src/agentic_assistants/server/api/generation.py",
+      "lineno": 394
+    },
+    {
+      "method": "POST",
+      "path": "/generate/chat",
+      "router_prefix": "/generate",
+      "tags": [
+        "generation"
+      ],
+      "file": "src/agentic_assistants/server/api/generation.py",
+      "lineno": 470
+    },
+    {
+      "method": "POST",
+      "path": "/generate/from-note/{note_id}",
+      "router_prefix": "/generate",
+      "tags": [
+        "generation"
+      ],
+      "file": "src/agentic_assistants/server/api/generation.py",
+      "lineno": 539
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/cluster",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 202
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/cluster/status",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 209
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/cluster/test",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 217
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/nodes",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 241
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/nodes/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 248
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/namespaces",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 262
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/namespaces/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 270
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/deployments",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 284
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 297
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/deployments",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 307
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 340
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}/scale",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 354
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}/restart",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 364
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}/status",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 374
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/deployments/{namespace}/{name}/logs",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 381
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/agents/deploy",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 397
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/flows/deploy",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 431
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/storage/status",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 465
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/storage/buckets",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 473
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/storage/buckets/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 481
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/storage/buckets/{bucket}/objects",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 491
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/kubernetes/storage/buckets/{bucket}/objects/{object_path:path}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 503
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/storage/buckets/{bucket}/objects/{object_path:path}/info",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 513
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/storage/buckets/{bucket}/objects/{object_path:path}/url",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 523
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/models",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 541
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/models/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 550
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/models/deploy",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 563
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/kubernetes/models/{name}",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 609
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/models/{name}/scale",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 622
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kubernetes/models/{name}/endpoint",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 636
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/models/{name}/use",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 655
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kubernetes/models/{name}/pull",
+      "router_prefix": "/api/v1/kubernetes",
+      "tags": [
+        "kubernetes"
+      ],
+      "file": "src/agentic_assistants/server/api/kubernetes.py",
+      "lineno": 670
+    },
+    {
+      "method": "POST",
+      "path": "/models/custom",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 152
+    },
+    {
+      "method": "GET",
+      "path": "/models/custom",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 192
+    },
+    {
+      "method": "GET",
+      "path": "/models/custom/{model_id}",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 219
+    },
+    {
+      "method": "PATCH",
+      "path": "/models/custom/{model_id}",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 228
+    },
+    {
+      "method": "DELETE",
+      "path": "/models/custom/{model_id}",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 259
+    },
+    {
+      "method": "POST",
+      "path": "/models/custom/{model_id}/deploy",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 275
+    },
+    {
+      "method": "GET",
+      "path": "/models/custom/{model_id}/config",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 309
+    },
+    {
+      "method": "GET",
+      "path": "/models/custom/{model_id}/metrics",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 324
+    },
+    {
+      "method": "POST",
+      "path": "/models/custom/{model_id}/tags",
+      "router_prefix": "/models/custom",
+      "tags": [
+        "models"
+      ],
+      "file": "src/agentic_assistants/server/api/models.py",
+      "lineno": 337
+    },
+    {
+      "method": "GET",
+      "path": "/notes",
+      "router_prefix": "/notes",
+      "tags": [
+        "notes"
+      ],
+      "file": "src/agentic_assistants/server/api/notes.py",
+      "lineno": 57
+    },
+    {
+      "method": "POST",
+      "path": "/notes",
+      "router_prefix": "/notes",
+      "tags": [
+        "notes"
+      ],
+      "file": "src/agentic_assistants/server/api/notes.py",
+      "lineno": 75
+    },
+    {
+      "method": "PUT",
+      "path": "/notes/{note_id}",
+      "router_prefix": "/notes",
+      "tags": [
+        "notes"
+      ],
+      "file": "src/agentic_assistants/server/api/notes.py",
+      "lineno": 101
+    },
+    {
+      "method": "DELETE",
+      "path": "/notes/{note_id}",
+      "router_prefix": "/notes",
+      "tags": [
+        "notes"
+      ],
+      "file": "src/agentic_assistants/server/api/notes.py",
+      "lineno": 117
+    },
+    {
+      "method": "GET",
+      "path": "",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 127
+    },
+    {
+      "method": "GET",
+      "path": "/{name}",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 144
+    },
+    {
+      "method": "POST",
+      "path": "/{name}/run",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 184
+    },
+    {
+      "method": "GET",
+      "path": "/{name}/status/{run_id}",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 313
+    },
+    {
+      "method": "GET",
+      "path": "/{name}/visualize",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 331
+    },
+    {
+      "method": "DELETE",
+      "path": "/{name}/runs/{run_id}",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 406
+    },
+    {
+      "method": "GET",
+      "path": "/runs",
+      "router_prefix": "",
+      "tags": [],
+      "file": "src/agentic_assistants/server/api/pipelines.py",
+      "lineno": 416
+    },
+    {
+      "method": "GET",
+      "path": "/projects",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 183
+    },
+    {
+      "method": "POST",
+      "path": "/projects",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 202
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 222
+    },
+    {
+      "method": "PUT",
+      "path": "/projects/{project_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 234
+    },
+    {
+      "method": "DELETE",
+      "path": "/projects/{project_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 248
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/git",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 261
+    },
+    {
+      "method": "PUT",
+      "path": "/projects/{project_id}/git",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 283
+    },
+    {
+      "method": "POST",
+      "path": "/projects/{project_id}/git/sync",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 313
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/services",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 344
+    },
+    {
+      "method": "POST",
+      "path": "/projects/{project_id}/services",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 374
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/services/{service_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 410
+    },
+    {
+      "method": "PUT",
+      "path": "/projects/{project_id}/services/{service_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 426
+    },
+    {
+      "method": "DELETE",
+      "path": "/projects/{project_id}/services/{service_id}",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 447
+    },
+    {
+      "method": "POST",
+      "path": "/projects/{project_id}/services/{service_id}/health",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 465
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/index",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 516
+    },
+    {
+      "method": "POST",
+      "path": "/projects/{project_id}/index",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 529
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/index/status",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 556
+    },
+    {
+      "method": "POST",
+      "path": "/projects/{project_id}/resources/link",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 580
+    },
+    {
+      "method": "DELETE",
+      "path": "/projects/{project_id}/resources/unlink",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 614
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{project_id}/resources",
+      "router_prefix": "/projects",
+      "tags": [
+        "projects"
+      ],
+      "file": "src/agentic_assistants/server/api/projects.py",
+      "lineno": 644
+    },
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 424
+    },
+    {
+      "method": "POST",
+      "path": "/sessions",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 439
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/active",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 454
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/activate",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 463
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 477
+    },
+    {
+      "method": "PATCH",
+      "path": "/sessions/{session_id}",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 491
+    },
+    {
+      "method": "DELETE",
+      "path": "/sessions/{session_id}",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 505
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/config",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 518
+    },
+    {
+      "method": "PATCH",
+      "path": "/sessions/{session_id}/config",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 532
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/interactions",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 550
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/interactions",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 573
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/contexts",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 586
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/contexts",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 599
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/contexts/{context_id}",
+      "router_prefix": "/sessions",
+      "tags": [
+        "sessions"
+      ],
+      "file": "src/agentic_assistants/server/api/sessions.py",
+      "lineno": 618
+    },
+    {
+      "method": "GET",
+      "path": "/tags",
+      "router_prefix": "/tags",
+      "tags": [
+        "tags"
+      ],
+      "file": "src/agentic_assistants/server/api/tags.py",
+      "lineno": 53
+    },
+    {
+      "method": "POST",
+      "path": "/tags",
+      "router_prefix": "/tags",
+      "tags": [
+        "tags"
+      ],
+      "file": "src/agentic_assistants/server/api/tags.py",
+      "lineno": 61
+    },
+    {
+      "method": "POST",
+      "path": "/tags/resources/{resource_type}/{resource_id}",
+      "router_prefix": "/tags",
+      "tags": [
+        "tags"
+      ],
+      "file": "src/agentic_assistants/server/api/tags.py",
+      "lineno": 87
+    },
+    {
+      "method": "DELETE",
+      "path": "/tags/resources/{resource_type}/{resource_id}/{tag_name}",
+      "router_prefix": "/tags",
+      "tags": [
+        "tags"
+      ],
+      "file": "src/agentic_assistants/server/api/tags.py",
+      "lineno": 113
+    },
+    {
+      "method": "POST",
+      "path": "/training/jobs",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 217
+    },
+    {
+      "method": "GET",
+      "path": "/training/jobs",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 274
+    },
+    {
+      "method": "GET",
+      "path": "/training/jobs/{job_id}",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 294
+    },
+    {
+      "method": "GET",
+      "path": "/training/jobs/{job_id}/status",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 306
+    },
+    {
+      "method": "GET",
+      "path": "/training/jobs/{job_id}/logs",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 325
+    },
+    {
+      "method": "POST",
+      "path": "/training/jobs/{job_id}/stop",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 344
+    },
+    {
+      "method": "DELETE",
+      "path": "/training/jobs/{job_id}",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 362
+    },
+    {
+      "method": "POST",
+      "path": "/training/datasets",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 379
+    },
+    {
+      "method": "GET",
+      "path": "/training/datasets",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 412
+    },
+    {
+      "method": "GET",
+      "path": "/training/datasets/{dataset_id}",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 443
+    },
+    {
+      "method": "GET",
+      "path": "/training/datasets/{dataset_id}/samples",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 467
+    },
+    {
+      "method": "POST",
+      "path": "/training/export",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 490
+    },
+    {
+      "method": "GET",
+      "path": "/training/export/formats",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 519
+    },
+    {
+      "method": "POST",
+      "path": "/training/distillation",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 537
+    },
+    {
+      "method": "GET",
+      "path": "/training/frameworks",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 581
+    },
+    {
+      "method": "GET",
+      "path": "/training/capabilities",
+      "router_prefix": "/training",
+      "tags": [
+        "training"
+      ],
+      "file": "src/agentic_assistants/server/api/training.py",
+      "lineno": 600
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+# Chunk: 9fed2fa3ea3c_0
+
+- source: `.venv-lab/Lib/site-packages/pygments/lexers/promql.py`
+- lines: 1-123
+- chunk: 1/2
+
+```
+"""
+    pygments.lexers.promql
+    ~~~~~~~~~~~~~~~~~~~~~~
+
+    Lexer for Prometheus Query Language.
+
+    :copyright: Copyright 2006-2025 by the Pygments team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
+
+from pygments.lexer import RegexLexer, bygroups, default, words
+from pygments.token import Comment, Keyword, Name, Number, Operator, \
+    Punctuation, String, Whitespace
+
+__all__ = ["PromQLLexer"]
+
+
+class PromQLLexer(RegexLexer):
+    """
+    For PromQL queries.
+
+    For details about the grammar see:
+    https://github.com/prometheus/prometheus/tree/master/promql/parser
+
+    .. versionadded: 2.7
+    """
+
+    name = "PromQL"
+    url = 'https://prometheus.io/docs/prometheus/latest/querying/basics/'
+    aliases = ["promql"]
+    filenames = ["*.promql"]
+    version_added = ''
+
+    base_keywords = (
+        words(
+            (
+                "bool",
+                "by",
+                "group_left",
+                "group_right",
+                "ignoring",
+                "offset",
+                "on",
+                "without",
+            ),
+            suffix=r"\b",
+        ),
+        Keyword,
+    )
+
+    aggregator_keywords = (
+        words(
+            (
+                "sum",
+                "min",
+                "max",
+                "avg",
+                "group",
+                "stddev",
+                "stdvar",
+                "count",
+                "count_values",
+                "bottomk",
+                "topk",
+                "quantile",
+            ),
+            suffix=r"\b",
+        ),
+        Keyword,
+    )
+
+    function_keywords = (
+        words(
+            (
+                "abs",
+                "absent",
+                "absent_over_time",
+                "avg_over_time",
+                "ceil",
+                "changes",
+                "clamp_max",
+                "clamp_min",
+                "count_over_time",
+                "day_of_month",
+                "day_of_week",
+                "days_in_month",
+                "delta",
+                "deriv",
+                "exp",
+                "floor",
+                "histogram_quantile",
+                "holt_winters",
+                "hour",
+                "idelta",
+                "increase",
+                "irate",
+                "label_join",
+                "label_replace",
+                "ln",
+                "log10",
+                "log2",
+                "max_over_time",
+                "min_over_time",
+                "minute",
+                "month",
+                "predict_linear",
+                "quantile_over_time",
+                "rate",
+                "resets",
+                "round",
+                "scalar",
+                "sort",
+                "sort_desc",
+                "sqrt",
+                "stddev_over_time",
+                "stdvar_over_time",
+                "sum_over_time",
+                "time",
+                "timestamp",
+                "vector",
+                "year",
+            ),
+```

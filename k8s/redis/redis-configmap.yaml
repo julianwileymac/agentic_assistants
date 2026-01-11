@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: agentic
+  labels:
+    app: redis
+data:
+  redis.conf: |
+    # Redis configuration for Agentic cache
+    
+    # Memory settings
+    maxmemory 256mb
+    maxmemory-policy allkeys-lru
+    
+    # Persistence
+    appendonly yes
+    appendfsync everysec
+    
+    # Network
+    bind 0.0.0.0
+    protected-mode no
+    
+    # Timeouts
+    timeout 0
+    tcp-keepalive 300
+    
+    # Logging
+    loglevel notice
+    
+    # LRU samples
+    maxmemory-samples 5

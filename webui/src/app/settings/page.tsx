@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Save, Settings, Server, Key, Database, Zap, Loader2 } from "lucide-react";
+import { Save, Settings, Server, Key, Database, Zap, Loader2, CheckCircle, XCircle, Box } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useTestKubernetesConnection, useStorageStatus } from "@/lib/api";
 
 export default function SettingsPage() {
   const [isSaving, setIsSaving] = React.useState(false);
@@ -29,7 +31,27 @@ export default function SettingsPage() {
     embeddingModel: "nomic-embed-text",
     vectorBackend: "lancedb",
     apiKey: "",
+    // Kubernetes settings
+    k8sEnabled: false,
+    k8sKubeconfigPath: "",
+    k8sContext: "",
+    k8sNamespace: "agentic-workloads",
+    // MinIO settings
+    minioEnabled: false,
+    minioEndpoint: "",
+    minioAccessKey: "",
+    minioSecretKey: "",
+    minioSecure: false,
   });
+
+  const [k8sTestResult, setK8sTestResult] = React.useState<{
+    connected: boolean;
+    version?: string;
+    error?: string;
+  } | null>(null);
+
+  const { trigger: testK8sConnection, isMutating: isTestingK8s } = useTestKubernetesConnection();
+  const { data: storageStatus } = useStorageStatus();
 
   React.useEffect(() => {
     // Load settings from localStorage
@@ -88,10 +110,14 @@ export default function SettingsPage() {
 
       {/* Settings Tabs */}
       <Tabs defaultValue="connections">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="connections">
             <Server className="size-4 mr-2" />
             Connections
+          </TabsTrigger>
+          <TabsTrigger value="kubernetes">
+            <Box className="size-4 mr-2" />
+            Kubernetes
           </TabsTrigger>
           <TabsTrigger value="models">
             <Zap className="size-4 mr-2" />
@@ -151,6 +177,166 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Kubernetes Tab */}
+        <TabsContent value="kubernetes">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Kubernetes Cluster</CardTitle>
+                <CardDescription>
+                  Configure connection to your RPi Kubernetes cluster
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Cluster Connection</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Enable to manage deployments on Kubernetes
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {k8sTestResult && (
+                      <Badge variant={k8sTestResult.connected ? "default" : "destructive"}>
+                        {k8sTestResult.connected ? (
+                          <>
+                            <CheckCircle className="size-3 mr-1" />
+                            {k8sTestResult.version}
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="size-3 mr-1" />
+                            Failed
+                          </>
+                        )}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const result = await testK8sConnection({
+                            kubeconfig_path: settings.k8sKubeconfigPath || undefined,
+                            context: settings.k8sContext || undefined,
+                          });
+                          setK8sTestResult(result);
+                          if (result.connected) {
+                            toast.success("Connected to Kubernetes cluster");
+                          } else {
+                            toast.error(result.error || "Connection failed");
+                          }
+                        } catch (error) {
+                          toast.error("Failed to test connection");
+                        }
+                      }}
+                      disabled={isTestingK8s}
+                    >
+                      {isTestingK8s ? <Loader2 className="size-4 mr-2 animate-spin" /> : null}
+                      Test Connection
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="kubeconfig">Kubeconfig Path</Label>
+                  <Input
+                    id="kubeconfig"
+                    placeholder="~/.kube/config"
+                    value={settings.k8sKubeconfigPath}
+                    onChange={(e) => setSettings({ ...settings, k8sKubeconfigPath: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to use default kubeconfig location
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="context">Context</Label>
+                  <Input
+                    id="context"
+                    placeholder="rpi-cluster"
+                    value={settings.k8sContext}
+                    onChange={(e) => setSettings({ ...settings, k8sContext: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to use current context
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="namespace">Default Namespace</Label>
+                  <Input
+                    id="namespace"
+                    placeholder="agentic-workloads"
+                    value={settings.k8sNamespace}
+                    onChange={(e) => setSettings({ ...settings, k8sNamespace: e.target.value })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>MinIO Storage</CardTitle>
+                <CardDescription>
+                  Configure connection to MinIO object storage
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Storage Status</Label>
+                    <p className="text-xs text-muted-foreground">
+                      S3-compatible object storage for artifacts
+                    </p>
+                  </div>
+                  <Badge variant={storageStatus?.connected ? "default" : "secondary"}>
+                    {storageStatus?.connected ? (
+                      <>
+                        <CheckCircle className="size-3 mr-1" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="size-3 mr-1" />
+                        Not Connected
+                      </>
+                    )}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="minio-endpoint">MinIO Endpoint</Label>
+                  <Input
+                    id="minio-endpoint"
+                    placeholder="minio.local:9000"
+                    value={settings.minioEndpoint}
+                    onChange={(e) => setSettings({ ...settings, minioEndpoint: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minio-access">Access Key</Label>
+                    <Input
+                      id="minio-access"
+                      placeholder="minioadmin"
+                      value={settings.minioAccessKey}
+                      onChange={(e) => setSettings({ ...settings, minioAccessKey: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="minio-secret">Secret Key</Label>
+                    <Input
+                      id="minio-secret"
+                      type="password"
+                      placeholder="••••••••"
+                      value={settings.minioSecretKey}
+                      onChange={(e) => setSettings({ ...settings, minioSecretKey: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Models Tab */}

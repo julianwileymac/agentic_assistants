@@ -1,0 +1,34 @@
+# Chunk: ba5b20aaac1f_71
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 2887-2913
+- chunk: 72/98
+
+```
+eEntry == null ? void 0 : previousIncrementalCacheEntry.isStale) === -1) {
+                isOnDemandRevalidate = true;
+            }
+            // TODO: adapt for PPR
+            // only allow on-demand revalidate for fallback: true/blocking
+            // or for prerendered fallback: false paths
+            if (isOnDemandRevalidate && (fallbackMode !== __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$fallback$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["FallbackMode"].NOT_FOUND || previousIncrementalCacheEntry)) {
+                fallbackMode = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$fallback$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["FallbackMode"].BLOCKING_STATIC_RENDER;
+            }
+            if (!isMinimalMode && fallbackMode !== __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$fallback$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["FallbackMode"].BLOCKING_STATIC_RENDER && staticPathKey && !didRespond && !isDraftMode && pageIsDynamic && (isProduction || !isPrerendered)) {
+                // if the page has dynamicParams: false and this pathname wasn't
+                // prerendered trigger the no fallback handling
+                if (// getStaticPaths.
+                (isProduction || prerenderInfo) && // When fallback isn't present, abort this render so we 404
+                fallbackMode === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$fallback$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["FallbackMode"].NOT_FOUND) {
+                    if (nextConfig.experimental.adapterPath) {
+                        return await render404();
+                    }
+                    throw new __TURBOPACK__imported__module__$5b$externals$5d2f$next$2f$dist$2f$shared$2f$lib$2f$no$2d$fallback$2d$error$2e$external$2e$js__$5b$external$5d$__$28$next$2f$dist$2f$shared$2f$lib$2f$no$2d$fallback$2d$error$2e$external$2e$js$2c$__cjs$29$__["NoFallbackError"]();
+                }
+                // When cacheComponents is enabled, we can use the fallback
+                // response if the request is not a dynamic RSC request because the
+                // RSC data when this feature flag is enabled does not contain any
+                // param references. Without this feature flag enabled, the RSC data
+                // contains param references, and therefore we can't use the fallback.
+                if (isRoutePPREnabled && (nextConfig.cacheComponents ? !isDynamicRSCRequest : !isRSCRequest)) {
+```

@@ -13,6 +13,8 @@ This module provides modular FastAPI routers for different components:
 - components: Code component library (Control Panel)
 - notes: Free-form notes (Control Panel)
 - tags: Resource tagging (Control Panel)
+- datasources: Data source management
+- kubernetes: Kubernetes cluster management
 """
 
 from agentic_assistants.server.api.experiments import router as experiments_router
@@ -26,6 +28,9 @@ from agentic_assistants.server.api.flows import router as flows_router
 from agentic_assistants.server.api.components import router as components_router
 from agentic_assistants.server.api.notes import router as notes_router
 from agentic_assistants.server.api.tags import router as tags_router
+from agentic_assistants.server.api.datasources import router as datasources_router
+from agentic_assistants.server.api.generation import router as generation_router
+from agentic_assistants.server.api.kubernetes import router as kubernetes_router
 
 __all__ = [
     # Original routers
@@ -41,4 +46,8 @@ __all__ = [
     "components_router",
     "notes_router",
     "tags_router",
+    "datasources_router",
+    "generation_router",
+    # Infrastructure routers
+    "kubernetes_router",
 ]

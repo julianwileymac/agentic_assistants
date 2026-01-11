@@ -40,7 +40,17 @@ from agentic_assistants.server.api import (
     components_router,
     notes_router,
     tags_router,
+    datasources_router,
+    generation_router,
+    kubernetes_router,
 )
+
+# Import new pipeline and catalog routers
+from agentic_assistants.server.api.pipelines import router as pipelines_router
+
+# Import training and models routers
+from agentic_assistants.server.api.training import router as training_router
+from agentic_assistants.server.api.models import router as models_router
 
 # Import WebSocket support
 from agentic_assistants.server.websocket import add_websocket_routes
@@ -230,6 +240,18 @@ def create_rest_app(
     app.include_router(components_router, prefix="/api/v1")
     app.include_router(notes_router, prefix="/api/v1")
     app.include_router(tags_router, prefix="/api/v1")
+    app.include_router(datasources_router, prefix="/api/v1")
+    app.include_router(generation_router, prefix="/api/v1")
+    
+    # Pipeline and Data Catalog routers (Kedro-inspired)
+    app.include_router(pipelines_router, prefix="/api/v1/pipelines", tags=["pipelines"])
+    
+    # Infrastructure routers
+    app.include_router(kubernetes_router)
+    
+    # Training and Models routers (LLM/SLM development)
+    app.include_router(training_router, prefix="/api/v1")
+    app.include_router(models_router, prefix="/api/v1")
     
     # === Legacy Endpoints (kept for backwards compatibility) ===
     

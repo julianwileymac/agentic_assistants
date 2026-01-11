@@ -1,0 +1,68 @@
+# Chunk: 29cfc4c6cba2_1
+
+- source: `.venv-lab/Lib/site-packages/websocket_client-1.9.0.dist-info/METADATA`
+- lines: 62-122
+- chunk: 2/4
+
+```
+.tech/badge/websocket-client)](https://pepy.tech/project/websocket-client)
+[![PyPI version](https://img.shields.io/pypi/v/websocket_client)](https://pypi.org/project/websocket_client/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+# websocket-client
+
+websocket-client is a WebSocket client for Python. It provides access
+to low level APIs for WebSockets. websocket-client implements version
+[hybi-13](https://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-13)
+of the WebSocket protocol. This client does not currently support the
+permessage-deflate extension from
+[RFC 7692](https://tools.ietf.org/html/rfc7692).
+
+## Documentation
+
+This project's documentation can be found at
+[https://websocket-client.readthedocs.io/](https://websocket-client.readthedocs.io/)
+
+## Contributing
+
+Please see the [contribution guidelines](https://github.com/websocket-client/websocket-client/blob/master/CONTRIBUTING.md)
+
+## Installation
+
+You can use `pip install websocket-client` to install, or `pip install -e .`
+to install from a local copy of the code. This module is tested on Python 3.9+.
+
+There are several optional dependencies that can be installed to enable
+specific websocket-client features.
+- To install `python-socks` for proxy usage and `wsaccel` for a minor performance boost, use:
+ `pip install websocket-client[optional]`
+- To install `websockets` to run unit tests using the local echo server, use:
+ `pip install websocket-client[test]`
+- To install `Sphinx` and `sphinx_rtd_theme` to build project documentation, use:
+ `pip install websocket-client[docs]`
+
+While not a strict dependency, [rel](https://github.com/bubbleboy14/registeredeventlistener)
+is useful when using `run_forever` with automatic reconnect. Install rel with `pip install rel`.
+
+Footnote: Some shells, such as zsh, require you to escape the `[` and `]` characters with a `\`.
+
+## Usage Tips
+
+Check out the documentation's FAQ for additional guidelines:
+[https://websocket-client.readthedocs.io/en/latest/faq.html](https://websocket-client.readthedocs.io/en/latest/faq.html)
+
+Known issues with this library include lack of WebSocket Compression
+support (RFC 7692) and [minimal threading documentation/support](https://websocket-client.readthedocs.io/en/latest/threading.html).
+
+## Performance
+
+The `send` and `validate_utf8` methods can sometimes be bottleneck.
+You can disable UTF8 validation in this library (and receive a
+performance enhancement) with the `skip_utf8_validation` parameter.
+If you want to get better performance, install wsaccel. While
+websocket-client does not depend on wsaccel, it will be used if
+available. wsaccel doubles the speed of UTF8 validation and
+offers a very minor 10% performance boost when masking the
+payload data as part of the `send` process. Numpy used to
+```

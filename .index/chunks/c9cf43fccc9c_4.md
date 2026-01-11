@@ -1,0 +1,95 @@
+# Chunk: c9cf43fccc9c_4
+
+- source: `.venv-lab/Lib/site-packages/pip/_vendor/packaging/specifiers.py`
+- lines: 302-389
+- chunk: 5/15
+
+```
+        <Specifier('>=1.0.0', prereleases=True)>
+        """
+        pre = (
+            f", prereleases={self.prereleases!r}"
+            if self._prereleases is not None
+            else ""
+        )
+
+        return f"<{self.__class__.__name__}({str(self)!r}{pre})>"
+
+    def __str__(self) -> str:
+        """A string representation of the Specifier that can be round-tripped.
+
+        >>> str(Specifier('>=1.0.0'))
+        '>=1.0.0'
+        >>> str(Specifier('>=1.0.0', prereleases=False))
+        '>=1.0.0'
+        """
+        return "{}{}".format(*self._spec)
+
+    @property
+    def _canonical_spec(self) -> tuple[str, str]:
+        canonical_version = canonicalize_version(
+            self._spec[1],
+            strip_trailing_zero=(self._spec[0] != "~="),
+        )
+        return self._spec[0], canonical_version
+
+    def __hash__(self) -> int:
+        return hash(self._canonical_spec)
+
+    def __eq__(self, other: object) -> bool:
+        """Whether or not the two Specifier-like objects are equal.
+
+        :param other: The other object to check against.
+
+        The value of :attr:`prereleases` is ignored.
+
+        >>> Specifier("==1.2.3") == Specifier("== 1.2.3.0")
+        True
+        >>> (Specifier("==1.2.3", prereleases=False) ==
+        ...  Specifier("==1.2.3", prereleases=True))
+        True
+        >>> Specifier("==1.2.3") == "==1.2.3"
+        True
+        >>> Specifier("==1.2.3") == Specifier("==1.2.4")
+        False
+        >>> Specifier("==1.2.3") == Specifier("~=1.2.3")
+        False
+        """
+        if isinstance(other, str):
+            try:
+                other = self.__class__(str(other))
+            except InvalidSpecifier:
+                return NotImplemented
+        elif not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return self._canonical_spec == other._canonical_spec
+
+    def _get_operator(self, op: str) -> CallableOperator:
+        operator_callable: CallableOperator = getattr(
+            self, f"_compare_{self._operators[op]}"
+        )
+        return operator_callable
+
+    def _compare_compatible(self, prospective: Version, spec: str) -> bool:
+        # Compatible releases have an equivalent combination of >= and ==. That
+        # is that ~=2.2 is equivalent to >=2.2,==2.*. This allows us to
+        # implement this in terms of the other specifiers instead of
+        # implementing it ourselves. The only thing we need to do is construct
+        # the other specifiers.
+
+        # We want everything but the last item in the version, but we want to
+        # ignore suffix segments.
+        prefix = _version_join(
+            list(itertools.takewhile(_is_not_suffix, _version_split(spec)))[:-1]
+        )
+
+        # Add the prefix notation to the end of our string
+        prefix += ".*"
+
+        return self._get_operator(">=")(prospective, spec) and self._get_operator("==")(
+            prospective, prefix
+        )
+
+    def _compare_equal(self, prospective: Version, spec: str) -> bool:
+```

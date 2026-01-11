@@ -45,6 +45,52 @@ Configuration is loaded from multiple sources in this order (later sources overr
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | OTLP exporter endpoint |
 | `OTEL_SERVICE_NAME` | `agentic-assistants` | Service name in traces |
 
+### Vector DB Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VECTORDB_BACKEND` | `lancedb` | Vector DB backend (`lancedb`, `chroma`) |
+| `VECTORDB_PATH` | `./data/vectors` | Local vector DB storage path |
+| `VECTORDB_EMBEDDING_PROVIDER` | `ollama` | Embedding provider (`ollama`, etc.) |
+| `VECTORDB_EMBEDDING_MODEL` | `nomic-embed-text` | Embedding model name |
+| `VECTORDB_EMBEDDING_DIMENSION` | `768` | Embedding vector dimension |
+
+### Server Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_HOST` | `127.0.0.1` | Server bind host |
+| `SERVER_PORT` | `8080` | Server port |
+| `SERVER_ENABLE_MCP` | `true` | Enable MCP over WebSocket (`/mcp`) |
+| `SERVER_ENABLE_REST` | `true` | Enable REST endpoints |
+
+### Indexing Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INDEXING_VERSION` | `2.0` | Indexing schema version |
+| `INDEXING_CHUNK_SIZE` | `1024` | Chunk size (characters) |
+| `INDEXING_CHUNK_OVERLAP` | `128` | Overlap (characters) |
+| `INDEXING_MAX_FILE_SIZE_MB` | `1` | Max file size to index |
+
+### Kubernetes Settings (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `K8S_ENABLED` | `false` | Enable Kubernetes integration |
+| `K8S_NAMESPACE` | `agentic` | Default namespace |
+| `K8S_KUBECONFIG_PATH` | `None` | Optional kubeconfig path |
+| `K8S_CONTEXT` | `None` | Optional kubecontext |
+
+### MinIO Settings (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MINIO_ENABLED` | `false` | Enable MinIO integration |
+| `MINIO_ENDPOINT` | `minio.data-services.svc.cluster.local:9000` | MinIO endpoint |
+| `MINIO_ACCESS_KEY` | `None` | Access key |
+| `MINIO_SECRET_KEY` | `None` | Secret key |
+
 ## Example .env File
 
 ```bash
@@ -70,6 +116,25 @@ MLFLOW_EXPERIMENT_NAME=agentic-experiments
 # OpenTelemetry Configuration
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 OTEL_SERVICE_NAME=agentic-assistants
+
+# Vector DB Configuration
+VECTORDB_BACKEND=lancedb
+VECTORDB_PATH=./data/vectors
+VECTORDB_EMBEDDING_MODEL=nomic-embed-text
+
+# Server Configuration
+SERVER_HOST=127.0.0.1
+SERVER_PORT=8080
+
+# Optional: Kubernetes
+# K8S_ENABLED=false
+# K8S_NAMESPACE=agentic
+
+# Optional: MinIO
+# MINIO_ENABLED=false
+# MINIO_ENDPOINT=localhost:9000
+# MINIO_ACCESS_KEY=minioadmin
+# MINIO_SECRET_KEY=minioadmin
 
 # Optional: LLM Provider API Keys
 # OPENAI_API_KEY=sk-...

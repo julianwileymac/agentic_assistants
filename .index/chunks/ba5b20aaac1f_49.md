@@ -1,0 +1,52 @@
+# Chunk: ba5b20aaac1f_49
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 2312-2357
+- chunk: 50/98
+
+```
+$__$28$ecmascript$29$__["HTML_CONTENT_TYPE_HEADER"]) {
+        res.setHeader('X-Powered-By', 'Next.js');
+    }
+    // If cache control is already set on the response we don't
+    // override it to allow users to customize it via next.config
+    if (cacheControl && !res.getHeader('Cache-Control')) {
+        res.setHeader('Cache-Control', (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$cache$2d$control$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getCacheControlHeader"])(cacheControl));
+    }
+    const payload = result.isDynamic ? null : result.toUnchunkedString();
+    if (generateEtags && payload !== null) {
+        const etag = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$etag$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["generateETag"])(payload);
+        if (sendEtagResponse(req, res, etag)) {
+            return;
+        }
+    }
+    if (!res.getHeader('Content-Type') && result.contentType) {
+        res.setHeader('Content-Type', result.contentType);
+    }
+    if (payload) {
+        res.setHeader('Content-Length', Buffer.byteLength(payload));
+    }
+    if (req.method === 'HEAD') {
+        res.end(null);
+        return;
+    }
+    if (payload !== null) {
+        res.end(payload);
+        return;
+    }
+    // Pipe the render result to the response after we get a writer for it.
+    await result.pipeToNodeResponse(res);
+} //# sourceMappingURL=send-payload.js.map
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/client/components/builtin/global-error.js [app-rsc] (ecmascript)"));
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/app-render/entry-base.js [app-rsc] (ecmascript, Next.js server utility) <locals>", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/app-render/entry-base.js [app-rsc] (ecmascript) <locals>"));}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/app-render/entry-base.js [app-rsc] (ecmascript, Next.js server utility)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/app-render/entry-base.js [app-rsc] (ecmascript)"));}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/client/components/builtin/not-found.js [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+```

@@ -1,0 +1,5701 @@
+{
+  "generated_at": "2026-01-11T03:10:02.883526+00:00",
+  "files": [
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/browser-test.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/node-version-check.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/galata/@jupyterlab/galata-extension/static/lib_extension_index_js.59743b9da90d1b8bb0d5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/galata/@jupyterlab/galata-extension/static/remoteEntry.31c5a9a2d26e49168b34.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/galata/@jupyterlab/galata-extension/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/bootstrap.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/index.js",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "main",
+          "lineno": 26
+        }
+      ]
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/publicpath.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/webpack.config.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/webpack.prod.config.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/webpack.prod.minimize.config.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/staging/webpack.prod.release.config.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/100.1d14ca44a3cc8849349f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1039.3fe94e87219c0ed159d3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1042.37576ba0f95d869bc96f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1096.dd4c563e0483cbbeb9c9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1109.74211c725919c045e958.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1189.c1482e88f0e949753db6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1208.4b9ab7b231d39ebdbc3f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1218.856189c1ebf3c45164d6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1219.b5630aa3a46050fddc27.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1268.e75d8a6dd557ac8957ca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1423.4bcf4453e1c1d12d872f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1436.2c11d9dee0ad6f49e968.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1445.a0e099c27d073217031a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1449.7026e8748d2a77e15d5b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1483.c0aab21b263e7ea33653.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1491.2ba7986aa8d599fec5d0.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1495.13603dd823bbf5eb08b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1561.dae72f9e395f056aada7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1599.11abc92e77fd73c17788.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1673.b0ee25168543434bdbca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1737.a5fc97075f693ec36fe6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1740.ea85a6b11ee65c009b96.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1832.b1ede2fe899bdec88938.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1834.7445ad0c82371ac40737.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1838.9f8063fe6e262e0db079.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1887.56f83f163a18c61efb16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1909.7487a09fefbe7f9eabb6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1954.f1c519cb1415c7da3e8c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1960.f8d8ef8a91360e60f0b9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1962.6a7da74e809b70d5200d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1969.86e3168e52802569d650.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1986.26029e99ef54a5652df8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/1991.84fc123d7cfe8ae2948e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2089.b46fb224dcf021a15dbf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2211.067e46096434d8c02ab9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/227.4c50874f32ac408174fc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2280.6614699f54522fffbc00.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/232.5419cbec68e3fd0cf431.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2353.ab70488f07a7c0a7a3fd.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2434.081e28b7a2a5615efc76.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/246.326a6482593e8a7bcd58.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2467.4227742ac4b60289f222.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/247.84259ab142dd8c151fc2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2491.c169ecbc5fde2bcdb1b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2574.327dadfe49120269ff31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2576.b98b7b23adeec4cb6932.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2590.99e505d19b964439aa31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2633.ea053b40991eb5adbc69.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2641.e77441e7a3e0d12834c5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/265.6f9e37c0b72db64203b1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2658.d1cae1b08b068d864368.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2681.a47f40e38ecd31ccd687.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2707.61050e600b0aa9624127.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2709.5140980a9923ec42b67e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2729.cafaf0caf2c0c83ac9fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2794.05495c139ed000b57598.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2823.0b6015b5e03c08281f41.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2880.8483d51b11998bfe8e4b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2957.bc5eb9549a0b15c44916.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/2959.b24c9f67d639376f5ead.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3053.beb23cbacffa772207b1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3111.33574d9124842f355bce.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3112.0757b31e24c5334fda73.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/321.0fb994fd384a54491584.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3257.30af681f0c294efb65f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3282.22e78350d54fcaf3c6c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3293.183fd842651c09f49ca9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3303.b5596c0715d2d58332fb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3339.dc549aef4742ebac731b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3372.8eeafd96de9a7a205f40.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/339.380593b40d8d41150a4e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3616.a4271ffcf2ac3b4c2338.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3669.47474718289c8591e1c9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3709.e33bc30c83272aa85628.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3763.bda1d47b05d70b671f59.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3780.c9294dc98ae926717741.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3799.eaa0438bc5c41bad0516.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3824.5e23be1e37fce5b7c6b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3832.c6026c483bb46cc8e599.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3974.79f68bca9a02c92dab5e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/3991.678edf189fe92a216c70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4001.80ab3ef5300d7ce2d1fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4010.00c763d684ae0ed6f37a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4053.4945facc348478fd59f4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4068.9cc41f46f729f2c4369b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4076.b4d803d8bf1bd6c97854.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4090.351b39dda1f2fbb9a1c4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4266.155b468271987c81d948.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4296.721da424585874d0789e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4323.b2bd8a329a81d30ed039.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4350.8c8a0e7a3ffe036494e1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4353.8572f6845cfde92dc152.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4364.194afbbdabacc831ead4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4372.645626a2452c190dbb22.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4408.f24dd0edf35e08548967.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4462.c3c6de84bc9399e0290d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4483.02ee7ef303167f106fec.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4484.e1d2565d1a3daa5fe5f1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4486.8d2f41ae787607b7bf31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4528.43328125d98d6cfdfa99.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4611.bd2b768223b0cd570834.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4616.04cfbd55593c51921cc7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4728.56c0b9d87316b2fa012e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4735.7731d551ca68bcb58e9f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4797.3740ef47b224a11a7fab.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4838.8db4c61349bfba200547.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4855.29e8dc6982ba4873487d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4878.f7557c5c99a54b40c49b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/492.5f186062d2dcdf79c86c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4928.6cb408e4def87534970d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/4981.eed4ddb90566e90e3df4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5007.c72755eda1694663f8ff.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5085.a38923f36b551620798a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5090.404be96d8a6eae1e719a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5211.83e78dadcef89cae04bf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5224.8a6bbc774d20be66fdfb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5244.eefac84704ad30f00af3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5317.f4bba2e3d0f4fdd088f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5318.d5df5c275e925c22d780.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5338.38c32bdfb0695f9b501f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5362.c794ff9abf82992fb389.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5454.0401043bbeb0b9ef2a06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5489.7710426bc179ba430a0e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5492.44728a640c37a4b4aa0c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5521.8d4f6dfc471f500e4311.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5566.c76ea61eb723ee84e2cf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5606.e03dfa10c124a03f36ba.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5664.e10a8a7d25bc4ae5759a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5763.48defb00824aa5cc6326.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5829.0e46d479b4ade4783661.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5834.f91e537d13feb21974e9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5847.930208c25e45ecf30657.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5862.be1ec453e8db6844c62d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5877.72ab5a29e95ce21981e4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5880.0feb80072ad49ee77328.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5929.d561797f8259994ecdd8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5942.05cbcd55c5f45ff7db43.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/5987.7e967df5417044d337a4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6003.94cdab770c801f3c46f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6060.52dca011e9f2f279fc5e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6095.6e79e3bad86e054aa8c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6145.c422868290460078c013.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6166.2bc9ac8e2156c0701a52.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6170.65d899f43342f1e34bf1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6180.63dd2b606db0e1f96318.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6275.e99f9312900c481b467d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6281.f2d17002e22906edbbe3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6294.b3cb5e16527b9d09b4a2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6372.edc0712a4be855493530.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6405.149591861bd49cca7ec9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6412.ebdf8da40f1ba8272df9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6460.d9aaa1e48da295c6035d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6492.804d51a693edf6978ef4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6540.51c00e890179a4832552.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6733.2d8d3e01d56d79a52e7e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6767.4b82d96c237ca7e31bc6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6831.1df8fa4cabb5b1c19803.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6843.dabcc3c9658bc6ded6d1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6874.bb2f7fbc6ce56eecc800.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6894.d24f841137eb34851370.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6896.af1d649e0efae70b7b1a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6901.2bd8f506e162da3e721c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6941.465bebbd3d8a024f5f15.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6986.f1340261cb55bca13d03.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/6993.c93f5a810fcf441cbb6f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7136.b312751fbb25b73f5e71.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7250.b88d0a5e237ff5ff1aad.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7260.b47dcaccbe7991104e8a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7269.962f078e97afc4f68e79.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/731.82a7b980b5b7f4b7a14f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7318.7cc6b4b0b3151b205ecb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7356.f680d291a68c2b235532.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7425.f1c25f6c8aaec77e8635.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7445.7c793c8e1720f8ec4f85.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7476.be548b063def93de4dca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7575.2e3e32236d5667bba43f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7587.3112240b6b82407b0f16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7680.540ff9ec52ce9f8c7f0f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7694.1cbff84dccb512476b7c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7756.93d0ab41829355a147ab.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7769.d39df7673ee2660a9ac4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7803.0c8929610218552319bf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7828.3b5aef1a0c7429703e61.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/785.1438df201df83e9dc1d8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7856.dd9523e57bed80f1f694.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7863.3e0f7ab3a7b98d204ab1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7865.59eef65d3f938deaf991.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7879.6fbc2eab49b3deb798df.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7881.c5a234ce171f347c94e2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7975.1799b2744bef603bdcbb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/7990.01eaa552261b6e12a74a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8103.ed2b21471519b58a3d73.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8217.801fbb0b549a74238760.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8232.e31d5021e77a9b5215d6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8259.b1badd8d5b0a2951a74d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8269.45e594f3b7cb4a511040.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8310.518ea428891488065bd3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8313.aac706f5036a7209b3a8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8326.9dda93079a9e4f1b9be6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8368.c75a4b32ae45ec88465d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8398.3d287e26fdb57912a93a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/84.fe0a55d7756c37585fb4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8418.42e29778d4b49fb54e8e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8447.5813c22f1e89cbbcb439.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8614.cbd4af0b60bdf71a70fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/867.e814bf26fbfc77fc4f16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/872.a89dc5555d0aed622e6e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/874.be636e15937f9ef70121.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8753.56da17175b663d61f9d3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8778.a3883f9acac5a903d6be.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8779.6eebdb56785e3d38a457.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8786.a2bc3dfc1ea13c04ba94.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8816.d7ec52fb31e9c6749593.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8830.d5bb102ed8737ffe38cb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/89.933673451ca4a51053cb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/8968.b84a8021f65457b319c2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9023.2ff687d7ff50df3719fc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9046.99c477ea375dcbb8c7ca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9085.5a959b5878e7afd8a878.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9123.501219cd782693d6539f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9137.179a3c47465e7fb8f067.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9296.c82d1f1a8d9204ca6ed7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9311.ad0012965aa52db7a3e3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9329.1683d45b6478b7c81a24.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9400.90fd1d2212781c80b587.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9474.01b4e1d1e3376f4a5919.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9517.7056cafdf1da3a136d45.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9524.ac26d84557d238b77bc7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/961.29c067b15a524e556eed.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9652.a8d2e5854bcae4d40041.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9746.c7e86b432363dfd28caa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/9892.6d289e7baed8c64d88e2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/bootstrap.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/index.out.js",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "main",
+          "lineno": 26
+        }
+      ]
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/main.17a6fc784de3680390c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/incompat/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/interop/consumer/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/interop/provider/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/interop/token/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/mimeextension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/package/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/service-manager-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/test-hyphens/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/test-hyphens-underscore/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/tests/mock_packages/test_no_hyphens/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/themes/@jupyterlab/theme-dark-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/themes/@jupyterlab/theme-dark-high-contrast-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/jupyterlab/themes/@jupyterlab/theme-light-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/100.76dcd4324b7a28791d02.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1053.92d524d23b6ffd97d9de.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1088.47e247a20947f628f48f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1091.f006368c55525d627dc3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1122.16363dcd990a9685123e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/114.3735fbb3fc442d926d2b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1169.5a41d184b1a9eb054672.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1225.a84f9ad316be9c1538e1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/131.729c28b8323daf822cbe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1418.5913bb08784c217a1f0b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1468.38f64176ff236023d384.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1476.a92e42c2efefeb0da85f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1542.8f0b79431f7af2f43f1e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1558.d1ebe7cb088451b0d7de.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1584.5e136a9d8643093bc7e9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1601.4154c4f9ed460feae33b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1602.1f9163a55b87ec440fc5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1616.ee161d92c1ef1d77afcc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1618.da67fb30732c49b969ba.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1650.c494dde49534b3cfb906.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1679.919e6ea565b914fca3d5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1684.eb0702146a4c81fb3fa8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1821.851b431641f674c578a3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1830.d2ff9069451b0d8dd023.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1837.6bbfd9967be58e1325f1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1849.5c38faccf99b66746bff.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1869.48ca2e23bddad3adfc1a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1871.c375ee093b7e51966390.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1911.f0e15a9640ab9357b03b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/1941.b15cc60637b0a879bea6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2065.9c38c3a745a6b26e232f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2140.b46f1f06efb6e7f83a5f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2188.8a4dbc0baaccf031e5c4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/221.21b91ccc95eefd849fa5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2228.5897a4ab53c9c224da5d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2343.81357d860d7aa9156d23.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2386.4a6f7defebb9a3696820.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2552.e56002ba65105afb9b18.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2666.39e11f71d749eca59f8e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2682.69beaaa72effdd61afbe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/270.dced80a7f5cbf1705712.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2702.bc49dbd258cca77aeea4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/28.b5145a84e3a511427e72.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2816.03541f3103bf4c09e591.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2871.46ec88c6997ef947f39f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2913.274b19d8f201991f4a69.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/2955.199d6b7c6b5d8531cad7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/306.dd9ffcf982b0c863872b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3079.e836bf5d740ece682b14.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/311.d6a177e2f8f1b1690911.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3111.bdf4a0f672df2a6cdd74.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3146.d59e2299e229f0d1137a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3197.bc98a490077bb7768fb1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3211.2e93fd406e5c4e53774f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3230.29b02fdb14e1bdf52d07.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3322.e8348cc2a800190d4f49.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3336.1430b8576b899f650fb9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3370.aa66c4f8e4c91fc5628a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/342.a3e25dab93d954ead72e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3420.693f6432957cbf2699c5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3449.53ec937d932f8f73a39b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3462.0383dfd16602627036bd.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/35.59a288da566759795f5b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3501.c1c56527cb2f94c27dcf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3522.467e51019327266c2d99.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3562.3b759e4fdd798f9dca94.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3591.7b1c961cb56f4d596c70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/369.5cecdf753e161a6bb7fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3700.b937e669a5feb21ccb06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3752.f222858bad091688a0c5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3768.6357b7554822206712fa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3797.ad30e7a4bf8dc994e5be.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/383.086fc5ebac8a08e85b7c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/3901.7873f08dec99dacc4661.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4002.7d2089cf976c84095255.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/403.270ca5cf44874182bd4d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4030.5a53f3aacfd5bc109b79.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4038.edb04f3d9d68204491ba.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4039.dcbb5e4f3949b6eff7e9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4047.14d816f33b5d2f8ee675.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4058.55750d1f42b20c8b59d5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4062.8721bb371627e993f28f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4105.5144c29f0bbce103fec4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4135.0650cd239b6134d4bbee.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4148.410616c0288bc98e224f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4276.58dc160cb5de5b554e86.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/431.4a876e95bf0e93ffd46f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4324.fa653693694bd924557b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4382.2871044f7b1509d55505.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4387.a7f58bf45dd9275aee44.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4406.79d582c7e8588b07181f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4430.879d60462da8c4629a70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4498.4d8665e22c39c0b3f329.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4521.c728470feb41d3f877d1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4588.46b592131684aa708905.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4645.86baf1dd4035fc7a4cf3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4670.3fc6925b39a00569037e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4682.da8685e8de4873be9af2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4708.ea8fa57a2460a633deb4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4810.f422cb69c3eca42dd212.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4825.d47a910536278ab25419.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4837.79b57aad1c8995f4a43f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4843.7eed3c5267c10f3eb786.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4926.7f42350f683b70d59456.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4965.591924d7805c15261494.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/4971.e850b0a1dcb6d3fce7a4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5019.48f595eb3007a3ca0f91.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5061.aede931a61d7ce87ee23.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5095.f5d60c0de6bb4204a590.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5115.722cf90a473016a17ba7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5135.34e5190c73791af58687.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5249.47203d8dad661b809e38.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5299.a014c52ba3f8492bad0f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5321.f606e1e3a9ba8d782268.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5425.2e42adccd47405a6a6a3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5448.a9016133a2b9389ac102.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5468.f877c90ecf966aece521.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5494.391c359bd3d5f45fb30b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5530.8eb3482278bcfcf70e4a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5573.66495960c9a85e2f6ff2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5601.fd066a0b79fbc84e0fb9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/563.0a7566a6f2b684579011.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5634.4b8cef8589d88d01774b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5643.486941eeae3da001fd44.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5698.3347ece7b9654a7783ce.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5726.21a5da0db62bc94d321e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5765.f588990a6e3cb69dcefe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5777.c601d5372b8b7c9b6ff0.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5822.6dcbc72eeab5ed4295aa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5828.66806b64a5e5ffda935f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5834.aca2b773e8f9ffc9639e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5850.30a4d9a000a79095dcff.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5972.456ddfa373f527f850fb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/5996.9dd601211e357e9bf641.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6139.9b4118bd8223a51fa897.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6271.809bc8c9941039275a30.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/632.c59cde46a58f6dac3b70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6345.47a02d8807f11097410d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/647.3a6deb0e090650f1c3e2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/652.b6b5e262205ab840113f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6521.95f93bd416d53955c700.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6547.df95f6da407c2d8f0266.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6577.203d60a6845c78be9991.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/661.bfd67818fb0b29d1fcb4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6627.d9603fc8d591088c02b6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6657.25b2400d23ddd24360b2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/67.9cbc679ecb920dd7951b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6739.b86fe9f9325e098414af.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/677.bedd668f19a13f2743c4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6788.c9f5f85294a5ed5f86ec.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/69.aa2a725012bd95ceceba.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6942.073187fa00ada10fcd06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6967.4a91312ebb6028c69fea.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/6972.3bd59944fc1dc3e59150.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7005.9f299a4f2a4e116a7369.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7022.ada0a27a1f0d61d90ee8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7054.093d48fae797c6c33872.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7061.ada76efa0840f101be5b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7154.1ab03d07151bbd0aad06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7170.aef383eb04df84d63d6a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7179.a27cb1e09e47e519cbfa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7239.9dd4eacbde833d57a0d1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7264.56c0f8b7752822724b0f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7302.3fd348cf8e514cb62d4f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7360.b3741cc7257cecd9efe9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7369.f14bc7073ba891f335ab.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7378.df12091e8f42a5da0429.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/745.30bb604aa86c8167d1a4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7450.beacefc07c8e386709fa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7471.27c6037e2917dcd9958a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7534.e6ec4e7bd41255482e3e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/755.a15217291713fbb99eaa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/757.86f80ac05f38c4f4be68.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7582.5611b71499b0becf7b6a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7634.ad26bf6396390c53768a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7674.80774120971faccbb256.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7776.fbc94d0b2c63ad375e7b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7803.0c44e7b8d148353eed87.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7811.fa11577c84ea92d4102c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7866.b73df9c77816d05d6784.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7884.07a3d44e10261bae9b1f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7906.026939b3d32b0812b709.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/792.050c0efb8da8e633f900.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7957.d903973498b192f6210c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7969.0080840fce265b81a360.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7988.5043608c6c359bf0550d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7995.3d3f9083bc15657e1f48.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/7997.1469ff294f8b64fd26ec.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8010.0c4fde830729471df121.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8140.18f3349945ed9676aed6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8268.658ff3c925b57170a840.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8285.8bade38c361d9af60b43.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8313.45ac616d61cf717bff16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8378.c1a78f0d6f0124d37fa9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8381.0291906ada65d4e5df4e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8433.ed9247b868845dc191b2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8446.66c7f866128c07ec4265.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8479.1807152edb3d746c4d0b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/85.f5f11db2bc819f9ae970.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/850.4ff5be1ac6f4d6958c7a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8579.178b72dbfeb616e506e6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/866.8574f33a07edc3fc33b5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8701.7be1d7a9c41099ea4b6f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/877.6e7f963fba9e130a70de.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8781.54edea38f734a66f4eaa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/883.df3c548d474bbe7fc62c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8845.ac1c5acb78cea4acee08.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8875.0ae78ce12674673ff0b2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8929.22828925bc31ed18e912.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8937.4892770eb5cc44a5f24d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8979.cafa00ee6b2e82b39a17.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/8983.56458cb92e3e2efe6d33.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/899.5a5d6e7bd36baebe76af.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9022.16842ed509ced9c32e9c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9037.663c64b842834ea1989d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/906.da3adda3c4b703a102d7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9060.d564b58af7791af334db.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9068.53fdf37a04e997ff4a71.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9116.3fe5c69fba4a31452403.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9233.916f96402862a0190f46.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9234.ec504d9c9a30598a995c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9239.8802747dd58982052b99.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9250.a4dfe77db702bf7a316c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9325.f7ad2b45da12eea71e71.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9331.5850506ebb1d3f304481.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9373.77def4aa85116945d2d5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9380.68b339b57b7853db2e2f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9425.46a85c9a33b839e23d9f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9448.565b21b90cfd96361091.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9531.0772cd1f4cfe0c65a5a7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9558.255ac6fa674e07653e39.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9604.f29b5b0d3160e238fdf7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9619.8568577b14d9b7dafc06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9676.0476942dc748eb1854c5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9799.f8f37b03cc4afc27f8f0.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9848.558310b88143708c53d4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/9966.6e4c30d22ec3fd1ec9a6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/notebook/static/main.1b080589e660d95518c1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/terminado/uimod_embed.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/terminado/_static/terminado.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/urllib3/contrib/emscripten/emscripten_fetch_worker.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/Lib/site-packages/widgetsnbextension/static/extension.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/100.1d14ca44a3cc8849349f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1039.3fe94e87219c0ed159d3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1042.37576ba0f95d869bc96f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1096.dd4c563e0483cbbeb9c9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1109.74211c725919c045e958.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1189.c1482e88f0e949753db6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1208.4b9ab7b231d39ebdbc3f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1218.856189c1ebf3c45164d6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1219.b5630aa3a46050fddc27.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1268.e75d8a6dd557ac8957ca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1423.4bcf4453e1c1d12d872f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1436.2c11d9dee0ad6f49e968.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1445.a0e099c27d073217031a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1449.7026e8748d2a77e15d5b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1483.c0aab21b263e7ea33653.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1491.2ba7986aa8d599fec5d0.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1495.13603dd823bbf5eb08b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1561.dae72f9e395f056aada7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1599.11abc92e77fd73c17788.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1673.b0ee25168543434bdbca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1737.a5fc97075f693ec36fe6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1740.ea85a6b11ee65c009b96.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1832.b1ede2fe899bdec88938.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1834.7445ad0c82371ac40737.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1838.9f8063fe6e262e0db079.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1887.56f83f163a18c61efb16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1909.7487a09fefbe7f9eabb6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1954.f1c519cb1415c7da3e8c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1960.f8d8ef8a91360e60f0b9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1962.6a7da74e809b70d5200d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1969.86e3168e52802569d650.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1986.26029e99ef54a5652df8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/1991.84fc123d7cfe8ae2948e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2089.b46fb224dcf021a15dbf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2211.067e46096434d8c02ab9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/227.4c50874f32ac408174fc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2280.6614699f54522fffbc00.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/232.5419cbec68e3fd0cf431.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2353.ab70488f07a7c0a7a3fd.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2434.081e28b7a2a5615efc76.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/246.326a6482593e8a7bcd58.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2467.4227742ac4b60289f222.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/247.84259ab142dd8c151fc2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2491.c169ecbc5fde2bcdb1b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2574.327dadfe49120269ff31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2576.b98b7b23adeec4cb6932.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2590.99e505d19b964439aa31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2633.ea053b40991eb5adbc69.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2641.e77441e7a3e0d12834c5.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/265.6f9e37c0b72db64203b1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2658.d1cae1b08b068d864368.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2681.a47f40e38ecd31ccd687.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2707.61050e600b0aa9624127.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2709.5140980a9923ec42b67e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2729.cafaf0caf2c0c83ac9fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2794.05495c139ed000b57598.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2823.0b6015b5e03c08281f41.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2880.8483d51b11998bfe8e4b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2957.bc5eb9549a0b15c44916.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/2959.b24c9f67d639376f5ead.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3053.beb23cbacffa772207b1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3111.33574d9124842f355bce.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3112.0757b31e24c5334fda73.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/321.0fb994fd384a54491584.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3257.30af681f0c294efb65f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3282.22e78350d54fcaf3c6c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3293.183fd842651c09f49ca9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3303.b5596c0715d2d58332fb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3339.dc549aef4742ebac731b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3372.8eeafd96de9a7a205f40.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/339.380593b40d8d41150a4e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3616.a4271ffcf2ac3b4c2338.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3669.47474718289c8591e1c9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3709.e33bc30c83272aa85628.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3763.bda1d47b05d70b671f59.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3780.c9294dc98ae926717741.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3799.eaa0438bc5c41bad0516.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3824.5e23be1e37fce5b7c6b3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3832.c6026c483bb46cc8e599.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3974.79f68bca9a02c92dab5e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/3991.678edf189fe92a216c70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4001.80ab3ef5300d7ce2d1fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4010.00c763d684ae0ed6f37a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4053.4945facc348478fd59f4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4068.9cc41f46f729f2c4369b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4076.b4d803d8bf1bd6c97854.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4090.351b39dda1f2fbb9a1c4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4266.155b468271987c81d948.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4296.721da424585874d0789e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4323.b2bd8a329a81d30ed039.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4350.8c8a0e7a3ffe036494e1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4353.8572f6845cfde92dc152.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4364.194afbbdabacc831ead4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4372.645626a2452c190dbb22.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4408.f24dd0edf35e08548967.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4462.c3c6de84bc9399e0290d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4483.02ee7ef303167f106fec.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4484.e1d2565d1a3daa5fe5f1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4486.8d2f41ae787607b7bf31.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4528.43328125d98d6cfdfa99.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4611.bd2b768223b0cd570834.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4616.04cfbd55593c51921cc7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4728.56c0b9d87316b2fa012e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4735.7731d551ca68bcb58e9f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4797.3740ef47b224a11a7fab.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4838.8db4c61349bfba200547.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4855.29e8dc6982ba4873487d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4878.f7557c5c99a54b40c49b.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/492.5f186062d2dcdf79c86c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4928.6cb408e4def87534970d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/4981.eed4ddb90566e90e3df4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5007.c72755eda1694663f8ff.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5085.a38923f36b551620798a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5090.404be96d8a6eae1e719a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5211.83e78dadcef89cae04bf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5224.8a6bbc774d20be66fdfb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5244.eefac84704ad30f00af3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5317.f4bba2e3d0f4fdd088f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5318.d5df5c275e925c22d780.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5338.38c32bdfb0695f9b501f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5362.c794ff9abf82992fb389.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5454.0401043bbeb0b9ef2a06.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5489.7710426bc179ba430a0e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5492.44728a640c37a4b4aa0c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5521.8d4f6dfc471f500e4311.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5566.c76ea61eb723ee84e2cf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5606.e03dfa10c124a03f36ba.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5664.e10a8a7d25bc4ae5759a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5763.48defb00824aa5cc6326.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5829.0e46d479b4ade4783661.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5834.f91e537d13feb21974e9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5847.930208c25e45ecf30657.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5862.be1ec453e8db6844c62d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5877.72ab5a29e95ce21981e4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5880.0feb80072ad49ee77328.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5929.d561797f8259994ecdd8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5942.05cbcd55c5f45ff7db43.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/5987.7e967df5417044d337a4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6003.94cdab770c801f3c46f7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6060.52dca011e9f2f279fc5e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6095.6e79e3bad86e054aa8c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6145.c422868290460078c013.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6166.2bc9ac8e2156c0701a52.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6170.65d899f43342f1e34bf1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6180.63dd2b606db0e1f96318.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6275.e99f9312900c481b467d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6281.f2d17002e22906edbbe3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6294.b3cb5e16527b9d09b4a2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6372.edc0712a4be855493530.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6405.149591861bd49cca7ec9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6412.ebdf8da40f1ba8272df9.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6460.d9aaa1e48da295c6035d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6492.804d51a693edf6978ef4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6540.51c00e890179a4832552.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6733.2d8d3e01d56d79a52e7e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6767.4b82d96c237ca7e31bc6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6831.1df8fa4cabb5b1c19803.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6843.dabcc3c9658bc6ded6d1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6874.bb2f7fbc6ce56eecc800.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6894.d24f841137eb34851370.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6896.af1d649e0efae70b7b1a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6901.2bd8f506e162da3e721c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6941.465bebbd3d8a024f5f15.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6986.f1340261cb55bca13d03.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/6993.c93f5a810fcf441cbb6f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7136.b312751fbb25b73f5e71.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7250.b88d0a5e237ff5ff1aad.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7260.b47dcaccbe7991104e8a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7269.962f078e97afc4f68e79.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/731.82a7b980b5b7f4b7a14f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7318.7cc6b4b0b3151b205ecb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7356.f680d291a68c2b235532.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7425.f1c25f6c8aaec77e8635.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7445.7c793c8e1720f8ec4f85.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7476.be548b063def93de4dca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7575.2e3e32236d5667bba43f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7587.3112240b6b82407b0f16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7680.540ff9ec52ce9f8c7f0f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7694.1cbff84dccb512476b7c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7756.93d0ab41829355a147ab.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7769.d39df7673ee2660a9ac4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7803.0c8929610218552319bf.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7828.3b5aef1a0c7429703e61.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/785.1438df201df83e9dc1d8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7856.dd9523e57bed80f1f694.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7863.3e0f7ab3a7b98d204ab1.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7865.59eef65d3f938deaf991.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7879.6fbc2eab49b3deb798df.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7881.c5a234ce171f347c94e2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7975.1799b2744bef603bdcbb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/7990.01eaa552261b6e12a74a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8103.ed2b21471519b58a3d73.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8217.801fbb0b549a74238760.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8232.e31d5021e77a9b5215d6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8259.b1badd8d5b0a2951a74d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8269.45e594f3b7cb4a511040.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8310.518ea428891488065bd3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8313.aac706f5036a7209b3a8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8326.9dda93079a9e4f1b9be6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8368.c75a4b32ae45ec88465d.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8398.3d287e26fdb57912a93a.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/84.fe0a55d7756c37585fb4.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8418.42e29778d4b49fb54e8e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8447.5813c22f1e89cbbcb439.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8614.cbd4af0b60bdf71a70fe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/867.e814bf26fbfc77fc4f16.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/872.a89dc5555d0aed622e6e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/874.be636e15937f9ef70121.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8753.56da17175b663d61f9d3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8778.a3883f9acac5a903d6be.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8779.6eebdb56785e3d38a457.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8786.a2bc3dfc1ea13c04ba94.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8816.d7ec52fb31e9c6749593.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8830.d5bb102ed8737ffe38cb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/89.933673451ca4a51053cb.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/8968.b84a8021f65457b319c2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9023.2ff687d7ff50df3719fc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9046.99c477ea375dcbb8c7ca.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9085.5a959b5878e7afd8a878.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9123.501219cd782693d6539f.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9137.179a3c47465e7fb8f067.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9296.c82d1f1a8d9204ca6ed7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9311.ad0012965aa52db7a3e3.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9329.1683d45b6478b7c81a24.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9400.90fd1d2212781c80b587.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9474.01b4e1d1e3376f4a5919.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9517.7056cafdf1da3a136d45.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9524.ac26d84557d238b77bc7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/961.29c067b15a524e556eed.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9652.a8d2e5854bcae4d40041.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9746.c7e86b432363dfd28caa.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/9892.6d289e7baed8c64d88e2.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/bootstrap.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/index.out.js",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "main",
+          "lineno": 26
+        }
+      ]
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/main.17a6fc784de3680390c8.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/themes/@jupyterlab/theme-dark-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/themes/@jupyterlab/theme-dark-high-contrast-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/lab/themes/@jupyterlab/theme-light-extension/index.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/568.4e5539dcfc2cb5fba348.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/592.8efc280b38c19d806d42.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/928.5f64e32eea3fdff54b70.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/93.4dd6ecfa9e6576499569.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/remoteEntry.e74d1be6a629c1764a05.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-notebook/lab-extension/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/lib_index_js.56f37fb50492d0d63a45.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/packages_base-manager_lib_index_js.13941b475e5b5a1ab133.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/packages_base_lib_index_js-webpack_sharing_consume_default_jquery_jquery.5dd13f8e980fa3c50bfe.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/packages_controls_lib_index_js.6d5d05e0ec5e0c9f8185.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/packages_controls_lib_version_js.105c0edf5e497d01e132.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/packages_output_lib_index_js.49c9e4037a3b9e9e3b18.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/remoteEntry.9077b3d2deaffb329dfc.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/vendors-node_modules_backbone_backbone_js-node_modules_lodash_isEqual_js.ab532abfb6832a50f59e.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/vendors-node_modules_base64-js_index_js-node_modules_sanitize-html_index_js.c79fc2bcc3f69676beda.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/vendors-node_modules_d3-color_src_color_js-node_modules_d3-format_src_defaultLocale_js-node_m-09b215.2643c43f22ad111f4f82.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/vendors-node_modules_jquery_dist_jquery_js.3afdf979a9caffdf15a7.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/@jupyter-widgets/jupyterlab-manager/static/vendors-node_modules_semver_index_js.7a90c08b9ce3dac425c6.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/jupyterlab_pygments/static/568.1e2faa2ba0bbe59c4780.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/jupyterlab_pygments/static/747.67662283a5707eeb4d4c.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/jupyterlab_pygments/static/remoteEntry.5cbb9d2323598fbda535.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/labextensions/jupyterlab_pygments/static/style.js",
+      "symbols": []
+    },
+    {
+      "path": ".venv-lab/share/jupyter/nbextensions/jupyter-js-widgets/extension.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/gen-webpack.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/gen-webpack.node.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/webpack.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/693.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/ipc-bootstrap.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/main.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/nsfw-watcher.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-6a1807.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-bcd0ae.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/native-webpack-plugin/bindings.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/backend/native-webpack-plugin/ripgrep.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_core_lib-0053df.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_core_lib-3bd0ea.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_core_lib-a7724b.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_filesyst-5429d4.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_filesyst-781c46.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_userstor-71192d.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-artifacts_-341fb0.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-core_lib_b-ae02d0.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-core_lib_b-b6716c.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-data-viewe-80f5d8.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-mlflow_lib-255529.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/editor.worker.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-001836.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-030617.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-1c1140.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-2f6fd7.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-57775a.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-57c161.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-600e14.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-738c69.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-75a115.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-7f5c5b.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-aebb8b.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-d38d5f.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/lib/frontend/vendors-C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_node_modules_theia_-ec8966.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/src-gen/backend/main.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/src-gen/backend/server.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/src-gen/frontend/index.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app/src-gen/frontend/secondary-index.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/gen-webpack.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/gen-webpack.node.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/webpack.config.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/src-gen/backend/main.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/src-gen/backend/server.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/src-gen/frontend/index.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/browser-app-lite/src-gen/frontend/secondary-index.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/agentic-artifacts-frontend-module.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/agentic-artifacts-frontend-module.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-commands.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-commands.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-menu.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-menu.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-service.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "Artifact",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "ArtifactsListResponse",
+          "lineno": 25
+        },
+        {
+          "kind": "interface",
+          "name": "GroupInfo",
+          "lineno": 29
+        },
+        {
+          "kind": "interface",
+          "name": "TagInfo",
+          "lineno": 34
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifact-service.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifacts-tree-widget.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "GroupNode",
+          "lineno": 11
+        },
+        {
+          "kind": "interface",
+          "name": "TagNode",
+          "lineno": 14
+        },
+        {
+          "kind": "interface",
+          "name": "ArtifactNode",
+          "lineno": 17
+        },
+        {
+          "kind": "type",
+          "name": "ViewMode",
+          "lineno": 29
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifacts-tree-widget.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifacts-view-contribution.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/lib/browser/artifacts-view-contribution.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/agentic-artifacts-frontend-module.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/artifact-commands.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "TOGGLE_ARTIFACTS_VIEW",
+          "lineno": 14
+        },
+        {
+          "kind": "const",
+          "name": "REFRESH_ARTIFACTS",
+          "lineno": 20
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_ALL",
+          "lineno": 26
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_BY_GROUP",
+          "lineno": 32
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_BY_TAG",
+          "lineno": 38
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_SHARED",
+          "lineno": 44
+        },
+        {
+          "kind": "const",
+          "name": "ADD_TAG",
+          "lineno": 50
+        },
+        {
+          "kind": "const",
+          "name": "REMOVE_TAG",
+          "lineno": 56
+        },
+        {
+          "kind": "const",
+          "name": "ADD_TO_GROUP",
+          "lineno": 62
+        },
+        {
+          "kind": "const",
+          "name": "REMOVE_FROM_GROUP",
+          "lineno": 68
+        },
+        {
+          "kind": "const",
+          "name": "SHARE_ARTIFACT",
+          "lineno": 74
+        },
+        {
+          "kind": "const",
+          "name": "DOWNLOAD_ARTIFACT",
+          "lineno": 80
+        },
+        {
+          "kind": "const",
+          "name": "DELETE_ARTIFACT",
+          "lineno": 86
+        },
+        {
+          "kind": "class",
+          "name": "ArtifactCommandContribution",
+          "lineno": 95
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/artifact-menu.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AGENTIC",
+          "lineno": 12
+        },
+        {
+          "kind": "const",
+          "name": "ARTIFACTS",
+          "lineno": 13
+        },
+        {
+          "kind": "class",
+          "name": "ArtifactMenuContribution",
+          "lineno": 17
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/artifact-service.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "ArtifactServiceSymbol",
+          "lineno": 10
+        },
+        {
+          "kind": "interface",
+          "name": "Artifact",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "ArtifactsListResponse",
+          "lineno": 29
+        },
+        {
+          "kind": "interface",
+          "name": "GroupInfo",
+          "lineno": 34
+        },
+        {
+          "kind": "interface",
+          "name": "TagInfo",
+          "lineno": 40
+        },
+        {
+          "kind": "class",
+          "name": "ArtifactService",
+          "lineno": 47
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/artifacts-tree-widget.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "ARTIFACTS_TREE_WIDGET_ID",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "GroupNode",
+          "lineno": 14
+        },
+        {
+          "kind": "interface",
+          "name": "TagNode",
+          "lineno": 18
+        },
+        {
+          "kind": "interface",
+          "name": "ArtifactNode",
+          "lineno": 22
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 28
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 34
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 40
+        },
+        {
+          "kind": "type",
+          "name": "ViewMode",
+          "lineno": 44
+        },
+        {
+          "kind": "class",
+          "name": "ArtifactsTreeWidget",
+          "lineno": 48
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-artifacts/src/browser/artifacts-view-contribution.ts",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "ArtifactsViewContribution",
+          "lineno": 13
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-backend-service.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "AgenticConfig",
+          "lineno": 8
+        },
+        {
+          "kind": "interface",
+          "name": "ApiResponse",
+          "lineno": 12
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-backend-service.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-commands.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-commands.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-configuration.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-configuration.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-core-frontend-module.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-core-frontend-module.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-menu.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-menu.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-status-bar.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-status-bar.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-websocket-client.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "WSMessage",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "WSCommand",
+          "lineno": 16
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/agentic-websocket-client.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/index.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/lib/browser/index.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-backend-service.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AgenticBackendServiceSymbol",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "AgenticConfig",
+          "lineno": 11
+        },
+        {
+          "kind": "interface",
+          "name": "ApiResponse",
+          "lineno": 16
+        },
+        {
+          "kind": "class",
+          "name": "AgenticBackendService",
+          "lineno": 24
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-commands.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "CHECK_CONNECTION",
+          "lineno": 15
+        },
+        {
+          "kind": "const",
+          "name": "SHOW_CONFIG",
+          "lineno": 21
+        },
+        {
+          "kind": "const",
+          "name": "LIST_EXPERIMENTS",
+          "lineno": 27
+        },
+        {
+          "kind": "const",
+          "name": "CREATE_EXPERIMENT",
+          "lineno": 33
+        },
+        {
+          "kind": "const",
+          "name": "LIST_SESSIONS",
+          "lineno": 39
+        },
+        {
+          "kind": "const",
+          "name": "CREATE_SESSION",
+          "lineno": 45
+        },
+        {
+          "kind": "const",
+          "name": "RECONNECT_WEBSOCKET",
+          "lineno": 51
+        },
+        {
+          "kind": "class",
+          "name": "AgenticCommandContribution",
+          "lineno": 60
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-configuration.ts",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "AgenticConfigurationContribution",
+          "lineno": 13
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-core-frontend-module.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-menu.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AGENTIC",
+          "lineno": 12
+        },
+        {
+          "kind": "const",
+          "name": "AGENTIC_EXPERIMENTS",
+          "lineno": 13
+        },
+        {
+          "kind": "const",
+          "name": "AGENTIC_SESSIONS",
+          "lineno": 14
+        },
+        {
+          "kind": "const",
+          "name": "AGENTIC_SYSTEM",
+          "lineno": 15
+        },
+        {
+          "kind": "class",
+          "name": "AgenticMenuContribution",
+          "lineno": 19
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-status-bar.ts",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "AgenticStatusBarContribution",
+          "lineno": 16
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/agentic-websocket-client.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AgenticWebSocketClientSymbol",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "WSMessage",
+          "lineno": 11
+        },
+        {
+          "kind": "interface",
+          "name": "WSCommand",
+          "lineno": 19
+        },
+        {
+          "kind": "class",
+          "name": "AgenticWebSocketClient",
+          "lineno": 60
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-core/src/browser/index.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/agentic-data-viewer-frontend-module.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/agentic-data-viewer-frontend-module.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-explorer-view-contribution.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-explorer-view-contribution.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-explorer-widget.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "DirectoryNode",
+          "lineno": 11
+        },
+        {
+          "kind": "interface",
+          "name": "FileNode",
+          "lineno": 14
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-explorer-widget.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-service.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "FileInfo",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "ColumnInfo",
+          "lineno": 18
+        },
+        {
+          "kind": "interface",
+          "name": "TableSchema",
+          "lineno": 26
+        },
+        {
+          "kind": "interface",
+          "name": "TablePreview",
+          "lineno": 33
+        },
+        {
+          "kind": "interface",
+          "name": "DirectoryListing",
+          "lineno": 41
+        },
+        {
+          "kind": "interface",
+          "name": "CacheStats",
+          "lineno": 46
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-service.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-viewer-commands.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-viewer-commands.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-viewer-menu.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/lib/browser/data-viewer-menu.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/agentic-data-viewer-frontend-module.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/data-explorer-view-contribution.ts",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "DataExplorerViewContribution",
+          "lineno": 13
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/data-explorer-widget.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "DATA_EXPLORER_WIDGET_ID",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "DirectoryNode",
+          "lineno": 14
+        },
+        {
+          "kind": "interface",
+          "name": "FileNode",
+          "lineno": 18
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 24
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 30
+        },
+        {
+          "kind": "class",
+          "name": "DataExplorerWidget",
+          "lineno": 36
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/data-service.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "DataServiceSymbol",
+          "lineno": 10
+        },
+        {
+          "kind": "interface",
+          "name": "FileInfo",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "ColumnInfo",
+          "lineno": 22
+        },
+        {
+          "kind": "interface",
+          "name": "TableSchema",
+          "lineno": 31
+        },
+        {
+          "kind": "interface",
+          "name": "TablePreview",
+          "lineno": 39
+        },
+        {
+          "kind": "interface",
+          "name": "DirectoryListing",
+          "lineno": 48
+        },
+        {
+          "kind": "interface",
+          "name": "CacheStats",
+          "lineno": 54
+        },
+        {
+          "kind": "class",
+          "name": "DataService",
+          "lineno": 64
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/data-viewer-commands.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "TOGGLE_DATA_EXPLORER",
+          "lineno": 14
+        },
+        {
+          "kind": "const",
+          "name": "REFRESH_FILES",
+          "lineno": 20
+        },
+        {
+          "kind": "const",
+          "name": "NAVIGATE_UP",
+          "lineno": 26
+        },
+        {
+          "kind": "const",
+          "name": "NAVIGATE_TO",
+          "lineno": 32
+        },
+        {
+          "kind": "const",
+          "name": "PREVIEW_TABLE",
+          "lineno": 38
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_SCHEMA",
+          "lineno": 44
+        },
+        {
+          "kind": "const",
+          "name": "QUERY_TABLE",
+          "lineno": 50
+        },
+        {
+          "kind": "const",
+          "name": "CLEAR_CACHE",
+          "lineno": 56
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_CACHE_STATS",
+          "lineno": 62
+        },
+        {
+          "kind": "const",
+          "name": "CONVERT_FILE",
+          "lineno": 68
+        },
+        {
+          "kind": "class",
+          "name": "DataViewerCommandContribution",
+          "lineno": 77
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-data-viewer/src/browser/data-viewer-menu.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AGENTIC",
+          "lineno": 12
+        },
+        {
+          "kind": "const",
+          "name": "DATA",
+          "lineno": 13
+        },
+        {
+          "kind": "class",
+          "name": "DataViewerMenuContribution",
+          "lineno": 17
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/agentic-mlflow-frontend-module.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/agentic-mlflow-frontend-module.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/experiments-tree-widget.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "ExperimentNode",
+          "lineno": 11
+        },
+        {
+          "kind": "interface",
+          "name": "RunNode",
+          "lineno": 14
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/experiments-tree-widget.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/experiments-view-contribution.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/experiments-view-contribution.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-commands.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-commands.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-menu.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-menu.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-service.d.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "Experiment",
+          "lineno": 9
+        },
+        {
+          "kind": "interface",
+          "name": "Run",
+          "lineno": 19
+        },
+        {
+          "kind": "interface",
+          "name": "ExperimentsListResponse",
+          "lineno": 31
+        },
+        {
+          "kind": "interface",
+          "name": "RunsListResponse",
+          "lineno": 35
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/lib/browser/mlflow-service.js",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/agentic-mlflow-frontend-module.ts",
+      "symbols": []
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/experiments-tree-widget.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "EXPERIMENTS_TREE_WIDGET_ID",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "ExperimentNode",
+          "lineno": 14
+        },
+        {
+          "kind": "interface",
+          "name": "RunNode",
+          "lineno": 18
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 24
+        },
+        {
+          "kind": "function",
+          "name": "is",
+          "lineno": 30
+        },
+        {
+          "kind": "class",
+          "name": "ExperimentsTreeWidget",
+          "lineno": 36
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/experiments-view-contribution.ts",
+      "symbols": [
+        {
+          "kind": "class",
+          "name": "ExperimentsViewContribution",
+          "lineno": 13
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/mlflow-commands.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "TOGGLE_EXPERIMENTS_VIEW",
+          "lineno": 14
+        },
+        {
+          "kind": "const",
+          "name": "REFRESH_EXPERIMENTS",
+          "lineno": 20
+        },
+        {
+          "kind": "const",
+          "name": "CREATE_EXPERIMENT",
+          "lineno": 26
+        },
+        {
+          "kind": "const",
+          "name": "DELETE_EXPERIMENT",
+          "lineno": 32
+        },
+        {
+          "kind": "const",
+          "name": "START_RUN",
+          "lineno": 38
+        },
+        {
+          "kind": "const",
+          "name": "END_RUN",
+          "lineno": 44
+        },
+        {
+          "kind": "const",
+          "name": "VIEW_RUN_DETAILS",
+          "lineno": 50
+        },
+        {
+          "kind": "const",
+          "name": "COMPARE_RUNS",
+          "lineno": 56
+        },
+        {
+          "kind": "const",
+          "name": "OPEN_MLFLOW_UI",
+          "lineno": 62
+        },
+        {
+          "kind": "class",
+          "name": "MLFlowCommandContribution",
+          "lineno": 71
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/mlflow-menu.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "AGENTIC",
+          "lineno": 12
+        },
+        {
+          "kind": "const",
+          "name": "MLFLOW",
+          "lineno": 13
+        },
+        {
+          "kind": "class",
+          "name": "MLFlowMenuContribution",
+          "lineno": 17
+        }
+      ]
+    },
+    {
+      "path": "frontend/packages/agentic-mlflow/src/browser/mlflow-service.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "MLFlowServiceSymbol",
+          "lineno": 10
+        },
+        {
+          "kind": "interface",
+          "name": "Experiment",
+          "lineno": 12
+        },
+        {
+          "kind": "interface",
+          "name": "Run",
+          "lineno": 23
+        },
+        {
+          "kind": "interface",
+          "name": "ExperimentsListResponse",
+          "lineno": 36
+        },
+        {
+          "kind": "interface",
+          "name": "RunsListResponse",
+          "lineno": 41
+        },
+        {
+          "kind": "class",
+          "name": "MLFlowService",
+          "lineno": 48
+        }
+      ]
+    },
+    {
+      "path": "theia-ide/extensions/agentic-extension/src/extension.ts",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "activate",
+          "lineno": 3
+        }
+      ]
+    },
+    {
+      "path": "webui/next-env.d.ts",
+      "symbols": []
+    },
+    {
+      "path": "webui/next.config.ts",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/middleware.ts",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "middleware",
+          "lineno": 9
+        },
+        {
+          "kind": "const",
+          "name": "config",
+          "lineno": 60
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/layout.tsx",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "metadata",
+          "lineno": 20
+        },
+        {
+          "kind": "function",
+          "name": "RootLayout",
+          "lineno": 28
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "DashboardPage",
+          "lineno": 140
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/agents/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "AgentsPage",
+          "lineno": 130
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/agents/new/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "NewAgentPage",
+          "lineno": 276
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/data/training/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "TrainingDataPage",
+          "lineno": 48
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/datasources/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "DataSourcesPage",
+          "lineno": 437
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/datasources/[id]/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "DataSourceDetailPage",
+          "lineno": 70
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/experiments/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ExperimentsPage",
+          "lineno": 22
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/flows/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "FlowsPage",
+          "lineno": 114
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/flows/new/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "NewFlowPage",
+          "lineno": 363
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/knowledge/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "KnowledgePage",
+          "lineno": 21
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/kubernetes/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "KubernetesPage",
+          "lineno": 43
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/kubernetes/deployments/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "DeploymentsPage",
+          "lineno": 109
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/kubernetes/models/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ModelsPage",
+          "lineno": 104
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/kubernetes/storage/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "StoragePage",
+          "lineno": 71
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/library/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "LibraryPage",
+          "lineno": 123
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/library/new/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "NewComponentPage",
+          "lineno": 343
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/library/[id]/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ComponentDetailPage",
+          "lineno": 87
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/models/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ModelsPage",
+          "lineno": 64
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/models/training/new/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "NewTrainingJobPage",
+          "lineno": 40
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/models/tuning/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "TuningPage",
+          "lineno": 47
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/monitoring/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "MonitoringPage",
+          "lineno": 62
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/pipelines/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "PipelinesPage",
+          "lineno": 260
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/projects/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ProjectsPage",
+          "lineno": 105
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/projects/new/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "NewProjectPage",
+          "lineno": 21
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/projects/[id]/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "ProjectDetailPage",
+          "lineno": 56
+        }
+      ]
+    },
+    {
+      "path": "webui/src/app/settings/page.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "SettingsPage",
+          "lineno": 21
+        }
+      ]
+    },
+    {
+      "path": "webui/src/components/generation-modal.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "GenerationModal",
+          "lineno": 140
+        },
+        {
+          "kind": "function",
+          "name": "useGenerationModal",
+          "lineno": 649
+        }
+      ]
+    },
+    {
+      "path": "webui/src/components/providers.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "Providers",
+          "lineno": 6
+        }
+      ]
+    },
+    {
+      "path": "webui/src/components/layout/app-sidebar.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "AppSidebar",
+          "lineno": 168
+        }
+      ]
+    },
+    {
+      "path": "webui/src/components/layout/header.tsx",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "Header",
+          "lineno": 42
+        }
+      ]
+    },
+    {
+      "path": "webui/src/components/ui/alert-dialog.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/alert.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/avatar.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/badge.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/breadcrumb.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/button.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/card.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/collapsible.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/command.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/dialog.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/dropdown-menu.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/form.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/input.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/label.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/popover.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/scroll-area.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/select.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/separator.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/sheet.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/sidebar.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/skeleton.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/sonner.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/table.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/tabs.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/textarea.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/components/ui/tooltip.tsx",
+      "symbols": []
+    },
+    {
+      "path": "webui/src/hooks/use-mobile.ts",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "useIsMobile",
+          "lineno": 4
+        }
+      ]
+    },
+    {
+      "path": "webui/src/lib/api.ts",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "getBackendUrl",
+          "lineno": 48
+        },
+        {
+          "kind": "function",
+          "name": "getApiKey",
+          "lineno": 55
+        },
+        {
+          "kind": "function",
+          "name": "setApiKey",
+          "lineno": 62
+        },
+        {
+          "kind": "function",
+          "name": "clearApiKey",
+          "lineno": 68
+        },
+        {
+          "kind": "function",
+          "name": "useSystemHealth",
+          "lineno": 141
+        },
+        {
+          "kind": "function",
+          "name": "useSystemStats",
+          "lineno": 183
+        },
+        {
+          "kind": "function",
+          "name": "useProjects",
+          "lineno": 191
+        },
+        {
+          "kind": "function",
+          "name": "useProject",
+          "lineno": 205
+        },
+        {
+          "kind": "function",
+          "name": "useCreateProject",
+          "lineno": 213
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateProject",
+          "lineno": 225
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteProject",
+          "lineno": 237
+        },
+        {
+          "kind": "function",
+          "name": "useAgents",
+          "lineno": 250
+        },
+        {
+          "kind": "function",
+          "name": "useAgent",
+          "lineno": 270
+        },
+        {
+          "kind": "function",
+          "name": "useCreateAgent",
+          "lineno": 278
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateAgent",
+          "lineno": 290
+        },
+        {
+          "kind": "function",
+          "name": "useDeployAgent",
+          "lineno": 302
+        },
+        {
+          "kind": "function",
+          "name": "useFlows",
+          "lineno": 315
+        },
+        {
+          "kind": "function",
+          "name": "useFlow",
+          "lineno": 335
+        },
+        {
+          "kind": "function",
+          "name": "useCreateFlow",
+          "lineno": 343
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateFlow",
+          "lineno": 355
+        },
+        {
+          "kind": "function",
+          "name": "useValidateFlow",
+          "lineno": 367
+        },
+        {
+          "kind": "function",
+          "name": "useRunFlow",
+          "lineno": 376
+        },
+        {
+          "kind": "function",
+          "name": "useComponents",
+          "lineno": 392
+        },
+        {
+          "kind": "function",
+          "name": "useComponent",
+          "lineno": 412
+        },
+        {
+          "kind": "function",
+          "name": "useCreateComponent",
+          "lineno": 420
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateComponent",
+          "lineno": 432
+        },
+        {
+          "kind": "function",
+          "name": "useNotes",
+          "lineno": 448
+        },
+        {
+          "kind": "function",
+          "name": "useCreateNote",
+          "lineno": 456
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateNote",
+          "lineno": 468
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteNote",
+          "lineno": 480
+        },
+        {
+          "kind": "function",
+          "name": "useTags",
+          "lineno": 493
+        },
+        {
+          "kind": "function",
+          "name": "useAddTag",
+          "lineno": 497
+        },
+        {
+          "kind": "function",
+          "name": "useExperiments",
+          "lineno": 513
+        },
+        {
+          "kind": "function",
+          "name": "useExperiment",
+          "lineno": 521
+        },
+        {
+          "kind": "function",
+          "name": "useExperimentRuns",
+          "lineno": 529
+        },
+        {
+          "kind": "function",
+          "name": "useRun",
+          "lineno": 537
+        },
+        {
+          "kind": "function",
+          "name": "useCreateExperiment",
+          "lineno": 545
+        },
+        {
+          "kind": "function",
+          "name": "useSessions",
+          "lineno": 561
+        },
+        {
+          "kind": "function",
+          "name": "useSession",
+          "lineno": 565
+        },
+        {
+          "kind": "function",
+          "name": "useCollections",
+          "lineno": 577
+        },
+        {
+          "kind": "function",
+          "name": "useSearch",
+          "lineno": 581
+        },
+        {
+          "kind": "function",
+          "name": "useChat",
+          "lineno": 597
+        },
+        {
+          "kind": "function",
+          "name": "getMlflowUrl",
+          "lineno": 618
+        },
+        {
+          "kind": "function",
+          "name": "getJupyterUrl",
+          "lineno": 622
+        },
+        {
+          "kind": "function",
+          "name": "openMlflowExperiment",
+          "lineno": 626
+        },
+        {
+          "kind": "function",
+          "name": "openMlflowRun",
+          "lineno": 630
+        },
+        {
+          "kind": "function",
+          "name": "openJupyterLab",
+          "lineno": 634
+        },
+        {
+          "kind": "function",
+          "name": "useDataSources",
+          "lineno": 642
+        },
+        {
+          "kind": "function",
+          "name": "useDataSource",
+          "lineno": 664
+        },
+        {
+          "kind": "function",
+          "name": "useCreateDataSource",
+          "lineno": 672
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateDataSource",
+          "lineno": 692
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteDataSource",
+          "lineno": 704
+        },
+        {
+          "kind": "function",
+          "name": "useTestDataSource",
+          "lineno": 713
+        },
+        {
+          "kind": "function",
+          "name": "useTestDataSourceConfig",
+          "lineno": 722
+        },
+        {
+          "kind": "function",
+          "name": "useDataSourceSchema",
+          "lineno": 738
+        },
+        {
+          "kind": "function",
+          "name": "usePromoteDataSource",
+          "lineno": 746
+        },
+        {
+          "kind": "function",
+          "name": "useDataSourceTypes",
+          "lineno": 755
+        },
+        {
+          "kind": "function",
+          "name": "useProjectServices",
+          "lineno": 767
+        },
+        {
+          "kind": "function",
+          "name": "useCreateProjectService",
+          "lineno": 785
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteProjectService",
+          "lineno": 797
+        },
+        {
+          "kind": "function",
+          "name": "useCheckServiceHealth",
+          "lineno": 806
+        },
+        {
+          "kind": "function",
+          "name": "useProjectGitConfig",
+          "lineno": 819
+        },
+        {
+          "kind": "function",
+          "name": "useUpdateProjectGitConfig",
+          "lineno": 827
+        },
+        {
+          "kind": "function",
+          "name": "useSyncProjectGit",
+          "lineno": 839
+        },
+        {
+          "kind": "function",
+          "name": "useProjectIndexingState",
+          "lineno": 852
+        },
+        {
+          "kind": "function",
+          "name": "useProjectIndexingStatus",
+          "lineno": 860
+        },
+        {
+          "kind": "function",
+          "name": "useTriggerProjectIndexing",
+          "lineno": 876
+        },
+        {
+          "kind": "function",
+          "name": "useProjectResources",
+          "lineno": 892
+        },
+        {
+          "kind": "function",
+          "name": "useLinkProjectResource",
+          "lineno": 902
+        },
+        {
+          "kind": "function",
+          "name": "useUnlinkProjectResource",
+          "lineno": 916
+        },
+        {
+          "kind": "function",
+          "name": "useGeneratePrompt",
+          "lineno": 933
+        },
+        {
+          "kind": "function",
+          "name": "useGenerateComponent",
+          "lineno": 945
+        },
+        {
+          "kind": "function",
+          "name": "useGenerateFromNotes",
+          "lineno": 962
+        },
+        {
+          "kind": "function",
+          "name": "useGenerateFromNoteId",
+          "lineno": 974
+        },
+        {
+          "kind": "function",
+          "name": "useGenerationChat",
+          "lineno": 987
+        },
+        {
+          "kind": "function",
+          "name": "useComponentCategories",
+          "lineno": 1003
+        },
+        {
+          "kind": "function",
+          "name": "useInstallBaseComponents",
+          "lineno": 1010
+        },
+        {
+          "kind": "function",
+          "name": "useCatalogSearch",
+          "lineno": 1023
+        },
+        {
+          "kind": "function",
+          "name": "useCatalogStats",
+          "lineno": 1047
+        },
+        {
+          "kind": "function",
+          "name": "useClusterInfo",
+          "lineno": 1119
+        },
+        {
+          "kind": "function",
+          "name": "useKubernetesStatus",
+          "lineno": 1126
+        },
+        {
+          "kind": "function",
+          "name": "useTestKubernetesConnection",
+          "lineno": 1134
+        },
+        {
+          "kind": "function",
+          "name": "useNodes",
+          "lineno": 1153
+        },
+        {
+          "kind": "function",
+          "name": "useNamespaces",
+          "lineno": 1162
+        },
+        {
+          "kind": "function",
+          "name": "useKubernetesDeployments",
+          "lineno": 1171
+        },
+        {
+          "kind": "function",
+          "name": "useScaleDeployment",
+          "lineno": 1186
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteDeployment",
+          "lineno": 1198
+        },
+        {
+          "kind": "function",
+          "name": "useRestartDeployment",
+          "lineno": 1209
+        },
+        {
+          "kind": "function",
+          "name": "useDeploymentLogs",
+          "lineno": 1220
+        },
+        {
+          "kind": "function",
+          "name": "useModelDeployments",
+          "lineno": 1235
+        },
+        {
+          "kind": "function",
+          "name": "useDeployModel",
+          "lineno": 1243
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteModelDeployment",
+          "lineno": 1265
+        },
+        {
+          "kind": "function",
+          "name": "useScaleModelDeployment",
+          "lineno": 1277
+        },
+        {
+          "kind": "function",
+          "name": "useModelEndpoint",
+          "lineno": 1290
+        },
+        {
+          "kind": "function",
+          "name": "useSetModelAsCodeAssistant",
+          "lineno": 1302
+        },
+        {
+          "kind": "function",
+          "name": "useStorageStatus",
+          "lineno": 1316
+        },
+        {
+          "kind": "function",
+          "name": "useStorageBuckets",
+          "lineno": 1323
+        },
+        {
+          "kind": "function",
+          "name": "useStorageObjects",
+          "lineno": 1331
+        },
+        {
+          "kind": "function",
+          "name": "useCreateBucket",
+          "lineno": 1343
+        },
+        {
+          "kind": "function",
+          "name": "useDeleteObject",
+          "lineno": 1354
+        },
+        {
+          "kind": "function",
+          "name": "useGetPresignedUrl",
+          "lineno": 1365
+        }
+      ]
+    },
+    {
+      "path": "webui/src/lib/store.ts",
+      "symbols": [
+        {
+          "kind": "const",
+          "name": "useAuthStore",
+          "lineno": 17
+        },
+        {
+          "kind": "const",
+          "name": "useUIStore",
+          "lineno": 69
+        },
+        {
+          "kind": "const",
+          "name": "useSelectionStore",
+          "lineno": 118
+        },
+        {
+          "kind": "const",
+          "name": "useDraftStore",
+          "lineno": 206
+        },
+        {
+          "kind": "const",
+          "name": "useNotificationStore",
+          "lineno": 279
+        },
+        {
+          "kind": "const",
+          "name": "useActivityStore",
+          "lineno": 335
+        }
+      ]
+    },
+    {
+      "path": "webui/src/lib/types.ts",
+      "symbols": [
+        {
+          "kind": "interface",
+          "name": "Project",
+          "lineno": 8
+        },
+        {
+          "kind": "type",
+          "name": "ProjectStatus",
+          "lineno": 20
+        },
+        {
+          "kind": "interface",
+          "name": "Agent",
+          "lineno": 22
+        },
+        {
+          "kind": "type",
+          "name": "AgentStatus",
+          "lineno": 39
+        },
+        {
+          "kind": "interface",
+          "name": "Flow",
+          "lineno": 41
+        },
+        {
+          "kind": "type",
+          "name": "FlowType",
+          "lineno": 56
+        },
+        {
+          "kind": "type",
+          "name": "FlowStatus",
+          "lineno": 58
+        },
+        {
+          "kind": "interface",
+          "name": "Component",
+          "lineno": 59
+        },
+        {
+          "kind": "type",
+          "name": "ComponentCategory",
+          "lineno": 74
+        },
+        {
+          "kind": "interface",
+          "name": "Note",
+          "lineno": 89
+        },
+        {
+          "kind": "type",
+          "name": "ResourceType",
+          "lineno": 98
+        },
+        {
+          "kind": "interface",
+          "name": "Tag",
+          "lineno": 100
+        },
+        {
+          "kind": "interface",
+          "name": "Experiment",
+          "lineno": 111
+        },
+        {
+          "kind": "interface",
+          "name": "Run",
+          "lineno": 122
+        },
+        {
+          "kind": "type",
+          "name": "RunStatus",
+          "lineno": 135
+        },
+        {
+          "kind": "interface",
+          "name": "Artifact",
+          "lineno": 137
+        },
+        {
+          "kind": "interface",
+          "name": "Session",
+          "lineno": 147
+        },
+        {
+          "kind": "interface",
+          "name": "ChatEntry",
+          "lineno": 155
+        },
+        {
+          "kind": "interface",
+          "name": "ChatMessage",
+          "lineno": 165
+        },
+        {
+          "kind": "interface",
+          "name": "Collection",
+          "lineno": 174
+        },
+        {
+          "kind": "interface",
+          "name": "SearchResult",
+          "lineno": 179
+        },
+        {
+          "kind": "interface",
+          "name": "SystemHealth",
+          "lineno": 190
+        },
+        {
+          "kind": "interface",
+          "name": "ServiceStatus",
+          "lineno": 197
+        },
+        {
+          "kind": "interface",
+          "name": "SystemStats",
+          "lineno": 204
+        },
+        {
+          "kind": "interface",
+          "name": "DataSource",
+          "lineno": 220
+        },
+        {
+          "kind": "type",
+          "name": "DataSourceType",
+          "lineno": 237
+        },
+        {
+          "kind": "type",
+          "name": "DataSourceStatus",
+          "lineno": 239
+        },
+        {
+          "kind": "interface",
+          "name": "ConnectionTestResult",
+          "lineno": 240
+        },
+        {
+          "kind": "interface",
+          "name": "SchemaInfo",
+          "lineno": 247
+        },
+        {
+          "kind": "interface",
+          "name": "TableSchema",
+          "lineno": 255
+        },
+        {
+          "kind": "interface",
+          "name": "ColumnSchema",
+          "lineno": 263
+        },
+        {
+          "kind": "interface",
+          "name": "ServiceResource",
+          "lineno": 276
+        },
+        {
+          "kind": "type",
+          "name": "ServiceType",
+          "lineno": 296
+        },
+        {
+          "kind": "type",
+          "name": "AuthType",
+          "lineno": 304
+        },
+        {
+          "kind": "type",
+          "name": "ServiceResourceStatus",
+          "lineno": 306
+        },
+        {
+          "kind": "interface",
+          "name": "ProjectResource",
+          "lineno": 311
+        },
+        {
+          "kind": "interface",
+          "name": "IndexingState",
+          "lineno": 325
+        },
+        {
+          "kind": "type",
+          "name": "IndexingStatus",
+          "lineno": 340
+        },
+        {
+          "kind": "interface",
+          "name": "IndexingResult",
+          "lineno": 342
+        },
+        {
+          "kind": "interface",
+          "name": "GitConfig",
+          "lineno": 358
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineNode",
+          "lineno": 370
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineInfo",
+          "lineno": 377
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineRunRequest",
+          "lineno": 385
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineRunResponse",
+          "lineno": 393
+        },
+        {
+          "kind": "type",
+          "name": "PipelineRunStatus",
+          "lineno": 404
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineRunStatusInfo",
+          "lineno": 406
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineVisualization",
+          "lineno": 418
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineVisNode",
+          "lineno": 423
+        },
+        {
+          "kind": "interface",
+          "name": "PipelineVisEdge",
+          "lineno": 431
+        },
+        {
+          "kind": "type",
+          "name": "DataLayerName",
+          "lineno": 441
+        },
+        {
+          "kind": "interface",
+          "name": "DataLayerInfo",
+          "lineno": 451
+        },
+        {
+          "kind": "interface",
+          "name": "DatasetInfo",
+          "lineno": 460
+        },
+        {
+          "kind": "interface",
+          "name": "DatasetSchema",
+          "lineno": 470
+        },
+        {
+          "kind": "interface",
+          "name": "CatalogEntry",
+          "lineno": 480
+        },
+        {
+          "kind": "interface",
+          "name": "CatalogSearchResult",
+          "lineno": 492
+        },
+        {
+          "kind": "interface",
+          "name": "DataLineage",
+          "lineno": 498
+        },
+        {
+          "kind": "interface",
+          "name": "GeneratePromptRequest",
+          "lineno": 511
+        },
+        {
+          "kind": "interface",
+          "name": "GeneratePromptResponse",
+          "lineno": 517
+        },
+        {
+          "kind": "interface",
+          "name": "GenerateComponentRequest",
+          "lineno": 524
+        },
+        {
+          "kind": "interface",
+          "name": "GeneratedComponent",
+          "lineno": 531
+        },
+        {
+          "kind": "interface",
+          "name": "GenerateFromNotesRequest",
+          "lineno": 541
+        },
+        {
+          "kind": "interface",
+          "name": "GenerateFromNotesResponse",
+          "lineno": 549
+        },
+        {
+          "kind": "interface",
+          "name": "GenerationChatMessage",
+          "lineno": 556
+        },
+        {
+          "kind": "interface",
+          "name": "GenerationChatRequest",
+          "lineno": 561
+        },
+        {
+          "kind": "interface",
+          "name": "GenerationChatResponse",
+          "lineno": 566
+        },
+        {
+          "kind": "interface",
+          "name": "ApiResponse",
+          "lineno": 576
+        },
+        {
+          "kind": "interface",
+          "name": "PaginatedResponse",
+          "lineno": 582
+        },
+        {
+          "kind": "interface",
+          "name": "FlowDefinition",
+          "lineno": 594
+        },
+        {
+          "kind": "interface",
+          "name": "FlowAgentRef",
+          "lineno": 605
+        },
+        {
+          "kind": "interface",
+          "name": "FlowTask",
+          "lineno": 615
+        },
+        {
+          "kind": "interface",
+          "name": "FormField",
+          "lineno": 628
+        },
+        {
+          "kind": "interface",
+          "name": "TableColumn",
+          "lineno": 638
+        },
+        {
+          "kind": "interface",
+          "name": "AuthState",
+          "lineno": 649
+        }
+      ]
+    },
+    {
+      "path": "webui/src/lib/utils.ts",
+      "symbols": [
+        {
+          "kind": "function",
+          "name": "cn",
+          "lineno": 3
+        }
+      ]
+    }
+  ]
+}

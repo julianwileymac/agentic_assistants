@@ -1,0 +1,78 @@
+# Chunk: 527cb5dadddc_19
+
+- source: `webui/.next/dev/static/chunks/617de_next_dist_compiled_4dfa4715._.js`
+- lines: 1093-1163
+- chunk: 20/56
+
+```
+props,
+            _owner: owner
+        };
+        null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+            enumerable: !1,
+            get: elementRefGetterWithDeprecationWarning
+        }) : Object.defineProperty(type, "ref", {
+            enumerable: !1,
+            value: null
+        });
+        type._store = {};
+        Object.defineProperty(type._store, "validated", {
+            configurable: !1,
+            enumerable: !1,
+            writable: !0,
+            value: 0
+        });
+        Object.defineProperty(type, "_debugInfo", {
+            configurable: !1,
+            enumerable: !1,
+            writable: !0,
+            value: null
+        });
+        Object.defineProperty(type, "_debugStack", {
+            configurable: !1,
+            enumerable: !1,
+            writable: !0,
+            value: debugStack
+        });
+        Object.defineProperty(type, "_debugTask", {
+            configurable: !1,
+            enumerable: !1,
+            writable: !0,
+            value: debugTask
+        });
+        Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+        return type;
+    }
+    function cloneAndReplaceKey(oldElement, newKey) {
+        newKey = ReactElement(oldElement.type, newKey, oldElement.props, oldElement._owner, oldElement._debugStack, oldElement._debugTask);
+        oldElement._store && (newKey._store.validated = oldElement._store.validated);
+        return newKey;
+    }
+    function validateChildKeys(node) {
+        isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
+    }
+    function isValidElement(object) {
+        return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+    }
+    function escape(key) {
+        var escaperLookup = {
+            "=": "=0",
+            ":": "=2"
+        };
+        return "$" + key.replace(/[=:]/g, function(match) {
+            return escaperLookup[match];
+        });
+    }
+    function getElementKey(element, index) {
+        return "object" === typeof element && null !== element && null != element.key ? (checkKeyStringCoercion(element.key), escape("" + element.key)) : index.toString(36);
+    }
+    function resolveThenable(thenable) {
+        switch(thenable.status){
+            case "fulfilled":
+                return thenable.value;
+            case "rejected":
+                throw thenable.reason;
+            default:
+                switch("string" === typeof thenable.status ? thenable.then(noop, noop) : (thenable.status = "pending", thenable.then(function(fulfilledValue) {
+                    "pending" === thenable.status && (thenable.status = "fulfilled", thenable.value = fulfilledValue);
+```

@@ -1,0 +1,269 @@
+{
+  "generated_at": "2026-01-11T03:10:02.542242+00:00",
+  "commands": [
+    {
+      "type": "command",
+      "command": "cli index",
+      "group": "cli",
+      "function": "index_path",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 636
+    },
+    {
+      "type": "command",
+      "command": "cli run",
+      "group": "cli",
+      "function": "run_experiment",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 305
+    },
+    {
+      "type": "command",
+      "command": "cli search",
+      "group": "cli",
+      "function": "search_query",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 717
+    },
+    {
+      "type": "command",
+      "command": "collections delete",
+      "group": "collections",
+      "function": "collections_delete",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 873
+    },
+    {
+      "type": "command",
+      "command": "collections info",
+      "group": "collections",
+      "function": "collections_info",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 895
+    },
+    {
+      "type": "command",
+      "command": "collections list",
+      "group": "collections",
+      "function": "collections_list",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 847
+    },
+    {
+      "type": "command",
+      "command": "config init",
+      "group": "config",
+      "function": "config_init",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 408
+    },
+    {
+      "type": "command",
+      "command": "config show",
+      "group": "config",
+      "function": "config_show",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 371
+    },
+    {
+      "type": "command",
+      "command": "context show",
+      "group": "context",
+      "function": "context_show",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 941
+    },
+    {
+      "type": "command",
+      "command": "context summary",
+      "group": "context",
+      "function": "context_summary",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 978
+    },
+    {
+      "type": "command",
+      "command": "mlflow start",
+      "group": "mlflow",
+      "function": "mlflow_start",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 249
+    },
+    {
+      "type": "command",
+      "command": "mlflow status",
+      "group": "mlflow",
+      "function": "mlflow_status",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 284
+    },
+    {
+      "type": "command",
+      "command": "mlflow ui",
+      "group": "mlflow",
+      "function": "mlflow_ui",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 273
+    },
+    {
+      "type": "command",
+      "command": "ollama delete",
+      "group": "ollama",
+      "function": "ollama_delete",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 218
+    },
+    {
+      "type": "command",
+      "command": "ollama list",
+      "group": "ollama",
+      "function": "ollama_list",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 147
+    },
+    {
+      "type": "command",
+      "command": "ollama pull",
+      "group": "ollama",
+      "function": "ollama_pull",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 184
+    },
+    {
+      "type": "command",
+      "command": "ollama start",
+      "group": "ollama",
+      "function": "ollama_start",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 89
+    },
+    {
+      "type": "command",
+      "command": "ollama status",
+      "group": "ollama",
+      "function": "ollama_status",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 124
+    },
+    {
+      "type": "command",
+      "command": "ollama stop",
+      "group": "ollama",
+      "function": "ollama_stop",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 111
+    },
+    {
+      "type": "command",
+      "command": "server start",
+      "group": "server",
+      "function": "server_start",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 780
+    },
+    {
+      "type": "command",
+      "command": "server status",
+      "group": "server",
+      "function": "server_status",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 814
+    },
+    {
+      "type": "command",
+      "command": "services start",
+      "group": "services",
+      "function": "services_start",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 448
+    },
+    {
+      "type": "command",
+      "command": "services status",
+      "group": "services",
+      "function": "services_status",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 495
+    },
+    {
+      "type": "command",
+      "command": "session create",
+      "group": "session",
+      "function": "session_create",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 565
+    },
+    {
+      "type": "command",
+      "command": "session delete",
+      "group": "session",
+      "function": "session_delete",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 581
+    },
+    {
+      "type": "command",
+      "command": "session info",
+      "group": "session",
+      "function": "session_info",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 601
+    },
+    {
+      "type": "command",
+      "command": "session list",
+      "group": "session",
+      "function": "session_list",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 541
+    },
+    {
+      "type": "group",
+      "command": "collections",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 841
+    },
+    {
+      "type": "group",
+      "command": "config",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 365
+    },
+    {
+      "type": "group",
+      "command": "context",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 935
+    },
+    {
+      "type": "group",
+      "command": "mlflow",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 243
+    },
+    {
+      "type": "group",
+      "command": "ollama",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 82
+    },
+    {
+      "type": "group",
+      "command": "server",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 774
+    },
+    {
+      "type": "group",
+      "command": "services",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 442
+    },
+    {
+      "type": "group",
+      "command": "session",
+      "file": "src/agentic_assistants/cli.py",
+      "lineno": 535
+    }
+  ]
+}

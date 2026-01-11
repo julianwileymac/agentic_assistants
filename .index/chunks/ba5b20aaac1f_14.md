@@ -1,0 +1,47 @@
+# Chunk: ba5b20aaac1f_14
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 673-712
+- chunk: 15/98
+
+```
+nition.kind === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$route$2d$kind$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["RouteKind"].APP_ROUTE;
+}
+function isAppPageRouteModule(routeModule) {
+    return routeModule.definition.kind === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$route$2d$kind$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["RouteKind"].APP_PAGE;
+}
+function isPagesRouteModule(routeModule) {
+    return routeModule.definition.kind === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$route$2d$kind$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["RouteKind"].PAGES;
+}
+function isPagesAPIRouteModule(routeModule) {
+    return routeModule.definition.kind === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$route$2d$kind$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["RouteKind"].PAGES_API;
+} //# sourceMappingURL=checks.js.map
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/shared/lib/page-path/ensure-leading-slash.js [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/**
+ * For a given page path, this function ensures that there is a leading slash.
+ * If there is not a leading slash, one is added, otherwise it is noop.
+ */ __turbopack_context__.s([
+    "ensureLeadingSlash",
+    ()=>ensureLeadingSlash
+]);
+function ensureLeadingSlash(path) {
+    return path.startsWith('/') ? path : `/${path}`;
+} //# sourceMappingURL=ensure-leading-slash.js.map
+}),
+"[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/shared/lib/router/utils/app-paths.js [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "normalizeAppPath",
+    ()=>normalizeAppPath,
+    "normalizeRscURL",
+    ()=>normalizeRscURL
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$page$2d$path$2f$ensure$2d$leading$2d$slash$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/shared/lib/page-path/ensure-leading-slash.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$segment$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/shared/lib/segment.js [app-rsc] (ecmascript)");
+;
+;
+```

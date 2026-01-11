@@ -1,0 +1,41 @@
+# Chunk: acc0c2c2fc87_0
+
+- source: `docker/Dockerfile.lab`
+- lines: 1-34
+- chunk: 1/1
+
+```
+# =============================================================================
+# JupyterLab Dockerfile (primary IDE)
+# =============================================================================
+FROM python:3.11-slim AS base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY lab/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
+    && pip install --no-cache-dir jupyterlab-mlflow || true
+
+COPY lab/jupyter_lab_config.py /etc/jupyter/jupyter_lab_config.py
+
+# Jupyter notebooks/workspace will be bind-mounted at /workspace
+EXPOSE 3000
+
+CMD ["jupyter", "lab", "--config=/etc/jupyter/jupyter_lab_config.py"]
+
+
+
+
+
+```

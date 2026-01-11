@@ -1,0 +1,9 @@
+# Chunk: 4bfaf3f9ef87_1
+
+- source: `.venv-lab/Lib/site-packages/notebook/static/1684.eb0702146a4c81fb3fa8.js.map`
+- lines: 1-1
+- chunk: 2/2
+
+```
+l = PageConfig.getBaseUrl();\n        const opener = notebookPathOpener !== null && notebookPathOpener !== void 0 ? notebookPathOpener : defaultNotebookPathOpener;\n        tracker.widgetAdded.connect((send, terminal) => {\n            const widget = find(app.shell.widgets('main'), (w) => w.id === terminal.id);\n            if (widget) {\n                // bail if the terminal is already added to the main area\n                return;\n            }\n            const name = terminal.content.session.name;\n            opener.open({\n                prefix: URLExt.join(baseUrl, 'terminals'),\n                path: name,\n                target: '_blank',\n            });\n            // dispose the widget since it is not used on this page\n            terminal.dispose();\n        });\n    },\n};\n/**\n * Export the plugins as default.\n */\nconst plugins = [opener, redirect];\nexport default plugins;\n"],"names":[],"sourceRoot":""}
+```

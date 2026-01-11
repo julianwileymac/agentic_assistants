@@ -1,0 +1,93 @@
+# Chunk: a5a2c279fadb_3
+
+- source: `scripts/generate_index.py`
+- lines: 292-377
+- chunk: 4/14
+
+```
+r n in tree.body:
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            add_symbol("function", n.name, n.name, n)
+            out["symbols"][-1]["signature"] = py_signature(n)
+        elif isinstance(n, ast.ClassDef):
+            add_symbol("class", n.name, n.name, n)
+            bases = []
+            for b in n.bases:
+                try:
+                    bases.append(ast.unparse(b))
+                except Exception:
+                    bases.append("<base>")
+            out["symbols"][-1]["bases"] = bases
+            # Methods
+            for m in n.body:
+                if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    qual = f"{n.name}.{m.name}"
+                    add_symbol("method", m.name, qual, m)
+                    out["symbols"][-1]["signature"] = py_signature(m)
+
+    return out
+
+
+EXPORT_RE = re.compile(
+    r"^\s*export\s+(?:default\s+)?"
+    r"(?:async\s+)?"
+    r"(function|class|const|let|var|interface|type)\s+([A-Za-z0-9_$]+)",
+    re.MULTILINE,
+)
+
+
+def extract_ts_symbols(path: Path, source: str) -> dict[str, Any]:
+    symbols: list[dict[str, Any]] = []
+    for m in EXPORT_RE.finditer(source):
+        kind = m.group(1)
+        name = m.group(2)
+        lineno = source.count("\n", 0, m.start()) + 1
+        symbols.append({"kind": kind, "name": name, "lineno": lineno})
+    return {"path": path.as_posix(), "symbols": symbols}
+
+
+def extract_fastapi_routes_from_router(source: str, file_path: str) -> list[dict[str, Any]]:
+    # Router prefix + tags
+    prefix = ""
+    tags: list[str] = []
+    m = re.search(r"router\s*=\s*APIRouter\(([^)]*)\)", source, re.DOTALL)
+    if m:
+        args = m.group(1)
+        pm = re.search(r'prefix\s*=\s*["\']([^"\']+)["\']', args)
+        if pm:
+            prefix = pm.group(1)
+        tm = re.search(r"tags\s*=\s*\[([^\]]*)\]", args)
+        if tm:
+            raw = tm.group(1)
+            tags = re.findall(r'["\']([^"\']+)["\']', raw)
+
+    routes: list[dict[str, Any]] = []
+    for rm in re.finditer(
+        r'@router\.(get|post|put|delete|patch)\(\s*["\']([^"\']*)["\']',
+        source,
+    ):
+        method = rm.group(1).upper()
+        path = rm.group(2)
+        lineno = source.count("\n", 0, rm.start()) + 1
+        routes.append(
+            {
+                "method": method,
+                "path": f"{prefix}{path}" if prefix else path,
+                "router_prefix": prefix,
+                "tags": tags,
+                "file": file_path,
+                "lineno": lineno,
+            }
+        )
+    return routes
+
+
+def extract_fastapi_routes_from_app(source: str, file_path: str) -> list[dict[str, Any]]:
+    routes: list[dict[str, Any]] = []
+    for rm in re.finditer(
+        r'@app\.(get|post|put|delete|patch)\(\s*["\']([^"\']+)["\']',
+        source,
+    ):
+        method = rm.group(1).upper()
+        path = rm.group(2)
+```

@@ -1,0 +1,73 @@
+# Chunk: 527cb5dadddc_13
+
+- source: `webui/.next/dev/static/chunks/617de_next_dist_compiled_4dfa4715._.js`
+- lines: 743-808
+- chunk: 14/56
+
+```
+((__turbopack_context__, module, exports) => {
+"use strict";
+
+/**
+ * MIT License
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */ var __importDefault = /*TURBOPACK member replacement*/ __turbopack_context__.e && /*TURBOPACK member replacement*/ __turbopack_context__.e.__importDefault || function(mod) {
+    return mod && mod.__esModule ? mod : {
+        "default": mod
+    };
+};
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+// This file is copied from the Metro JavaScript bundler, with minor tweaks for
+// webpack 4 compatibility.
+//
+// https://github.com/facebook/metro/blob/d6b9685c730d0d63577db40f41369157f28dfa3a/packages/metro/src/lib/polyfills/require.js
+const runtime_1 = __importDefault(__turbopack_context__.r("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/compiled/react-refresh/runtime.js [app-client] (ecmascript)"));
+function isSafeExport(key) {
+    return key === '__esModule' || key === '__N_SSG' || key === '__N_SSP' || // TODO: remove this key from page config instead of allow listing it
+    key === 'config';
+}
+function registerExportsForReactRefresh(moduleExports, moduleID) {
+    runtime_1.default.register(moduleExports, moduleID + ' %exports%');
+    if (moduleExports == null || typeof moduleExports !== 'object') {
+        // Exit if we can't iterate over exports.
+        // (This is important for legacy environments.)
+        return;
+    }
+    for(var key in moduleExports){
+        if (isSafeExport(key)) {
+            continue;
+        }
+        try {
+            var exportValue = moduleExports[key];
+        } catch (_a) {
+            continue;
+        }
+        var typeID = moduleID + ' %exports% ' + key;
+        runtime_1.default.register(exportValue, typeID);
+    }
+}
+function getRefreshBoundarySignature(moduleExports) {
+    var signature = [];
+    signature.push(runtime_1.default.getFamilyByType(moduleExports));
+```

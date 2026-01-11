@@ -1,0 +1,82 @@
+"""
+Feature Storage Layer for ML Features.
+
+This module provides a feature store system for managing, versioning,
+and serving ML features with support for both online and offline access.
+
+Example:
+    >>> from agentic_assistants.features import get_feature_store
+    >>> 
+    >>> store = get_feature_store()
+    >>> 
+    >>> # Register a feature view
+    >>> store.register_feature_view(user_features)
+    >>> 
+    >>> # Get online features
+    >>> features = store.get_online_features(
+    ...     feature_refs=["user_features:age", "user_features:tenure"],
+    ...     entity_keys=[{"user_id": 123}]
+    ... )
+"""
+
+from agentic_assistants.features.store import (
+    FeatureStore,
+    FeatureStoreConfig,
+    FeatureVector,
+)
+from agentic_assistants.features.registry import (
+    FeatureView,
+    Feature,
+    Entity,
+    FeatureRegistry,
+)
+from agentic_assistants.features.local_store import LocalFeatureStore
+
+# Global feature store instance
+_global_store = None
+
+
+def get_feature_store(config: FeatureStoreConfig = None) -> FeatureStore:
+    """
+    Get or create the global feature store instance.
+    
+    Args:
+        config: Feature store configuration
+        
+    Returns:
+        Configured feature store
+    """
+    global _global_store
+    
+    if _global_store is None:
+        if config is None:
+            config = FeatureStoreConfig()
+        
+        backend = config.backend
+        
+        if backend == "local":
+            _global_store = LocalFeatureStore(config)
+        elif backend == "feast":
+            from agentic_assistants.features.feast_store import FeastFeatureStore
+            _global_store = FeastFeatureStore(config)
+        else:
+            _global_store = LocalFeatureStore(config)
+    
+    return _global_store
+
+
+__all__ = [
+    # Core classes
+    "FeatureStore",
+    "FeatureStoreConfig",
+    "FeatureVector",
+    # Registry
+    "FeatureView",
+    "Feature",
+    "Entity",
+    "FeatureRegistry",
+    # Implementations
+    "LocalFeatureStore",
+    # Functions
+    "get_feature_store",
+]

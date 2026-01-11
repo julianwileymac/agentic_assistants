@@ -1,4 +1,4 @@
-# Development Guide
+﻿# Development Guide
 
 This guide will help you set up and run the Agentic Assistants development environment.
 
@@ -89,10 +89,11 @@ cp env.example .env
 
 This will start:
 - Python Backend on http://localhost:8080
-- Theia IDE on http://localhost:3000
+- Web UI Control Panel on http://localhost:3000
 - MLFlow on http://localhost:5000
+- JupyterLab on http://localhost:8888
 
-**Note:** The first time you run this, it will take 15-20 minutes to install Node.js dependencies and build Theia. Subsequent starts will be much faster.
+**Note:** The first time you run this, it may take a while to install Node.js dependencies and build the Web UI. Subsequent starts will be much faster.
 
 #### Backend Only
 
@@ -124,9 +125,10 @@ If you don't need the Theia IDE:
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| **Theia IDE** | 3000 | Web-based IDE with custom extensions for experiment tracking, artifact management, and data viewing |
+| **Web UI Control Panel** | 3000 | Modern Next.js control panel UI (projects, agents, flows, pipelines, knowledge, monitoring, k8s) |
 | **Python Backend** | 8080 | FastAPI server with REST API and WebSocket support |
 | **MLFlow** | 5000 | Experiment tracking server |
+| **JupyterLab** | 8888 | Notebook environment for experimentation |
 | **WebSocket** | 8080/ws | Real-time event streaming |
 
 ## API Documentation
@@ -136,9 +138,11 @@ Once the backend is running, visit:
 - **Interactive API Docs**: http://localhost:8080/docs
 - **Alternative Docs**: http://localhost:8080/redoc
 
-## Theia IDE Features
+## Legacy Theia IDE Features (Optional)
 
-The Theia IDE includes custom extensions for:
+The Theia IDE remains available as an optional/legacy workflow. Prefer the Web UI Control Panel + JupyterLab for most work.
+
+If you use Theia, it includes custom extensions for:
 
 ### 1. Experiments (MLFlow Integration)
 - View and create experiments
@@ -276,32 +280,32 @@ Force kill all services:
 
 ```
 agentic_assistants/
-├── src/agentic_assistants/     # Python source code
-│   ├── server/                 # FastAPI backend
-│   │   ├── api/                # REST API routers
-│   │   ├── rest.py             # Main REST server
-│   │   └── websocket.py        # WebSocket handler
-│   ├── core/                   # Core functionality
-│   ├── adapters/               # Agent framework adapters
-│   ├── data/                   # Data layer
-│   │   ├── layer.py            # Data I/O layer
-│   │   └── shared_storage.py  # Shared storage manager
-│   ├── config.py               # Configuration system
-│   └── cli.py                  # CLI commands
-├── frontend/                   # Theia IDE frontend
-│   ├── packages/               # Theia extensions
-│   │   ├── agentic-core/       # Core extension
-│   │   ├── agentic-mlflow/     # MLFlow integration
-│   │   ├── agentic-artifacts/  # Artifact manager
-│   │   └── agentic-data-viewer/# Data viewer
-│   └── browser-app/            # Theia application
-├── scripts/                    # Development scripts
-├── tests/                      # Test files
-├── examples/                   # Example scripts
-├── notebooks/                  # Jupyter notebooks
-├── docker/                     # Docker files
-├── pyproject.toml              # Python dependencies
-└── docker-compose.yml          # Docker services
+â”œâ”€â”€ src/agentic_assistants/     # Python source code
+â”‚   â”œâ”€â”€ server/                 # FastAPI backend
+â”‚   â”‚   â”œâ”€â”€ api/                # REST API routers
+â”‚   â”‚   â”œâ”€â”€ rest.py             # Main REST server
+â”‚   â”‚   â””â”€â”€ websocket.py        # WebSocket handler
+â”‚   â”œâ”€â”€ core/                   # Core functionality
+â”‚   â”œâ”€â”€ adapters/               # Agent framework adapters
+â”‚   â”œâ”€â”€ data/                   # Data layer
+â”‚   â”‚   â”œâ”€â”€ layer.py            # Data I/O layer
+â”‚   â”‚   â””â”€â”€ shared_storage.py  # Shared storage manager
+â”‚   â”œâ”€â”€ config.py               # Configuration system
+â”‚   â””â”€â”€ cli.py                  # CLI commands
+â”œâ”€â”€ frontend/                   # Theia IDE frontend
+â”‚   â”œâ”€â”€ packages/               # Theia extensions
+â”‚   â”‚   â”œâ”€â”€ agentic-core/       # Core extension
+â”‚   â”‚   â”œâ”€â”€ agentic-mlflow/     # MLFlow integration
+â”‚   â”‚   â”œâ”€â”€ agentic-artifacts/  # Artifact manager
+â”‚   â”‚   â””â”€â”€ agentic-data-viewer/# Data viewer
+â”‚   â””â”€â”€ browser-app/            # Theia application
+â”œâ”€â”€ scripts/                    # Development scripts
+â”œâ”€â”€ tests/                      # Test files
+â”œâ”€â”€ examples/                   # Example scripts
+â”œâ”€â”€ notebooks/                  # Jupyter notebooks
+â”œâ”€â”€ docker/                     # Docker files
+â”œâ”€â”€ pyproject.toml              # Python dependencies
+â””â”€â”€ docker-compose.yml          # Docker services
 ```
 
 ## Next Steps
@@ -322,6 +326,11 @@ agentic_assistants/
 ## Contributing
 
 See `CONTRIBUTING.md` for guidelines on contributing to the project.
+
+
+
+
+
 
 
 

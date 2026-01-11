@@ -1,0 +1,43 @@
+# Infrastructure
+
+This repo supports local-first development, with optional Docker and Kubernetes infrastructure.
+
+## Docker Compose
+
+`docker-compose.yml` defines the main services, including:
+
+- **agentic-api** (FastAPI backend, `8080`)
+- **agentic-ide** (JupyterLab container, `3000`)
+- **theia-ide** (legacy Theia container, `3001`)
+- **mlflow** (`5000`)
+- **otel-collector** (`4317`, `4318`, `8888`)
+- **jaeger** (`16686`)
+- **redis** (`6379`)
+- **minio** (`9000`, `9001`)
+- **feast-ui** (`6566`, optional profile `feast`)
+
+## Kubernetes (kustomize)
+
+The `k8s/` folder contains manifests and a `kustomization.yaml` that deploys:
+
+- namespace/configmap
+- core agentic service
+- MLflow
+- Redis
+- cronjobs (e.g., data sync)
+
+## MinIO / Redis / Feast
+
+These integrations are optional and controlled by configuration:
+
+- `MINIO_ENABLED=true` enables object storage integration paths
+- `K8S_ENABLED=true` enables Kubernetes management endpoints
+- Redis is used as a distributed cache when configured
+- Feast can be used as a feature store (optional)
+
+## Recommended local workflow
+
+- Use `scripts/start-dev.*` to run backend + core services locally
+- Use `scripts/start-webui.*` for the Control Panel
+- Use `scripts/start-lab.*` for notebooks
+

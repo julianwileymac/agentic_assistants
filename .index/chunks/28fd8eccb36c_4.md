@@ -1,0 +1,76 @@
+# Chunk: 28fd8eccb36c_4
+
+- source: `.venv-lab/Lib/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_trace_dispatch_regular.py`
+- lines: 281-349
+- chunk: 5/9
+
+```
+
+    This means that we have to carefully inspect exceptions to discover whether the exception will
+    be unhandled or not (if we're dealing with an unhandled exception we need to stop as unhandled,
+    otherwise we need to use the regular tracer -- unfortunately the debugger has little info to
+    work with in the tracing -- see: https://bugs.python.org/issue34099, so, we inspect bytecode to
+    determine if some exception will be traced or not... note that if this is not available -- such
+    as on Jython -- we consider any top-level exception to be unnhandled).
+    """
+
+    def __init__(self, frame_trace_dispatch, args):
+        self._frame_trace_dispatch = frame_trace_dispatch
+        self._args = args
+        self.try_except_infos = None
+        self._last_exc_arg = None
+        self._raise_lines = set()
+        self._last_raise_line = -1
+
+# ENDIF
+# fmt: on
+
+    def trace_dispatch_and_unhandled_exceptions(self, frame, event, arg):
+        # DEBUG = 'code_to_debug' in frame.f_code.co_filename
+        # if DEBUG: print('trace_dispatch_and_unhandled_exceptions: %s %s %s %s %s %s' % (event, frame.f_code.co_name, frame.f_code.co_filename, frame.f_code.co_firstlineno, self._frame_trace_dispatch, frame.f_lineno))
+        frame_trace_dispatch = self._frame_trace_dispatch
+        if frame_trace_dispatch is not None:
+            self._frame_trace_dispatch = frame_trace_dispatch(frame, event, arg)
+
+        if event == "exception":
+            self._last_exc_arg = arg
+            self._raise_lines.add(frame.f_lineno)
+            self._last_raise_line = frame.f_lineno
+
+        elif event == "return" and self._last_exc_arg is not None:
+            # For unhandled exceptions we actually track the return when at the topmost level.
+            try:
+                py_db, t, additional_info = self._args[0:3]
+                if not additional_info.suspended_at_unhandled:  # Note: only check it here, don't set.
+                    if is_unhandled_exception(self, py_db, frame, self._last_raise_line, self._raise_lines):
+                        py_db.stop_on_unhandled_exception(py_db, t, additional_info, self._last_exc_arg)
+            finally:
+                # Remove reference to exception after handling it.
+                self._last_exc_arg = None
+
+        ret = self.trace_dispatch_and_unhandled_exceptions
+
+        # Need to reset (the call to _frame_trace_dispatch may have changed it).
+        # fmt: off
+        # IFDEF CYTHON
+        # frame.f_trace = SafeCallWrapper(ret)
+        # ELSE
+        frame.f_trace = ret
+        # ENDIF
+        # fmt: on
+        return ret
+
+    def get_trace_dispatch_func(self):
+        return self.trace_dispatch_and_unhandled_exceptions
+
+
+# fmt: off
+# IFDEF CYTHON
+# cdef class ThreadTracer:
+#     cdef public tuple _args;
+#     def __init__(self, tuple args):
+#         self._args = args
+# ELSE
+class ThreadTracer(object):
+    def __init__(self, args):
+```

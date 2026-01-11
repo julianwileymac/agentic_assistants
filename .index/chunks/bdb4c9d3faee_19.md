@@ -1,0 +1,83 @@
+# Chunk: bdb4c9d3faee_19
+
+- source: `.venv-lab/Lib/site-packages/pip/_vendor/pkg_resources/__init__.py`
+- lines: 1474-1549
+- chunk: 20/47
+
+```
+ce.  They must NOT call it on resources
+        that are already in the filesystem.
+
+        `tempname` is the current (temporary) name of the file, and `filename`
+        is the name it will be renamed to by the caller after this routine
+        returns.
+        """
+
+        if os.name == 'posix':
+            # Make the resource executable
+            mode = ((os.stat(tempname).st_mode) | 0o555) & 0o7777
+            os.chmod(tempname, mode)
+
+    def set_extraction_path(self, path: str):
+        """Set the base path where resources will be extracted to, if needed.
+
+        If you do not call this routine before any extractions take place, the
+        path defaults to the return value of ``get_default_cache()``.  (Which
+        is based on the ``PYTHON_EGG_CACHE`` environment variable, with various
+        platform-specific fallbacks.  See that routine's documentation for more
+        details.)
+
+        Resources are extracted to subdirectories of this path based upon
+        information given by the ``IResourceProvider``.  You may set this to a
+        temporary directory, but then you must call ``cleanup_resources()`` to
+        delete the extracted files when done.  There is no guarantee that
+        ``cleanup_resources()`` will be able to remove all extracted files.
+
+        (Note: you may not change the extraction path for a given resource
+        manager once resources have been extracted, unless you first call
+        ``cleanup_resources()``.)
+        """
+        if self.cached_files:
+            raise ValueError("Can't change extraction path, files already extracted")
+
+        self.extraction_path = path
+
+    def cleanup_resources(self, force: bool = False) -> list[str]:
+        """
+        Delete all extracted resource files and directories, returning a list
+        of the file and directory names that could not be successfully removed.
+        This function does not have any concurrency protection, so it should
+        generally only be called when the extraction path is a temporary
+        directory exclusive to a single process.  This method is not
+        automatically called; you must call it explicitly or register it as an
+        ``atexit`` function if you wish to ensure cleanup of a temporary
+        directory used for extractions.
+        """
+        # XXX
+        return []
+
+
+def get_default_cache() -> str:
+    """
+    Return the ``PYTHON_EGG_CACHE`` environment variable
+    or a platform-relevant user cache dir for an app
+    named "Python-Eggs".
+    """
+    return os.environ.get('PYTHON_EGG_CACHE') or _user_cache_dir(appname='Python-Eggs')
+
+
+def safe_name(name: str):
+    """Convert an arbitrary string to a standard distribution name
+
+    Any runs of non-alphanumeric/. characters are replaced with a single '-'.
+    """
+    return re.sub('[^A-Za-z0-9.]+', '-', name)
+
+
+def safe_version(version: str):
+    """
+    Convert an arbitrary string to a standard version string
+    """
+    try:
+        # normalize the version
+```

@@ -29,6 +29,15 @@ from agentic_assistants.indexing.codebase import CodebaseIndexer, IndexingStats
 from agentic_assistants.utils.logging import get_logger
 from agentic_assistants.vectordb.base import Document, SearchResult, VectorStore
 
+# Type hints for lazy-loaded components
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from agentic_assistants.data.catalog import DataCatalog
+    from agentic_assistants.data.layers import DataLayerManager
+    from agentic_assistants.pipelines.registry import PipelineRegistry
+    from agentic_assistants.pipelines.runners.base import PipelineRunResult
+    from agentic_assistants.hooks.manager import HookManager
+
 logger = get_logger(__name__)
 
 
@@ -75,6 +84,12 @@ class AgenticEngine:
         self._ollama: Optional[OllamaManager] = None
         self._indexer: Optional[CodebaseIndexer] = None
         self._server_manager = None
+        
+        # New Kedro-inspired components
+        self._catalog: Optional["DataCatalog"] = None
+        self._pipeline_registry: Optional["PipelineRegistry"] = None
+        self._layer_manager: Optional["DataLayerManager"] = None
+        self._hook_manager: Optional["HookManager"] = None
         
         # Initialize session if specified
         if session_name:
@@ -130,6 +145,83 @@ class AgenticEngine:
                 config=self.config,
             )
         return self._indexer
+
+    @property
+    def catalog(self) -> "DataCatalog":
+        """
+        Get the data catalog (Kedro-style).
+        
+        The catalog provides:
+        - YAML-based dataset configuration
+        - Dataset versioning
+        - Pattern-based dataset factories
+        - Multiple dataset types (CSV, Parquet, API, etc.)
+        
+        Example:
+            >>> df = engine.catalog.load("users")
+            >>> engine.catalog.save("processed_users", df)
+        """
+        if self._catalog is None:
+            from agentic_assistants.data.catalog import DataCatalog
+            
+            # Try to load from config directory
+            conf_path = self.config.data_dir.parent / "conf"
+            if conf_path.exists():
+                self._catalog = DataCatalog.from_config_dir(conf_path)
+            else:
+                self._catalog = DataCatalog(config=self.config)
+        
+        return self._catalog
+
+    @property
+    def pipeline_registry(self) -> "PipelineRegistry":
+        """
+        Get the pipeline registry.
+        
+        The registry manages all registered pipelines for the project.
+        
+        Example:
+            >>> engine.pipeline_registry.register("my_pipeline", pipeline)
+            >>> names = engine.pipeline_registry.list_pipelines()
+        """
+        if self._pipeline_registry is None:
+            from agentic_assistants.pipelines.registry import PipelineRegistry
+            self._pipeline_registry = PipelineRegistry()
+        return self._pipeline_registry
+
+    @property
+    def layer_manager(self) -> "DataLayerManager":
+        """
+        Get the data layer manager.
+        
+        Manages data organization across the 8-layer convention:
+        - 01_raw, 02_intermediate, 03_primary, 04_feature
+        - 05_model_input, 06_model_output, 07_reporting, 08_external
+        
+        Example:
+            >>> engine.layer_manager.create_layer_structure()
+            >>> path = engine.layer_manager.get_layer_path(DataLayer.RAW)
+        """
+        if self._layer_manager is None:
+            from agentic_assistants.data.layers import DataLayerManager
+            self._layer_manager = DataLayerManager(
+                data_root=self.config.data_dir / "layers",
+            )
+        return self._layer_manager
+
+    @property
+    def hook_manager(self) -> "HookManager":
+        """
+        Get the hook manager for pipeline lifecycle events.
+        
+        Example:
+            >>> from agentic_assistants.hooks.implementations import MLFlowHook
+            >>> engine.hook_manager.register(MLFlowHook())
+        """
+        if self._hook_manager is None:
+            from agentic_assistants.hooks.manager import HookManager
+            self._hook_manager = HookManager()
+        return self._hook_manager
 
     # === Session Management ===
 
@@ -266,6 +358,120 @@ class AgenticEngine:
     def get_indexing_stats(self, collection: str = "default") -> dict:
         """Get indexing statistics for a collection."""
         return self.indexer.get_stats(collection)
+
+    # === Pipeline Execution ===
+
+    def run_pipeline(
+        self,
+        name: str = "__default__",
+        runner: str = "sequential",
+        from_nodes: Optional[list[str]] = None,
+        to_nodes: Optional[list[str]] = None,
+        tags: Optional[list[str]] = None,
+        run_id: Optional[str] = None,
+    ) -> "PipelineRunResult":
+        """
+        Run a pipeline from the registry.
+        
+        Args:
+            name: Pipeline name (default: "__default__" runs all pipelines)
+            runner: Runner type ('sequential', 'parallel', 'thread')
+            from_nodes: Start from these nodes (inclusive)
+            to_nodes: Run up to these nodes (inclusive)
+            tags: Filter nodes by tags
+            run_id: Optional unique run identifier
+        
+        Returns:
+            PipelineRunResult with execution details
+        
+        Example:
+            >>> result = engine.run_pipeline("data_processing")
+            >>> result = engine.run_pipeline("training", runner="parallel")
+            >>> result = engine.run_pipeline(tags=["preprocessing"])
+        """
+        from agentic_assistants.pipelines.runners import (
+            SequentialRunner,
+            ParallelRunner,
+            ThreadRunner,
+        )
+        
+        # Get pipeline
+        if name == "__default__":
+            pipeline = self.pipeline_registry.get_default_pipeline()
+        else:
+            pipeline = self.pipeline_registry.get(name)
+            if pipeline is None:
+                raise ValueError(f"Pipeline '{name}' not found in registry")
+        
+        # Apply filters
+        if from_nodes:
+            pipeline = pipeline.from_nodes(*from_nodes)
+        if to_nodes:
+            pipeline = pipeline.to_nodes(*to_nodes)
+        if tags:
+            pipeline = pipeline.only_nodes_with_tags(*tags)
+        
+        # Get runner
+        if runner == "parallel":
+            runner_instance = ParallelRunner()
+        elif runner == "thread":
+            runner_instance = ThreadRunner()
+        else:
+            runner_instance = SequentialRunner()
+        
+        # Run with hooks
+        logger.info(f"Running pipeline '{name}' with {len(pipeline)} nodes")
+        result = runner_instance.run(
+            pipeline=pipeline,
+            catalog=self.catalog,
+            run_id=run_id,
+            hook_manager=self._hook_manager,
+        )
+        
+        if result.success:
+            logger.info(f"Pipeline completed in {result.duration_seconds:.2f}s")
+        else:
+            logger.error(f"Pipeline failed: {result.errors}")
+        
+        return result
+
+    def load_dataset(self, name: str, version: Optional[str] = None) -> Any:
+        """
+        Load a dataset from the catalog.
+        
+        Args:
+            name: Dataset name
+            version: Optional specific version to load
+        
+        Returns:
+            Loaded data
+        
+        Example:
+            >>> df = engine.load_dataset("users")
+            >>> df = engine.load_dataset("model", version="2024-01-15T10.30.00.000000Z")
+        """
+        return self.catalog.load(name, version=version)
+
+    def save_dataset(self, name: str, data: Any) -> None:
+        """
+        Save data to a dataset in the catalog.
+        
+        Args:
+            name: Dataset name
+            data: Data to save
+        
+        Example:
+            >>> engine.save_dataset("processed_users", df)
+        """
+        self.catalog.save(name, data)
+
+    def list_datasets(self) -> list[str]:
+        """List all datasets in the catalog."""
+        return self.catalog.list_datasets()
+
+    def list_pipelines(self) -> list[str]:
+        """List all registered pipelines."""
+        return self.pipeline_registry.list_pipelines()
 
     # === Chat with LLM ===
 

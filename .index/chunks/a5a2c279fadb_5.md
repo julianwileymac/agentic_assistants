@@ -1,0 +1,83 @@
+# Chunk: a5a2c279fadb_5
+
+- source: `scripts/generate_index.py`
+- lines: 429-504
+- chunk: 6/14
+
+```
+
+    # Find `@cli.group() def X` + nested `@X.command("...")` already captured.
+    # Sort and de-dup.
+    seen = set()
+    uniq = []
+    for c in commands:
+        key = (c.get("type"), c.get("command"), c.get("function"))
+        if key in seen:
+            continue
+        seen.add(key)
+        uniq.append(c)
+    return sorted(uniq, key=lambda x: (x.get("type", ""), x.get("command", "")))
+
+
+def webui_routes_from_pages(repo_root: Path) -> list[dict[str, Any]]:
+    base = repo_root / "webui" / "src" / "app"
+    if not base.exists():
+        return []
+    routes: list[dict[str, Any]] = []
+    for page in base.rglob("page.tsx"):
+        rel = page.relative_to(base).as_posix()  # e.g. "projects/[id]/page.tsx"
+        if rel == "page.tsx":
+            route = "/"
+        else:
+            route = "/" + rel[: -len("/page.tsx")]
+        # Convert dynamic segments [id] -> :id
+        route = re.sub(r"\[([^\]]+)\]", r":\1", route)
+        routes.append({"route": route, "file": page.relative_to(repo_root).as_posix()})
+    # de-dup
+    uniq = {(r["route"], r["file"]): r for r in routes}
+    return sorted(uniq.values(), key=lambda x: x["route"])
+
+
+def extract_public_api_from_init(init_path: Path) -> dict[str, Any]:
+    out: dict[str, Any] = {"file": init_path.as_posix(), "exports": []}
+    if not init_path.exists():
+        return out
+    src = init_path.read_text(encoding="utf-8", errors="ignore")
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return out
+    for n in tree.body:
+        if isinstance(n, ast.Assign):
+            for t in n.targets:
+                if isinstance(t, ast.Name) and t.id == "__all__":
+                    try:
+                        value = ast.literal_eval(n.value)
+                        if isinstance(value, list):
+                            out["exports"] = [str(x) for x in value]
+                    except Exception:
+                        pass
+    return out
+
+
+def build_context_files(repo_root: Path) -> dict[str, str]:
+    exports = extract_public_api_from_init(repo_root / "src" / "agentic_assistants" / "__init__.py")
+    exported = exports.get("exports", [])
+
+    architecture = """# Agentic Assistants - Architecture (Index Context)
+
+## High-level
+
+- **CLI** (`agentic ...`): local operations (services, sessions, indexing/search, server)
+- **FastAPI server**: REST (`/api/v1/*` + legacy endpoints), WebSocket (`/ws`), MCP (`/mcp`)
+- **Web UI Control Panel**: Next.js app in `webui/` consuming the REST APIs
+- **AgenticEngine**: programmatic façade (sessions, indexing/search, vector store, pipelines, knowledge)
+- **LLM Lifecycle**: training, RL/RLHF, serving, data observability
+
+## Key directories
+
+- `src/agentic_assistants/`: Python framework
+- `src/agentic_assistants/server/`: FastAPI REST/WS/MCP
+- `src/agentic_assistants/training/`: LLM training (LoRA, QLoRA, full)
+- `src/agentic_assistants/rl/`: RL/RLHF (DPO, PPO, RLHF)
+```

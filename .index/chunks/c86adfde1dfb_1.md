@@ -1,0 +1,91 @@
+# Chunk: c86adfde1dfb_1
+
+- source: `.venv-lab/Lib/site-packages/pygments/lexers/mime.py`
+- lines: 78-161
+- chunk: 2/3
+
+```
+   else:
+            yield match.start(), Comment, match.group()
+
+    def get_body_tokens(self, match):
+        pos_body_start = match.start()
+        entire_body = match.group()
+
+        # skip first newline
+        if entire_body[0] == '\n':
+            yield pos_body_start, Text.Whitespace, '\n'
+            pos_body_start = pos_body_start + 1
+            entire_body = entire_body[1:]
+
+        # if it is not a multipart
+        if not self.content_type.startswith("multipart") or not self.boundary:
+            for i, t, v in self.get_bodypart_tokens(entire_body):
+                yield pos_body_start + i, t, v
+            return
+
+        # find boundary
+        bdry_pattern = rf"^--{re.escape(self.boundary)}(--)?\n"
+        bdry_matcher = re.compile(bdry_pattern, re.MULTILINE)
+
+        # some data has prefix text before first boundary
+        m = bdry_matcher.search(entire_body)
+        if m:
+            pos_part_start = pos_body_start + m.end()
+            pos_iter_start = lpos_end = m.end()
+            yield pos_body_start, Text, entire_body[:m.start()]
+            yield pos_body_start + lpos_end, String.Delimiter, m.group()
+        else:
+            pos_part_start = pos_body_start
+            pos_iter_start = 0
+
+        # process tokens of each body part
+        for m in bdry_matcher.finditer(entire_body, pos_iter_start):
+            # bodypart
+            lpos_start = pos_part_start - pos_body_start
+            lpos_end = m.start()
+            part = entire_body[lpos_start:lpos_end]
+            for i, t, v in self.get_bodypart_tokens(part):
+                yield pos_part_start + i, t, v
+
+            # boundary
+            yield pos_body_start + lpos_end, String.Delimiter, m.group()
+            pos_part_start = pos_body_start + m.end()
+
+        # some data has suffix text after last boundary
+        lpos_start = pos_part_start - pos_body_start
+        if lpos_start != len(entire_body):
+            yield pos_part_start, Text, entire_body[lpos_start:]
+
+    def get_bodypart_tokens(self, text):
+        # return if:
+        #  * no content
+        #  * no content type specific
+        #  * content encoding is not readable
+        #  * max recurrsion exceed
+        if not text.strip() or not self.content_type:
+            return [(0, Other, text)]
+
+        cte = self.content_transfer_encoding
+        if cte and cte not in {"8bit", "7bit", "quoted-printable"}:
+            return [(0, Other, text)]
+
+        if self.max_nested_level == 0:
+            return [(0, Other, text)]
+
+        # get lexer
+        try:
+            lexer = get_lexer_for_mimetype(self.content_type)
+        except ClassNotFound:
+            return [(0, Other, text)]
+
+        if isinstance(lexer, type(self)):
+            lexer.max_nested_level = self.max_nested_level - 1
+
+        return lexer.get_tokens_unprocessed(text)
+
+    def store_content_type(self, match):
+        self.content_type = match.group(1)
+
+        prefix_len = match.start(1) - match.start(0)
+```

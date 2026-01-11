@@ -1,0 +1,22 @@
+# Chunk: 844bafc0efba_0
+
+- source: `.venv-lab/Lib/site-packages/jedi/third_party/typeshed/third_party/2and3/cachetools/lfu.pyi`
+- lines: 1-15
+- chunk: 1/1
+
+```
+from typing import Callable, Iterator, Optional, TypeVar
+
+from .cache import Cache
+
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
+
+class LFUCache(Cache[_KT, _VT]):
+    def __init__(self, maxsize: int, getsizeof: Optional[Callable[[_VT], int]] = ...) -> None: ...
+    def __getitem__(self, key: _KT, cache_getitem: Callable[[_KT], _VT] = ...) -> _VT: ...
+    def __setitem__(self, key: _KT, value: _VT, cache_setitem: Callable[[_KT, _VT], None] = ...) -> None: ...
+    def __delitem__(self, key: _KT, cache_delitem: Callable[[_KT], None] = ...) -> None: ...
+    def __iter__(self) -> Iterator[_KT]: ...
+    def __len__(self) -> int: ...
+```

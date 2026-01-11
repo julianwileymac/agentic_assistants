@@ -28,3 +28,6 @@ EXPOSE 3000
 CMD ["jupyter", "lab", "--config=/etc/jupyter/jupyter_lab_config.py"]
 
 
+
+
+

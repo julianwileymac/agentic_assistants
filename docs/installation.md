@@ -6,7 +6,7 @@ This guide covers installing and setting up the Agentic Assistants framework.
 
 ### Required
 
-- **Python 3.10+**: Download from [python.org](https://python.org)
+- **Python 3.10 or 3.11** (project targets `>=3.10,<3.12`): Download from [python.org](https://python.org)
 - **Poetry**: Python package manager
   ```bash
   pip install poetry
@@ -71,11 +71,28 @@ MLFLOW_TRACKING_URI=http://localhost:5000
 #### Option A: Local Services (Recommended for Getting Started)
 
 ```bash
-# Unix/macOS
-./scripts/start.sh
+# Windows PowerShell (recommended)
+.\scripts\start-dev.ps1
 
+# Linux/macOS/Git Bash
+./scripts/start-dev.sh
+```
+
+#### Option A2: Start the Web UI Control Panel (Optional)
+
+```bash
 # Windows PowerShell
-.\scripts\start.ps1
+.\scripts\start-webui.ps1
+
+# Linux/macOS/Git Bash
+./scripts/start-webui.sh
+```
+
+#### Option A3: Start the API Server Directly (Optional)
+
+```bash
+# Start combined REST + MCP server
+agentic server start
 ```
 
 #### Option B: Docker Services (Full Observability Stack)

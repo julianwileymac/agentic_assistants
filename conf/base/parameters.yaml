@@ -1,0 +1,34 @@
+# ============================================================================
+# Parameters Configuration
+# ============================================================================
+# This file contains parameters for pipelines and processing.
+# Parameters can be accessed in nodes using the params:key syntax.
+#
+# Example:
+#   node(func, inputs=["data", "params:model.learning_rate"], outputs="result")
+# ============================================================================
+
+# Model training parameters
+model:
+  learning_rate: 0.001
+  batch_size: 32
+  epochs: 100
+  validation_split: 0.2
+  random_state: 42
+
+# Preprocessing parameters
+preprocessing:
+  test_size: 0.2
+  random_state: 42
+  fillna_strategy: mean
+
+# Feature engineering parameters
+features:
+  include_interactions: true
+  polynomial_degree: 2
+  scaling_method: standard
+
+# Inference parameters
+inference:
+  batch_size: 64
+  threshold: 0.5

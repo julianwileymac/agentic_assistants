@@ -223,6 +223,125 @@ Show status of all services.
 agentic services status
 ```
 
+## Session Commands
+
+Manage local sessions (stored under `AGENTIC_DATA_DIR/sessions/`).
+
+### `agentic session list`
+
+```bash
+agentic session list
+```
+
+### `agentic session create`
+
+```bash
+agentic session create NAME
+```
+
+### `agentic session info`
+
+```bash
+agentic session info NAME
+```
+
+### `agentic session delete`
+
+```bash
+agentic session delete NAME [--yes]
+```
+
+## Indexing & Search Commands
+
+Index local folders/files into the configured vector store and search them.
+
+### `agentic index`
+
+```bash
+agentic index PATH [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-c, --collection` | Collection name (default: `default`) |
+| `-p, --patterns` | Repeatable file pattern filter (e.g. `-p "*.py" -p "*.md"`) |
+| `-f, --force` | Force re-indexing |
+| `--no-recursive` | Don't recurse into subdirectories |
+
+### `agentic search`
+
+```bash
+agentic search "QUERY" [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-c, --collection` | Collection to search |
+| `-k, --top-k` | Number of results |
+| `--json` | Output JSON |
+
+## Collections Commands
+
+Manage vector store collections.
+
+### `agentic collections list`
+
+```bash
+agentic collections list
+```
+
+### `agentic collections info`
+
+```bash
+agentic collections info NAME
+```
+
+### `agentic collections delete`
+
+```bash
+agentic collections delete NAME [--yes]
+```
+
+## Server Commands
+
+Start and inspect the combined server (REST + MCP over WebSocket).
+
+### `agentic server start`
+
+```bash
+agentic server start [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--host` | Override host |
+| `--port, -p` | Override port |
+| `--no-mcp` | Disable MCP endpoint |
+| `--no-rest` | Disable REST endpoints |
+| `--reload` | Enable auto-reload (dev) |
+
+### `agentic server status`
+
+```bash
+agentic server status [--port PORT]
+```
+
+## AI Context Commands
+
+Show prebuilt codebase context packs for small-context local LLMs.
+
+### `agentic context show`
+
+```bash
+agentic context show [--task TASK] [--full] [--copy]
+```
+
+### `agentic context summary`
+
+```bash
+agentic context summary
+```
+
 ## Environment Variables
 
 The CLI respects these environment variables:
@@ -236,4 +355,14 @@ The CLI respects these environment variables:
 | `OLLAMA_DEFAULT_MODEL` | Default model name |
 | `MLFLOW_TRACKING_URI` | MLFlow server URI |
 | `MLFLOW_EXPERIMENT_NAME` | Default experiment name |
+| `VECTORDB_BACKEND` | Vector DB backend (`lancedb`, `chroma`) |
+| `VECTORDB_PATH` | Vector storage path (default: `./data/vectors`) |
+| `VECTORDB_EMBEDDING_MODEL` | Embedding model for vector operations |
+| `SERVER_HOST` | Server host (default: `127.0.0.1`) |
+| `SERVER_PORT` | Server port (default: `8080`) |
+| `INDEXING_CHUNK_SIZE` | Target chunk size for indexing |
+| `INDEXING_CHUNK_OVERLAP` | Overlap between chunks |
+| `SESSION_DATABASE_PATH` | Session DB path (if using DB-backed sessions) |
+| `K8S_ENABLED` | Enable Kubernetes integration |
+| `MINIO_ENABLED` | Enable MinIO integration |
 

@@ -1,0 +1,54 @@
+"""
+Reinforcement Learning module for LLM training.
+
+This module provides RL frameworks for training language models using:
+- RLHF (Reinforcement Learning from Human Feedback)
+- DPO (Direct Preference Optimization)
+- PPO (Proximal Policy Optimization)
+- Reward modeling
+
+Supports multiple backends through adapter pattern:
+- TRL (Transformers Reinforcement Learning)
+- Ray RLlib (optional)
+
+Example:
+    >>> from agentic_assistants.rl import RLHFTrainer, RLConfig
+    >>> from agentic_assistants.rl.adapters import TRLAdapter
+    >>> 
+    >>> config = RLConfig(method="dpo")
+    >>> adapter = TRLAdapter()
+    >>> trainer = RLHFTrainer(config, adapter)
+    >>> 
+    >>> result = await trainer.train(
+    ...     base_model="meta-llama/Llama-3.2-1B",
+    ...     preference_dataset="my-preferences",
+    ... )
+"""
+
+from agentic_assistants.rl.config import (
+    RLConfig,
+    RLHFConfig,
+    DPOConfig,
+    PPOConfig,
+    RewardConfig,
+    RLMethod,
+)
+from agentic_assistants.rl.experiments import (
+    RLExperiment,
+    RLExperimentManager,
+    RLExperimentStatus,
+)
+
+__all__ = [
+    # Config
+    "RLConfig",
+    "RLHFConfig",
+    "DPOConfig",
+    "PPOConfig",
+    "RewardConfig",
+    "RLMethod",
+    # Experiments
+    "RLExperiment",
+    "RLExperimentManager",
+    "RLExperimentStatus",
+]

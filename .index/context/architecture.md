@@ -1,41 +1,21 @@
-# Architecture Summary (Condensed)
+# Agentic Assistants - Architecture (Index Context)
 
-## High-Level
-```
-User → CLI / Web UI / Notebook
-     → FastAPI Backend + WebSocket
-     → Core Services (Ollama, MLFlow, OTEL, VectorDB)
-     → Agents / Crews / Patterns
-```
+## High-level
 
-## Core Modules
-- `config.py` — AgenticConfig (Pydantic Settings) for Ollama, MLFlow, Telemetry, VectorDB, Sessions, Server.
-- `core/ollama.py` — OllamaManager: ensure/start/stop, list/pull models, chat().
-- `core/mlflow_tracker.py` — MLFlowTracker: start_run, log params/metrics/artifacts.
-- `core/telemetry.py` — TelemetryManager: OTEL spans/metrics (no-op if disabled).
-- `core/models.py` — SQLite store for control-panel entities (projects, agents, flows, components, notes, tags).
+- **CLI** (`agentic ...`): local operations (services, sessions, indexing/search, server)
+- **FastAPI server**: REST (`/api/v1/*` + legacy endpoints), WebSocket (`/ws`), MCP (`/mcp`)
+- **Web UI Control Panel**: Next.js app in `webui/` consuming the REST APIs
+- **AgenticEngine**: programmatic façade (sessions, indexing/search, vector store, pipelines, knowledge)
+- **LLM Lifecycle**: training, RL/RLHF, serving, data observability
 
-## Vector & Indexing
-- `vectordb/base.py` — VectorStore ABC + Document/SearchResult.
-- Backends: `vectordb/lancedb_store.py`, `vectordb/chroma_store.py`.
-- `indexing/codebase.py` — CodebaseIndexer for repos; `indexing/chunker.py` for chunking strategies.
-- `crews/repository_indexer.py` — CrewAI-based repo indexing workflow.
+## Key directories
 
-## Agents / Patterns
-- Adapters: `adapters/base.py`, `adapters/crewai_adapter.py` (+ MLFlow + OTEL).
-- Patterns: `patterns/` (RAGPattern, ReActPattern, ChainOfThoughtPattern, CollaborationPattern).
-- Embeddings: `embeddings/provider.py` (ollama, sentence-transformers, openai).
-
-## Web UI (Next.js, `webui/`)
-- Pages: Dashboard, Projects, Agents, Flows (YAML import/export), Components, Experiments (MLFlow wrapper), Monitoring, Knowledge Bases, Settings.
-- Uses Control Panel APIs (`/api/v1/projects|agents|flows|components|notes|tags|stats`).
-
-## Backend API
-- Control Panel routers: `server/api/{projects,agents,flows,components,notes,tags}.py`.
-- Existing: experiments, artifacts, sessions, data, config.
-- Entry: `server/rest.py` (FastAPI factory; includes routers and websocket routes).
-
-## Start / Stop
-- Unified: `scripts/start-dev.sh|ps1` (backend + MLFlow + UI choice: webui|jupyterlab|theia|none; default webui). Stop: `scripts/stop-dev.sh|ps1`.
-- Helpers: `scripts/start-webui.sh|ps1`, `scripts/start-lab.sh|ps1`.
-
+- `src/agentic_assistants/`: Python framework
+- `src/agentic_assistants/server/`: FastAPI REST/WS/MCP
+- `src/agentic_assistants/training/`: LLM training (LoRA, QLoRA, full)
+- `src/agentic_assistants/rl/`: RL/RLHF (DPO, PPO, RLHF)
+- `src/agentic_assistants/serving/`: Model serving (Ollama, vLLM, TGI)
+- `src/agentic_assistants/data/training/`: Data observability (tagging, lineage, quality)
+- `webui/`: Control Panel UI
+- `scripts/`: start/stop helpers + index generation
+- `docker-compose.yml`, `docker/`, `k8s/`: infra

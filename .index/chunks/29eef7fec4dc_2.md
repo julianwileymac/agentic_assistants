@@ -1,0 +1,46 @@
+# Chunk: 29eef7fec4dc_2
+
+- source: `.venv-lab/Lib/site-packages/parso/python/grammar37.txt`
+- lines: 119-157
+- chunk: 3/3
+
+```
+)
+                   (comp_for | (',' (test | star_expr))* [','])) )
+
+classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
+
+arglist: argument (',' argument)*  [',']
+
+# The reason that keywords are test nodes instead of NAME is that using NAME
+# results in an ambiguity. ast.c makes sure it's a NAME.
+# "test '=' test" is really "keyword '=' test", but we have no such token.
+# These need to be in a single rule to avoid grammar that is ambiguous
+# to our LL(1) parser. Even though 'test' includes '*expr' in star_expr,
+# we explicitly match '*' here, too, to give it proper precedence.
+# Illegal combinations and orderings are blocked in ast.c:
+# multiple (test comp_for) arguments are blocked; keyword unpackings
+# that precede iterable unpackings are blocked; etc.
+argument: ( test [comp_for] |
+            test '=' test |
+            '**' test |
+            '*' test )
+
+comp_iter: comp_for | comp_if
+sync_comp_for: 'for' exprlist 'in' or_test [comp_iter]
+comp_for: ['async'] sync_comp_for
+comp_if: 'if' test_nocond [comp_iter]
+
+# not used in grammar, but may appear in "node" passed from Parser to Compiler
+encoding_decl: NAME
+
+yield_expr: 'yield' [yield_arg]
+yield_arg: 'from' test | testlist
+
+strings: (STRING | fstring)+
+fstring: FSTRING_START fstring_content* FSTRING_END
+fstring_content: FSTRING_STRING | fstring_expr
+fstring_conversion: '!' NAME
+fstring_expr: '{' (testlist_comp | yield_expr) [ fstring_conversion ] [ fstring_format_spec ] '}'
+fstring_format_spec: ':' fstring_content*
+```

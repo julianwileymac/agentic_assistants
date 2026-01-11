@@ -198,6 +198,155 @@ class Tag:
         }
 
 
+@dataclass
+class DataSource:
+    """A data source connection configuration."""
+    id: str
+    name: str
+    source_type: str  # database, file_store, api
+    connection_config: str = ""  # JSON string with connection details
+    description: str = ""
+    is_global: bool = False  # True = global registry, False = project-scoped
+    project_id: Optional[str] = None  # Only set if is_global=False
+    status: str = "active"  # active, inactive, error
+    last_tested: Optional[datetime] = None
+    last_test_success: bool = False
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    tags: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "source_type": self.source_type,
+            "connection_config": self.connection_config,
+            "description": self.description,
+            "is_global": self.is_global,
+            "project_id": self.project_id,
+            "status": self.status,
+            "last_tested": self.last_tested.isoformat() if self.last_tested else None,
+            "last_test_success": self.last_test_success,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "tags": self.tags,
+            "metadata": self.metadata,
+        }
+    
+    def get_config(self) -> Dict[str, Any]:
+        """Parse and return the connection configuration."""
+        if self.connection_config:
+            try:
+                return json.loads(self.connection_config)
+            except json.JSONDecodeError:
+                return {}
+        return {}
+    
+    def set_config(self, config: Dict[str, Any]) -> None:
+        """Set the connection configuration from a dict."""
+        self.connection_config = json.dumps(config)
+
+
+@dataclass
+class ServiceResource:
+    """An external service resource associated with a project."""
+    id: str
+    name: str
+    service_type: str  # web_ui, api_endpoint, file_store, background_service, database, ml_deployment
+    endpoint_url: str = ""
+    description: str = ""
+    health_endpoint: Optional[str] = None
+    auth_type: Optional[str] = None  # none, api_key, oauth, basic
+    credentials_ref: Optional[str] = None  # Reference to secrets store
+    config_yaml: str = ""
+    is_global: bool = False
+    project_id: Optional[str] = None
+    status: str = "unknown"  # healthy, unhealthy, unknown
+    last_health_check: Optional[datetime] = None
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    tags: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "service_type": self.service_type,
+            "endpoint_url": self.endpoint_url,
+            "description": self.description,
+            "health_endpoint": self.health_endpoint,
+            "auth_type": self.auth_type,
+            "credentials_ref": self.credentials_ref,
+            "config_yaml": self.config_yaml,
+            "is_global": self.is_global,
+            "project_id": self.project_id,
+            "status": self.status,
+            "last_health_check": self.last_health_check.isoformat() if self.last_health_check else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "tags": self.tags,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass
+class ProjectResource:
+    """Junction table linking projects to global resources."""
+    id: str
+    project_id: str
+    resource_type: str  # datasource, service
+    resource_id: str
+    alias: Optional[str] = None  # Optional project-local alias
+    config_overrides: str = ""  # JSON string with project-specific overrides
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "project_id": self.project_id,
+            "resource_type": self.resource_type,
+            "resource_id": self.resource_id,
+            "alias": self.alias,
+            "config_overrides": self.config_overrides,
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+@dataclass
+class IndexingState:
+    """Tracks codebase indexing status for a project."""
+    id: str
+    project_id: str
+    collection_name: str
+    version: str = "2.0"
+    status: str = "idle"  # idle, indexing, completed, failed
+    file_count: int = 0
+    chunk_count: int = 0
+    last_indexed: Optional[datetime] = None
+    error_message: Optional[str] = None
+    indexing_config: str = ""  # JSON string with indexing configuration
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "project_id": self.project_id,
+            "collection_name": self.collection_name,
+            "version": self.version,
+            "status": self.status,
+            "file_count": self.file_count,
+            "chunk_count": self.chunk_count,
+            "last_indexed": self.last_indexed.isoformat() if self.last_indexed else None,
+            "error_message": self.error_message,
+            "indexing_config": self.indexing_config,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+
 # ============================================================================
 # Data Store
 # ============================================================================
@@ -344,6 +493,87 @@ class ControlPanelStore:
                     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
                 );
                 CREATE INDEX IF NOT EXISTS idx_resource_tags_tag ON resource_tags(tag_id);
+                
+                -- Data Sources table
+                CREATE TABLE IF NOT EXISTS datasources (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    source_type TEXT NOT NULL,
+                    connection_config TEXT DEFAULT '{}',
+                    description TEXT DEFAULT '',
+                    is_global INTEGER DEFAULT 0,
+                    project_id TEXT,
+                    status TEXT DEFAULT 'active',
+                    last_tested TEXT,
+                    last_test_success INTEGER DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    tags TEXT DEFAULT '[]',
+                    metadata TEXT DEFAULT '{}',
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_datasources_type ON datasources(source_type);
+                CREATE INDEX IF NOT EXISTS idx_datasources_global ON datasources(is_global);
+                CREATE INDEX IF NOT EXISTS idx_datasources_project ON datasources(project_id);
+                
+                -- Service Resources table
+                CREATE TABLE IF NOT EXISTS services (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    service_type TEXT NOT NULL,
+                    endpoint_url TEXT DEFAULT '',
+                    description TEXT DEFAULT '',
+                    health_endpoint TEXT,
+                    auth_type TEXT,
+                    credentials_ref TEXT,
+                    config_yaml TEXT DEFAULT '',
+                    is_global INTEGER DEFAULT 0,
+                    project_id TEXT,
+                    status TEXT DEFAULT 'unknown',
+                    last_health_check TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    tags TEXT DEFAULT '[]',
+                    metadata TEXT DEFAULT '{}',
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_services_type ON services(service_type);
+                CREATE INDEX IF NOT EXISTS idx_services_global ON services(is_global);
+                CREATE INDEX IF NOT EXISTS idx_services_project ON services(project_id);
+                
+                -- Project Resources junction table
+                CREATE TABLE IF NOT EXISTS project_resources (
+                    id TEXT PRIMARY KEY,
+                    project_id TEXT NOT NULL,
+                    resource_type TEXT NOT NULL,
+                    resource_id TEXT NOT NULL,
+                    alias TEXT,
+                    config_overrides TEXT DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+                    UNIQUE (project_id, resource_type, resource_id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_project_resources_project ON project_resources(project_id);
+                CREATE INDEX IF NOT EXISTS idx_project_resources_resource ON project_resources(resource_type, resource_id);
+                
+                -- Indexing State table
+                CREATE TABLE IF NOT EXISTS indexing_states (
+                    id TEXT PRIMARY KEY,
+                    project_id TEXT NOT NULL UNIQUE,
+                    collection_name TEXT NOT NULL,
+                    version TEXT DEFAULT '2.0',
+                    status TEXT DEFAULT 'idle',
+                    file_count INTEGER DEFAULT 0,
+                    chunk_count INTEGER DEFAULT 0,
+                    last_indexed TEXT,
+                    error_message TEXT,
+                    indexing_config TEXT DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_indexing_states_project ON indexing_states(project_id);
+                CREATE INDEX IF NOT EXISTS idx_indexing_states_status ON indexing_states(status);
             """)
         logger.info(f"Database initialized at {self.db_path}")
     
@@ -987,6 +1217,437 @@ class ControlPanelStore:
             return result.rowcount > 0
     
     # =========================================================================
+    # DataSources CRUD
+    # =========================================================================
+    
+    def create_datasource(self, name: str, source_type: str, **kwargs) -> DataSource:
+        """Create a new data source."""
+        datasource = DataSource(
+            id=str(uuid.uuid4()),
+            name=name,
+            source_type=source_type,
+            connection_config=kwargs.get("connection_config", "{}"),
+            description=kwargs.get("description", ""),
+            is_global=kwargs.get("is_global", False),
+            project_id=kwargs.get("project_id"),
+            status=kwargs.get("status", "active"),
+            tags=kwargs.get("tags", []),
+            metadata=kwargs.get("metadata", {}),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO datasources (id, name, source_type, connection_config,
+                                        description, is_global, project_id, status,
+                                        last_tested, last_test_success,
+                                        created_at, updated_at, tags, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                datasource.id, datasource.name, datasource.source_type,
+                datasource.connection_config, datasource.description,
+                1 if datasource.is_global else 0, datasource.project_id,
+                datasource.status, None, 0,
+                datasource.created_at.isoformat(), datasource.updated_at.isoformat(),
+                json.dumps(datasource.tags), json.dumps(datasource.metadata),
+            ))
+        
+        logger.info(f"Created datasource: {name} ({datasource.id})")
+        return datasource
+    
+    def get_datasource(self, datasource_id: str) -> Optional[DataSource]:
+        """Get a data source by ID."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM datasources WHERE id = ?", (datasource_id,)
+            ).fetchone()
+            
+            if row is None:
+                return None
+            
+            return self._row_to_datasource(row)
+    
+    def list_datasources(self, source_type: Optional[str] = None,
+                        is_global: Optional[bool] = None,
+                        project_id: Optional[str] = None,
+                        page: int = 1, limit: int = 50) -> tuple[List[DataSource], int]:
+        """List data sources with optional filtering."""
+        offset = (page - 1) * limit
+        conditions = []
+        params = []
+        
+        if source_type:
+            conditions.append("source_type = ?")
+            params.append(source_type)
+        if is_global is not None:
+            conditions.append("is_global = ?")
+            params.append(1 if is_global else 0)
+        if project_id:
+            conditions.append("(project_id = ? OR is_global = 1)")
+            params.append(project_id)
+        
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        
+        with self._get_connection() as conn:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM datasources WHERE {where_clause}", params
+            ).fetchone()[0]
+            
+            rows = conn.execute(
+                f"SELECT * FROM datasources WHERE {where_clause} ORDER BY updated_at DESC LIMIT ? OFFSET ?",
+                params + [limit, offset]
+            ).fetchall()
+            
+            return [self._row_to_datasource(row) for row in rows], total
+    
+    def update_datasource(self, datasource_id: str, **kwargs) -> Optional[DataSource]:
+        """Update a data source."""
+        datasource = self.get_datasource(datasource_id)
+        if datasource is None:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(datasource, key):
+                setattr(datasource, key, value)
+        datasource.updated_at = datetime.utcnow()
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE datasources SET name = ?, source_type = ?, connection_config = ?,
+                       description = ?, is_global = ?, project_id = ?, status = ?,
+                       last_tested = ?, last_test_success = ?,
+                       updated_at = ?, tags = ?, metadata = ?
+                WHERE id = ?
+            """, (
+                datasource.name, datasource.source_type, datasource.connection_config,
+                datasource.description, 1 if datasource.is_global else 0,
+                datasource.project_id, datasource.status,
+                datasource.last_tested.isoformat() if datasource.last_tested else None,
+                1 if datasource.last_test_success else 0,
+                datasource.updated_at.isoformat(),
+                json.dumps(datasource.tags), json.dumps(datasource.metadata),
+                datasource.id,
+            ))
+        
+        return datasource
+    
+    def delete_datasource(self, datasource_id: str) -> bool:
+        """Delete a data source."""
+        with self._get_connection() as conn:
+            result = conn.execute("DELETE FROM datasources WHERE id = ?", (datasource_id,))
+            return result.rowcount > 0
+    
+    def _row_to_datasource(self, row) -> DataSource:
+        """Convert a database row to a DataSource."""
+        return DataSource(
+            id=row["id"],
+            name=row["name"],
+            source_type=row["source_type"],
+            connection_config=row["connection_config"],
+            description=row["description"],
+            is_global=bool(row["is_global"]),
+            project_id=row["project_id"],
+            status=row["status"],
+            last_tested=datetime.fromisoformat(row["last_tested"]) if row["last_tested"] else None,
+            last_test_success=bool(row["last_test_success"]),
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            tags=json.loads(row["tags"]),
+            metadata=json.loads(row["metadata"]),
+        )
+    
+    # =========================================================================
+    # ServiceResources CRUD
+    # =========================================================================
+    
+    def create_service(self, name: str, service_type: str, **kwargs) -> ServiceResource:
+        """Create a new service resource."""
+        service = ServiceResource(
+            id=str(uuid.uuid4()),
+            name=name,
+            service_type=service_type,
+            endpoint_url=kwargs.get("endpoint_url", ""),
+            description=kwargs.get("description", ""),
+            health_endpoint=kwargs.get("health_endpoint"),
+            auth_type=kwargs.get("auth_type"),
+            credentials_ref=kwargs.get("credentials_ref"),
+            config_yaml=kwargs.get("config_yaml", ""),
+            is_global=kwargs.get("is_global", False),
+            project_id=kwargs.get("project_id"),
+            status=kwargs.get("status", "unknown"),
+            tags=kwargs.get("tags", []),
+            metadata=kwargs.get("metadata", {}),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO services (id, name, service_type, endpoint_url,
+                                     description, health_endpoint, auth_type,
+                                     credentials_ref, config_yaml, is_global,
+                                     project_id, status, last_health_check,
+                                     created_at, updated_at, tags, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                service.id, service.name, service.service_type, service.endpoint_url,
+                service.description, service.health_endpoint, service.auth_type,
+                service.credentials_ref, service.config_yaml,
+                1 if service.is_global else 0, service.project_id, service.status, None,
+                service.created_at.isoformat(), service.updated_at.isoformat(),
+                json.dumps(service.tags), json.dumps(service.metadata),
+            ))
+        
+        logger.info(f"Created service: {name} ({service.id})")
+        return service
+    
+    def get_service(self, service_id: str) -> Optional[ServiceResource]:
+        """Get a service by ID."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM services WHERE id = ?", (service_id,)
+            ).fetchone()
+            
+            if row is None:
+                return None
+            
+            return self._row_to_service(row)
+    
+    def list_services(self, service_type: Optional[str] = None,
+                     is_global: Optional[bool] = None,
+                     project_id: Optional[str] = None,
+                     page: int = 1, limit: int = 50) -> tuple[List[ServiceResource], int]:
+        """List services with optional filtering."""
+        offset = (page - 1) * limit
+        conditions = []
+        params = []
+        
+        if service_type:
+            conditions.append("service_type = ?")
+            params.append(service_type)
+        if is_global is not None:
+            conditions.append("is_global = ?")
+            params.append(1 if is_global else 0)
+        if project_id:
+            conditions.append("(project_id = ? OR is_global = 1)")
+            params.append(project_id)
+        
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        
+        with self._get_connection() as conn:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM services WHERE {where_clause}", params
+            ).fetchone()[0]
+            
+            rows = conn.execute(
+                f"SELECT * FROM services WHERE {where_clause} ORDER BY updated_at DESC LIMIT ? OFFSET ?",
+                params + [limit, offset]
+            ).fetchall()
+            
+            return [self._row_to_service(row) for row in rows], total
+    
+    def update_service(self, service_id: str, **kwargs) -> Optional[ServiceResource]:
+        """Update a service."""
+        service = self.get_service(service_id)
+        if service is None:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(service, key):
+                setattr(service, key, value)
+        service.updated_at = datetime.utcnow()
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE services SET name = ?, service_type = ?, endpoint_url = ?,
+                       description = ?, health_endpoint = ?, auth_type = ?,
+                       credentials_ref = ?, config_yaml = ?, is_global = ?,
+                       project_id = ?, status = ?, last_health_check = ?,
+                       updated_at = ?, tags = ?, metadata = ?
+                WHERE id = ?
+            """, (
+                service.name, service.service_type, service.endpoint_url,
+                service.description, service.health_endpoint, service.auth_type,
+                service.credentials_ref, service.config_yaml,
+                1 if service.is_global else 0, service.project_id, service.status,
+                service.last_health_check.isoformat() if service.last_health_check else None,
+                service.updated_at.isoformat(),
+                json.dumps(service.tags), json.dumps(service.metadata),
+                service.id,
+            ))
+        
+        return service
+    
+    def delete_service(self, service_id: str) -> bool:
+        """Delete a service."""
+        with self._get_connection() as conn:
+            result = conn.execute("DELETE FROM services WHERE id = ?", (service_id,))
+            return result.rowcount > 0
+    
+    def _row_to_service(self, row) -> ServiceResource:
+        """Convert a database row to a ServiceResource."""
+        return ServiceResource(
+            id=row["id"],
+            name=row["name"],
+            service_type=row["service_type"],
+            endpoint_url=row["endpoint_url"],
+            description=row["description"],
+            health_endpoint=row["health_endpoint"],
+            auth_type=row["auth_type"],
+            credentials_ref=row["credentials_ref"],
+            config_yaml=row["config_yaml"],
+            is_global=bool(row["is_global"]),
+            project_id=row["project_id"],
+            status=row["status"],
+            last_health_check=datetime.fromisoformat(row["last_health_check"]) if row["last_health_check"] else None,
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            tags=json.loads(row["tags"]),
+            metadata=json.loads(row["metadata"]),
+        )
+    
+    # =========================================================================
+    # ProjectResources CRUD
+    # =========================================================================
+    
+    def link_resource_to_project(self, project_id: str, resource_type: str,
+                                 resource_id: str, alias: Optional[str] = None,
+                                 config_overrides: str = "{}") -> ProjectResource:
+        """Link a global resource to a project."""
+        pr = ProjectResource(
+            id=str(uuid.uuid4()),
+            project_id=project_id,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            alias=alias,
+            config_overrides=config_overrides,
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO project_resources
+                    (id, project_id, resource_type, resource_id, alias, config_overrides, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                pr.id, pr.project_id, pr.resource_type, pr.resource_id,
+                pr.alias, pr.config_overrides, pr.created_at.isoformat(),
+            ))
+        
+        return pr
+    
+    def unlink_resource_from_project(self, project_id: str, resource_type: str,
+                                     resource_id: str) -> bool:
+        """Unlink a resource from a project."""
+        with self._get_connection() as conn:
+            result = conn.execute("""
+                DELETE FROM project_resources
+                WHERE project_id = ? AND resource_type = ? AND resource_id = ?
+            """, (project_id, resource_type, resource_id))
+            return result.rowcount > 0
+    
+    def get_project_resources(self, project_id: str,
+                             resource_type: Optional[str] = None) -> List[ProjectResource]:
+        """Get all resources linked to a project."""
+        with self._get_connection() as conn:
+            if resource_type:
+                rows = conn.execute("""
+                    SELECT * FROM project_resources
+                    WHERE project_id = ? AND resource_type = ?
+                """, (project_id, resource_type)).fetchall()
+            else:
+                rows = conn.execute("""
+                    SELECT * FROM project_resources WHERE project_id = ?
+                """, (project_id,)).fetchall()
+            
+            return [ProjectResource(
+                id=row["id"],
+                project_id=row["project_id"],
+                resource_type=row["resource_type"],
+                resource_id=row["resource_id"],
+                alias=row["alias"],
+                config_overrides=row["config_overrides"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+            ) for row in rows]
+    
+    # =========================================================================
+    # IndexingState CRUD
+    # =========================================================================
+    
+    def get_or_create_indexing_state(self, project_id: str,
+                                     collection_name: Optional[str] = None) -> IndexingState:
+        """Get or create indexing state for a project."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM indexing_states WHERE project_id = ?", (project_id,)
+            ).fetchone()
+            
+            if row:
+                return self._row_to_indexing_state(row)
+            
+            # Create new state
+            state = IndexingState(
+                id=str(uuid.uuid4()),
+                project_id=project_id,
+                collection_name=collection_name or f"project-{project_id}",
+            )
+            
+            conn.execute("""
+                INSERT INTO indexing_states
+                    (id, project_id, collection_name, version, status,
+                     file_count, chunk_count, last_indexed, error_message,
+                     indexing_config, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                state.id, state.project_id, state.collection_name, state.version,
+                state.status, state.file_count, state.chunk_count,
+                state.last_indexed.isoformat() if state.last_indexed else None,
+                state.error_message, state.indexing_config,
+                state.created_at.isoformat(), state.updated_at.isoformat(),
+            ))
+            
+            return state
+    
+    def update_indexing_state(self, project_id: str, **kwargs) -> Optional[IndexingState]:
+        """Update indexing state for a project."""
+        state = self.get_or_create_indexing_state(project_id)
+        
+        for key, value in kwargs.items():
+            if hasattr(state, key):
+                setattr(state, key, value)
+        state.updated_at = datetime.utcnow()
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE indexing_states SET collection_name = ?, version = ?,
+                       status = ?, file_count = ?, chunk_count = ?,
+                       last_indexed = ?, error_message = ?, indexing_config = ?,
+                       updated_at = ?
+                WHERE project_id = ?
+            """, (
+                state.collection_name, state.version, state.status,
+                state.file_count, state.chunk_count,
+                state.last_indexed.isoformat() if state.last_indexed else None,
+                state.error_message, state.indexing_config,
+                state.updated_at.isoformat(), project_id,
+            ))
+        
+        return state
+    
+    def _row_to_indexing_state(self, row) -> IndexingState:
+        """Convert a database row to an IndexingState."""
+        return IndexingState(
+            id=row["id"],
+            project_id=row["project_id"],
+            collection_name=row["collection_name"],
+            version=row["version"],
+            status=row["status"],
+            file_count=row["file_count"],
+            chunk_count=row["chunk_count"],
+            last_indexed=datetime.fromisoformat(row["last_indexed"]) if row["last_indexed"] else None,
+            error_message=row["error_message"],
+            indexing_config=row["indexing_config"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+        )
+    
+    # =========================================================================
     # Stats
     # =========================================================================
     
@@ -997,12 +1658,20 @@ class ControlPanelStore:
             agents = conn.execute("SELECT COUNT(*) FROM agents").fetchone()[0]
             flows = conn.execute("SELECT COUNT(*) FROM flows").fetchone()[0]
             components = conn.execute("SELECT COUNT(*) FROM components").fetchone()[0]
+            datasources = conn.execute("SELECT COUNT(*) FROM datasources").fetchone()[0]
+            services = conn.execute("SELECT COUNT(*) FROM services").fetchone()[0]
+            indexed_projects = conn.execute(
+                "SELECT COUNT(*) FROM indexing_states WHERE status = 'completed'"
+            ).fetchone()[0]
             
             return {
                 "projects_count": projects,
                 "agents_count": agents,
                 "flows_count": flows,
                 "components_count": components,
+                "datasources_count": datasources,
+                "services_count": services,
+                "indexed_projects_count": indexed_projects,
                 "experiments_count": 0,  # Will be populated from MLFlow
                 "active_sessions": 0,  # Will be populated from sessions
             }

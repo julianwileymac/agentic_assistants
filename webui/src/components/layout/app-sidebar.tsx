@@ -15,6 +15,16 @@ import {
   Book,
   ExternalLink,
   ChevronRight,
+  Database,
+  Server,
+  Layers,
+  Box,
+  HardDrive,
+  Brain,
+  Cpu,
+  Sliders,
+  Rocket,
+  Tag,
 } from "lucide-react";
 
 import {
@@ -79,16 +89,80 @@ const observabilityItems = [
   },
 ];
 
-const resourceItems = [
+const modelItems = [
+  {
+    title: "Models",
+    url: "/models",
+    icon: Brain,
+  },
+  {
+    title: "Training",
+    url: "/models/training",
+    icon: Cpu,
+  },
+  {
+    title: "Tuning & RLHF",
+    url: "/models/tuning",
+    icon: Sliders,
+  },
+  {
+    title: "Deployment",
+    url: "/models/deployment",
+    icon: Rocket,
+  },
+];
+
+const dataItems = [
+  {
+    title: "Data Sources",
+    url: "/datasources",
+    icon: Database,
+  },
+  {
+    title: "Training Data",
+    url: "/data/training",
+    icon: Database,
+  },
+  {
+    title: "Tags & Lineage",
+    url: "/data/tags",
+    icon: Tag,
+  },
   {
     title: "Knowledge Bases",
     url: "/knowledge",
     icon: Book,
   },
+];
+
+const resourceItems = [
   {
     title: "Settings",
     url: "/settings",
     icon: Settings,
+  },
+];
+
+const infrastructureItems = [
+  {
+    title: "Kubernetes",
+    url: "/kubernetes",
+    icon: Server,
+  },
+  {
+    title: "Deployments",
+    url: "/kubernetes/deployments",
+    icon: Layers,
+  },
+  {
+    title: "Model Serving",
+    url: "/kubernetes/models",
+    icon: Box,
+  },
+  {
+    title: "Storage",
+    url: "/kubernetes/storage",
+    icon: HardDrive,
   },
 ];
 
@@ -143,6 +217,42 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Models & Training */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Models
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {modelItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          item.url === "/models"
+                            ? pathname === "/models"
+                            : pathname.startsWith(item.url)
+                        }
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
         {/* Observability */}
         <SidebarGroup>
           <SidebarGroupLabel>Observability</SidebarGroupLabel>
@@ -166,9 +276,41 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Resources */}
+        {/* Data & Resources */}
         <SidebarGroup>
-          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Data
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {dataItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.url)}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
+        {/* Settings */}
+        <SidebarGroup>
+          <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {resourceItems.map((item) => (
@@ -187,6 +329,42 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Infrastructure */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Infrastructure
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {infrastructureItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          item.url === "/kubernetes"
+                            ? pathname === "/kubernetes"
+                            : pathname.startsWith(item.url)
+                        }
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
 
         {/* External Links */}

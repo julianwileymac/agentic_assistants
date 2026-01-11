@@ -1,0 +1,62 @@
+# Chunk: 5acec92b1cb4_1
+
+- source: `.venv-lab/Lib/site-packages/pygments/lexers/gdscript.py`
+- lines: 79-133
+- chunk: 2/3
+
+```
+ String.Single),
+             "sqs"),
+            ('([uUbB]?)(""")',
+             bygroups(String.Affix, String.Double),
+             combined("stringescape", "tdqs")),
+            ("([uUbB]?)(''')",
+             bygroups(String.Affix, String.Single),
+             combined("stringescape", "tsqs")),
+            ('([uUbB]?)(")',
+             bygroups(String.Affix, String.Double),
+             combined("stringescape", "dqs")),
+            ("([uUbB]?)(')",
+             bygroups(String.Affix, String.Single),
+             combined("stringescape", "sqs")),
+            include("name"),
+            include("numbers"),
+        ],
+        "keywords": [
+            (words(("and", "in", "not", "or", "as", "breakpoint", "class",
+                    "class_name", "extends", "is", "func", "setget", "signal",
+                    "tool", "const", "enum", "export", "onready", "static",
+                    "var", "break", "continue", "if", "elif", "else", "for",
+                    "pass", "return", "match", "while", "remote", "master",
+                    "puppet", "remotesync", "mastersync", "puppetsync"),
+                   suffix=r"\b"), Keyword),
+        ],
+        "builtins": [
+            (words(("Color8", "ColorN", "abs", "acos", "asin", "assert", "atan",
+                    "atan2", "bytes2var", "ceil", "char", "clamp", "convert",
+                    "cos", "cosh", "db2linear", "decimals", "dectime", "deg2rad",
+                    "dict2inst", "ease", "exp", "floor", "fmod", "fposmod",
+                    "funcref", "hash", "inst2dict", "instance_from_id", "is_inf",
+                    "is_nan", "lerp", "linear2db", "load", "log", "max", "min",
+                    "nearest_po2", "pow", "preload", "print", "print_stack",
+                    "printerr", "printraw", "prints", "printt", "rad2deg",
+                    "rand_range", "rand_seed", "randf", "randi", "randomize",
+                    "range", "round", "seed", "sign", "sin", "sinh", "sqrt",
+                    "stepify", "str", "str2var", "tan", "tan", "tanh",
+                    "type_exist", "typeof", "var2bytes", "var2str", "weakref",
+                    "yield"), prefix=r"(?<!\.)", suffix=r"\b"),
+             Name.Builtin),
+            (r"((?<!\.)(self|false|true)|(PI|TAU|NAN|INF)" r")\b",
+             Name.Builtin.Pseudo),
+            (words(("bool", "int", "float", "String", "NodePath", "Vector2",
+                    "Rect2", "Transform2D", "Vector3", "Rect3", "Plane", "Quat",
+                    "Basis", "Transform", "Color", "RID", "Object", "NodePath",
+                    "Dictionary", "Array", "PackedByteArray", "PackedInt32Array",
+                    "PackedInt64Array", "PackedFloat32Array", "PackedFloat64Array",
+                    "PackedStringArray", "PackedVector2Array", "PackedVector3Array",
+                    "PackedColorArray", "null", "void"),
+                   prefix=r"(?<!\.)", suffix=r"\b"),
+             Name.Builtin.Type),
+        ],
+        "numbers": [
+```

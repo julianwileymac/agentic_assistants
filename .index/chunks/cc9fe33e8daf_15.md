@@ -1,0 +1,92 @@
+# Chunk: cc9fe33e8daf_15
+
+- source: `frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-artifacts_-341fb0.js`
+- lines: 878-962
+- chunk: 16/19
+
+```
+    selected: false,
+            expanded: false,
+            group
+        };
+        node.children = artifacts.map(artifact => this.createArtifactNode(artifact, node));
+        return node;
+    }
+    createTagNode(tag, artifacts, parent) {
+        const node = {
+            id: `tag-${tag.name}`,
+            name: `${tag.name} (${tag.artifact_count})`,
+            parent,
+            children: [],
+            selected: false,
+            expanded: false,
+            tag
+        };
+        node.children = artifacts.map(artifact => this.createArtifactNode(artifact, node));
+        return node;
+    }
+    createArtifactNode(artifact, parent) {
+        const sizeStr = this.formatSize(artifact.size);
+        return {
+            id: `artifact-${artifact.id}`,
+            name: `${artifact.name} (${sizeStr})`,
+            parent,
+            selected: false,
+            artifact
+        };
+    }
+    formatSize(bytes) {
+        if (bytes < 1024)
+            return `${bytes} B`;
+        if (bytes < 1024 * 1024)
+            return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024)
+            return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+        return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`;
+    }
+    toNodeIcon(node) {
+        if (GroupNode.is(node)) {
+            return 'fa fa-folder';
+        }
+        if (TagNode.is(node)) {
+            return 'fa fa-tag';
+        }
+        if (ArtifactNode.is(node)) {
+            if (node.artifact.is_shared) {
+                return 'fa fa-share-alt';
+            }
+            const mimeType = node.artifact.mime_type || '';
+            if (mimeType.startsWith('image/'))
+                return 'fa fa-image';
+            if (mimeType.startsWith('text/'))
+                return 'fa fa-file-text';
+            if (mimeType.includes('json'))
+                return 'fa fa-file-code';
+            if (mimeType.includes('parquet'))
+                return 'fa fa-table';
+            return 'fa fa-file';
+        }
+        return '';
+    }
+};
+ArtifactsTreeWidget.ID = exports.ARTIFACTS_TREE_WIDGET_ID;
+ArtifactsTreeWidget.LABEL = 'Artifacts';
+__decorate([
+    (0, inversify_1.inject)(artifact_service_1.ArtifactServiceSymbol),
+    __metadata("design:type", artifact_service_1.ArtifactService)
+], ArtifactsTreeWidget.prototype, "artifactService", void 0);
+__decorate([
+    (0, inversify_1.inject)(core_1.MessageService),
+    __metadata("design:type", core_1.MessageService)
+], ArtifactsTreeWidget.prototype, "messageService", void 0);
+__decorate([
+    (0, inversify_1.postConstruct)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ArtifactsTreeWidget.prototype, "init", null);
+ArtifactsTreeWidget = ArtifactsTreeWidget_1 = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(tree_1.TreeProps)),
+    __param(1, (0, inversify_1.inject)(tree_1.TreeModel)),
+```

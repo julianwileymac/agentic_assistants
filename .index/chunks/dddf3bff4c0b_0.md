@@ -1,0 +1,95 @@
+# Chunk: dddf3bff4c0b_0
+
+- source: `.venv-lab/Lib/site-packages/nbformat/v4/nbformat.v4.4.schema.json`
+- lines: 1-88
+- chunk: 1/6
+
+```
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Jupyter Notebook v4.4 JSON schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "nbformat_minor", "nbformat", "cells"],
+  "properties": {
+    "metadata": {
+      "description": "Notebook root-level metadata.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "kernelspec": {
+          "description": "Kernel information.",
+          "type": "object",
+          "required": ["name", "display_name"],
+          "properties": {
+            "name": {
+              "description": "Name of the kernel specification.",
+              "type": "string"
+            },
+            "display_name": {
+              "description": "Name to display in UI.",
+              "type": "string"
+            }
+          }
+        },
+        "language_info": {
+          "description": "Kernel information.",
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "description": "The programming language which this kernel runs.",
+              "type": "string"
+            },
+            "codemirror_mode": {
+              "description": "The codemirror mode to use for code in this language.",
+              "oneOf": [{ "type": "string" }, { "type": "object" }]
+            },
+            "file_extension": {
+              "description": "The file extension for files in this language.",
+              "type": "string"
+            },
+            "mimetype": {
+              "description": "The mimetype corresponding to files in this language.",
+              "type": "string"
+            },
+            "pygments_lexer": {
+              "description": "The pygments lexer to use for code in this language.",
+              "type": "string"
+            }
+          }
+        },
+        "orig_nbformat": {
+          "description": "Original notebook format (major number) before converting the notebook between versions. This should never be written to a file.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "description": "The title of the notebook document",
+          "type": "string"
+        },
+        "authors": {
+          "description": "The author(s) of the notebook document",
+          "type": "array",
+          "item": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "nbformat_minor": {
+      "description": "Notebook format (minor number). Incremented for backward compatible changes to the notebook format.",
+      "type": "integer",
+      "minimum": 4
+    },
+    "nbformat": {
+      "description": "Notebook format (major number). Incremented between backwards incompatible changes to the notebook format.",
+      "type": "integer",
+      "minimum": 4,
+```

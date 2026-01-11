@@ -1,0 +1,97 @@
+# Chunk: eea4f3b35fae_2
+
+- source: `.venv-lab/Lib/site-packages/nbformat/v4/nbformat.v4.1.schema.json`
+- lines: 165-254
+- chunk: 3/5
+
+```
+              "type": "boolean"
+            },
+            "scrolled": {
+              "description": "Whether the cell's output is scrolled, unscrolled, or autoscrolled.",
+              "enum": [true, false, "auto"]
+            },
+            "name": { "$ref": "#/definitions/misc/metadata_name" },
+            "tags": { "$ref": "#/definitions/misc/metadata_tags" }
+          }
+        },
+        "source": { "$ref": "#/definitions/misc/source" },
+        "outputs": {
+          "description": "Execution, display, or stream outputs.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/output" }
+        },
+        "execution_count": {
+          "description": "The code cell's prompt number. Will be null if the cell has not been run.",
+          "type": ["integer", "null"],
+          "minimum": 0
+        }
+      }
+    },
+
+    "unrecognized_cell": {
+      "description": "Unrecognized cell from a future minor-revision to the notebook format.",
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["cell_type", "metadata"],
+      "properties": {
+        "cell_type": {
+          "description": "String identifying the type of cell.",
+          "not": {
+            "enum": ["markdown", "code", "raw"]
+          }
+        },
+        "metadata": {
+          "description": "Cell-level metadata.",
+          "type": "object",
+          "properties": {
+            "name": { "$ref": "#/definitions/misc/metadata_name" },
+            "tags": { "$ref": "#/definitions/misc/metadata_tags" }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "output": {
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/definitions/execute_result" },
+        { "$ref": "#/definitions/display_data" },
+        { "$ref": "#/definitions/stream" },
+        { "$ref": "#/definitions/error" }
+      ]
+    },
+
+    "execute_result": {
+      "description": "Result of executing a code cell.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_type", "data", "metadata", "execution_count"],
+      "properties": {
+        "output_type": {
+          "description": "Type of cell output.",
+          "enum": ["execute_result"]
+        },
+        "execution_count": {
+          "description": "A result's prompt number.",
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "data": { "$ref": "#/definitions/misc/mimebundle" },
+        "metadata": { "$ref": "#/definitions/misc/output_metadata" }
+      }
+    },
+
+    "display_data": {
+      "description": "Data displayed as a result of code cell execution.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_type", "data", "metadata"],
+      "properties": {
+        "output_type": {
+          "description": "Type of cell output.",
+          "enum": ["display_data"]
+        },
+        "data": { "$ref": "#/definitions/misc/mimebundle" },
+```

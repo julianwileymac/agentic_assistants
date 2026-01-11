@@ -144,3 +144,5 @@ frontend/browser-app-lite/node_modules/
 
 py11_venv/
 .venv-lab/
+
+.prompts/

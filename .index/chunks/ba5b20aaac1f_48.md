@@ -1,0 +1,44 @@
+# Chunk: ba5b20aaac1f_48
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 2282-2318
+- chunk: 49/98
+
+```
+GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$fresh$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/compiled/fresh/index.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$cache$2d$control$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/server/lib/cache-control.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$constants$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Documents/GitHub/agentic_assistants/webui/node_modules/next/dist/esm/lib/constants.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+function sendEtagResponse(req, res, etag) {
+    if (etag) {
+        /**
+     * The server generating a 304 response MUST generate any of the
+     * following header fields that would have been sent in a 200 (OK)
+     * response to the same request: Cache-Control, Content-Location, Date,
+     * ETag, Expires, and Vary. https://tools.ietf.org/html/rfc7232#section-4.1
+     */ res.setHeader('ETag', etag);
+    }
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$fresh$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"])(req.headers, {
+        etag
+    })) {
+        res.statusCode = 304;
+        res.end();
+        return true;
+    }
+    return false;
+}
+async function sendRenderResult({ req, res, result, generateEtags, poweredByHeader, cacheControl }) {
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$utils$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["isResSent"])(res)) {
+        return;
+    }
+    if (poweredByHeader && result.contentType === __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$lib$2f$constants$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["HTML_CONTENT_TYPE_HEADER"]) {
+        res.setHeader('X-Powered-By', 'Next.js');
+    }
+    // If cache control is already set on the response we don't
+    // override it to allow users to customize it via next.config
+    if (cacheControl && !res.getHeader('Cache-Control')) {
+```

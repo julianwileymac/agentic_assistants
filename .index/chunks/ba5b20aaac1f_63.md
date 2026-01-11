@@ -1,0 +1,38 @@
+# Chunk: ba5b20aaac1f_63
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 2606-2636
+- chunk: 64/98
+
+```
+bugStaticShell && routeModule.isDev === true;
+    const isDebugFallbackShell = hasDebugFallbackShellQuery && isRoutePPREnabled;
+    // If we're in minimal mode, then try to get the postponed information from
+    // the request metadata. If available, use it for resuming the postponed
+    // render.
+    const minimalPostponed = isRoutePPREnabled ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$request$2d$meta$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRequestMeta"])(req, 'postponed') : undefined;
+    // If PPR is enabled, and this is a RSC request (but not a prefetch), then
+    // we can use this fact to only generate the flight data for the request
+    // because we can't cache the HTML (as it's also dynamic).
+    let isDynamicRSCRequest = isRoutePPREnabled && isRSCRequest && !isPrefetchRSCRequest;
+    // During a PPR revalidation, the RSC request is not dynamic if we do not have the postponed data.
+    // We only attach the postponed data during a resume. If there's no postponed data, then it must be a revalidation.
+    // This is to ensure that we don't bypass the cache during a revalidation.
+    if (isMinimalMode) {
+        isDynamicRSCRequest = isDynamicRSCRequest && !!minimalPostponed;
+    }
+    // Need to read this before it's stripped by stripFlightHeaders. We don't
+    // need to transfer it to the request meta because it's only read
+    // within this function; the static segment data should have already been
+    // generated, so we will always either return a static response or a 404.
+    const segmentPrefetchHeader = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$request$2d$meta$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRequestMeta"])(req, 'segmentPrefetchRSCRequest');
+    // TODO: investigate existing bug with shouldServeStreamingMetadata always
+    // being true for a revalidate due to modifying the base-server this.renderOpts
+    // when fixing this to correct logic it causes hydration issue since we set
+    // serveStreamingMetadata to true during export
+    const serveStreamingMetadata = isHtmlBot && isRoutePPREnabled ? false : !userAgent ? true : (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$lib$2f$streaming$2d$metadata$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["shouldServeStreamingMetadata"])(userAgent, nextConfig.htmlLimitedBots);
+    const isSSG = Boolean((prerenderInfo || isPrerendered || prerenderManifest.routes[normalizedSrcPage]) && // If this is a html bot request and PPR is enabled, then we don't want
+    // to serve a static response.
+    !(isHtmlBot && isRoutePPREnabled));
+    // When a page supports cacheComponents, we can support RDC for Navigations
+```

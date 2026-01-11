@@ -1,0 +1,46 @@
+# Chunk: ba5b20aaac1f_64
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 2632-2670
+- chunk: 65/98
+
+```
+Info || isPrerendered || prerenderManifest.routes[normalizedSrcPage]) && // If this is a html bot request and PPR is enabled, then we don't want
+    // to serve a static response.
+    !(isHtmlBot && isRoutePPREnabled));
+    // When a page supports cacheComponents, we can support RDC for Navigations
+    const supportsRDCForNavigations = isRoutePPREnabled && nextConfig.cacheComponents === true;
+    // In development, we always want to generate dynamic HTML.
+    const supportsDynamicResponse = // a data request, in which case we only produce static HTML.
+    routeModule.isDev === true || // If this is not SSG or does not have static paths, then it supports
+    // dynamic HTML.
+    !isSSG || // If this request has provided postponed data, it supports dynamic
+    // HTML.
+    typeof minimalPostponed === 'string' || // If this handler supports onCacheEntryV2, then we can only support
+    // dynamic responses if it's a dynamic RSC request and not in minimal mode. If it
+    // doesn't support it we must fallback to the default behavior.
+    (supportsRDCForNavigations && (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$request$2d$meta$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRequestMeta"])(req, 'onCacheEntryV2') ? // RSC request, we'll pass the minimal postponed data to the render
+    // which will trigger the `supportsDynamicResponse` to be true.
+    isDynamicRSCRequest && !isMinimalMode : isDynamicRSCRequest);
+    // When html bots request PPR page, perform the full dynamic rendering.
+    const shouldWaitOnAllReady = isHtmlBot && isRoutePPREnabled;
+    let ssgCacheKey = null;
+    if (!isDraftMode && isSSG && !supportsDynamicResponse && !isPossibleServerAction && !minimalPostponed && !isDynamicRSCRequest) {
+        ssgCacheKey = resolvedPathname;
+    }
+    // the staticPathKey differs from ssgCacheKey since
+    // ssgCacheKey is null in dev since we're always in "dynamic"
+    // mode in dev to bypass the cache, but we still need to honor
+    // dynamicParams = false in dev mode
+    let staticPathKey = ssgCacheKey;
+    if (!staticPathKey && routeModule.isDev) {
+        staticPathKey = resolvedPathname;
+    }
+    // If this is a request for an app path that should be statically generated
+    // and we aren't in the edge runtime, strip the flight headers so it will
+    // generate the static response.
+    if (!routeModule.isDev && !isDraftMode && isSSG && isRSCRequest && !isDynamicRSCRequest) {
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$app$2d$render$2f$strip$2d$flight$2d$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["stripFlightHeaders"])(req.headers);
+    }
+    const ComponentMod = {
+```

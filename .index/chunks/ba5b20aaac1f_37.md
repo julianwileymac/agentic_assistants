@@ -1,0 +1,61 @@
+# Chunk: ba5b20aaac1f_37
+
+- source: `webui/.next/dev/server/chunks/ssr/617de_next_dist_35a4d67b._.js`
+- lines: 1645-1698
+- chunk: 38/98
+
+```
+ntry;
+            if (workStore) {
+                workerEntry = workers[normalizeWorkerPageName(workStore.page)];
+            } else {
+                // If there's no work store defined, we can assume that a server
+                // module map is needed during module evaluation, e.g. to create a
+                // server action using a higher-order function. Therefore it should be
+                // safe to return any entry from the manifest that matches the action
+                // ID. They all refer to the same module ID, which must also exist in
+                // the current page bundle. TODO: This is currently not guaranteed in
+                // Turbopack, and needs to be fixed.
+                workerEntry = Object.values(workers).at(0);
+            }
+            if (!workerEntry) {
+                return undefined;
+            }
+            const { moduleId, async } = workerEntry;
+            return {
+                id: moduleId,
+                name: id,
+                chunks: [],
+                async
+            };
+        }
+    });
+}
+/**
+ * The flight entry loader keys actions by bundlePath. bundlePath corresponds
+ * with the relative path (including 'app') to the page entrypoint.
+ */ function normalizeWorkerPageName(pageName) {
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$router$2f$utils$2f$path$2d$has$2d$prefix$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pathHasPrefix"])(pageName, 'app')) {
+        return pageName;
+    }
+    return 'app' + pageName;
+}
+/**
+ * Converts a bundlePath (relative path to the entrypoint) to a routable page
+ * name.
+ */ function denormalizeWorkerPageName(bundlePath) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$router$2f$utils$2f$app$2d$paths$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["normalizeAppPath"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$agentic_assistants$2f$webui$2f$node_modules$2f$next$2f$dist$2f$esm$2f$shared$2f$lib$2f$router$2f$utils$2f$remove$2d$path$2d$prefix$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["removePathPrefix"])(bundlePath, 'app'));
+}
+function selectWorkerForForwarding(actionId, pageName) {
+    var _serverActionsManifest__actionId;
+    const serverActionsManifest = getServerActionsManifest();
+    const workers = (_serverActionsManifest__actionId = serverActionsManifest[("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : 'node'][actionId]) == null ? void 0 : _serverActionsManifest__actionId.workers;
+    // There are no workers to handle this action, nothing to forward to.
+    if (!workers) {
+        return;
+    }
+    // If there is an entry for the current page, we don't need to forward.
+    if (workers[normalizeWorkerPageName(pageName)]) {
+        return;
+    }
+```

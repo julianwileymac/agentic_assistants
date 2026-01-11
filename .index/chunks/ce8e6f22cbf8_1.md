@@ -1,0 +1,9 @@
+# Chunk: ce8e6f22cbf8_1
+
+- source: `webui/.next/server/app/_global-error/page.js.nft.json`
+- lines: 1-1
+- chunk: 2/2
+
+```
+ib/router-utils/instrumentation-node-extensions.js","../../../../node_modules/next/dist/server/lib/trace/constants.js","../../../../node_modules/next/dist/server/lib/trace/tracer.js","../../../../node_modules/next/dist/server/load-manifest.external.js","../../../../node_modules/next/dist/server/node-environment-extensions/fast-set-immediate.external.js","../../../../node_modules/next/dist/server/response-cache/types.js","../../../../node_modules/next/dist/server/runtime-reacts.external.js","../../../../node_modules/next/dist/shared/lib/deep-freeze.js","../../../../node_modules/next/dist/shared/lib/invariant-error.js","../../../../node_modules/next/dist/shared/lib/is-plain-object.js","../../../../node_modules/next/dist/shared/lib/is-thenable.js","../../../../node_modules/next/dist/shared/lib/no-fallback-error.external.js","../../../../node_modules/next/dist/shared/lib/server-reference-info.js","../../../../node_modules/next/package.json","../../chunks/ssr/33b09_assistants_webui__next-internal_server_app__global-error_page_actions_f3e93e9f.js","../../chunks/ssr/617de_next_dist_b10e16b3._.js","../../chunks/ssr/617de_next_dist_b92e21ba._.js","../../chunks/ssr/617de_next_dist_esm_9bddfe44._.js","../../chunks/ssr/Documents_GitHub_agentic_assistants_webui_9a1b4e08._.js","../../chunks/ssr/Documents_GitHub_agentic_assistants_webui_src_app_ce499c6b._.js","../../chunks/ssr/[root-of-the-server]__059e8eb2._.js","../../chunks/ssr/[root-of-the-server]__8bba9d7b._.js","../../chunks/ssr/[root-of-the-server]__8c1fba5d._.js","../../chunks/ssr/[root-of-the-server]__f61348ce._.js","../../chunks/ssr/[turbopack]_runtime.js","./page/react-loadable-manifest.json","./page_client-reference-manifest.js"]}
+```

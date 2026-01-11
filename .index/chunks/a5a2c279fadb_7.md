@@ -1,0 +1,80 @@
+# Chunk: a5a2c279fadb_7
+
+- source: `scripts/generate_index.py`
+- lines: 562-634
+- chunk: 8/14
+
+```
+sistants - Local LLM Usage Notes
+
+## Typical workflow for small-context local LLMs
+
+1. Load `.index/context/*` as your starting context.
+2. Use `.index/surfaces/*` to locate relevant CLI commands, endpoints, and UI routes.
+3. Use `.index/symbols/*` to jump to the most relevant files/symbols.
+4. Pull the matching `.index/chunks/*` files for the exact implementation details.
+
+## Index location
+
+- This repo stores the model-agnostic index under `.index/`.
+"""
+
+    return {
+        "architecture.md": architecture,
+        "api-surface.md": api_surface,
+        "patterns.md": patterns,
+        "ollama-assistant.md": ollama_assistant,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate `.index/` for this repo.")
+    parser.add_argument("--repo-root", default=".", help="Repo root (default: .)")
+    parser.add_argument("--output-dir", default=".index", help="Output directory (default: .index)")
+    parser.add_argument("--max-file-bytes", type=int, default=1_000_000, help="Max bytes per file to index (default: 1MB)")
+    parser.add_argument("--chunk-chars", type=int, default=3000, help="Chunk size in characters (default: 3000)")
+    parser.add_argument("--chunk-overlap", type=int, default=300, help="Chunk overlap in characters (default: 300)")
+    args = parser.parse_args()
+
+    repo_root = Path(args.repo_root).resolve()
+    out_root = (repo_root / args.output_dir).resolve()
+
+    ignore_spec = load_gitignore_spec(repo_root)
+    extra_patterns = list(DEFAULT_IGNORE_PATTERNS)
+
+    # Output layout
+    context_dir = out_root / "context"
+    symbols_dir = out_root / "symbols"
+    surfaces_dir = out_root / "surfaces"
+    areas_dir = out_root / "areas"
+    chunks_dir = out_root / "chunks"
+
+    ensure_dir(out_root)
+    ensure_dir(context_dir)
+    ensure_dir(symbols_dir)
+    ensure_dir(surfaces_dir)
+    ensure_dir(areas_dir)
+    ensure_dir(chunks_dir)
+
+    files: list[FileRecord] = []
+    chunks: list[ChunkRecord] = []
+    py_symbols: list[dict[str, Any]] = []
+    ts_symbols: list[dict[str, Any]] = []
+
+    # Surfaces to fill
+    rest_routes: list[dict[str, Any]] = []
+    cli_cmds: list[dict[str, Any]] = []
+    web_routes: list[dict[str, Any]] = webui_routes_from_pages(repo_root)
+
+    # Pre-load CLI source if present
+    cli_py = repo_root / "src" / "agentic_assistants" / "cli.py"
+    if cli_py.exists():
+        cli_src = cli_py.read_text(encoding="utf-8", errors="ignore")
+        cli_cmds = extract_click_commands(cli_src, cli_py.relative_to(repo_root).as_posix())
+
+    # Pre-load server routes if present
+    rest_py = repo_root / "src" / "agentic_assistants" / "server" / "rest.py"
+    if rest_py.exists():
+        rest_src = rest_py.read_text(encoding="utf-8", errors="ignore")
+        rest_routes.extend(extract_fastapi_routes_from_app(rest_src, rest_py.relative_to(repo_root).as_posix()))
+```

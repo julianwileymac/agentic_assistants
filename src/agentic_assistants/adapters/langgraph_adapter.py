@@ -311,3 +311,101 @@ class LangGraphAdapter(BaseAdapter):
 
         return StateGraph(state_class)
 
+
+    async def deploy_graph(
+        self,
+        flow_id: str,
+        name: str,
+        namespace: Optional[str] = None,
+        replicas: int = 1,
+        model_endpoint: Optional[str] = None,
+        state_backend: str = "minio",
+        env_vars: Optional[dict[str, str]] = None,
+        cpu_request: str = "100m",
+        cpu_limit: str = "1000m",
+        memory_request: str = "256Mi",
+        memory_limit: str = "1Gi",
+    ) -> Any:
+        """
+        Deploy a LangGraph workflow to Kubernetes.
+        
+        This method creates a Kubernetes deployment for running the graph
+        as a persistent service with distributed state management.
+        
+        Args:
+            flow_id: Unique identifier for the flow
+            name: Deployment name
+            namespace: Kubernetes namespace (uses default if None)
+            replicas: Number of replicas
+            model_endpoint: LLM endpoint URL
+            state_backend: State backend (minio, redis)
+            env_vars: Additional environment variables
+            cpu_request: CPU request
+            cpu_limit: CPU limit
+            memory_request: Memory request
+            memory_limit: Memory limit
+        
+        Returns:
+            DeploymentInfo if successful
+        """
+        from agentic_assistants.kubernetes import (
+            DeploymentManager,
+            FlowDeploymentConfig,
+            ResourceRequirements,
+        )
+        
+        deployer = DeploymentManager(config=self.config)
+        
+        resources = ResourceRequirements(
+            cpu_request=cpu_request,
+            cpu_limit=cpu_limit,
+            memory_request=memory_request,
+            memory_limit=memory_limit,
+        )
+        
+        config = FlowDeploymentConfig(
+            flow_id=flow_id,
+            name=name,
+            namespace=namespace or self.config.kubernetes.default_deploy_namespace,
+            replicas=replicas,
+            framework="langgraph",
+            model_endpoint=model_endpoint,
+            state_backend=state_backend,
+            env_vars=env_vars or {},
+            resources=resources,
+        )
+        
+        deployment = await deployer.deploy_flow(config)
+        
+        if deployment:
+            logger.info(f"Deployed graph {name} to Kubernetes")
+        else:
+            logger.error(f"Failed to deploy graph {name}")
+        
+        return deployment
+
+    async def undeploy_graph(
+        self,
+        name: str,
+        namespace: Optional[str] = None,
+    ) -> bool:
+        """Remove a graph deployment from Kubernetes."""
+        from agentic_assistants.kubernetes import DeploymentManager
+        
+        deployer = DeploymentManager(config=self.config)
+        ns = namespace or self.config.kubernetes.default_deploy_namespace
+        
+        return await deployer.delete_deployment(name, ns)
+
+    async def get_graph_deployment_status(
+        self,
+        name: str,
+        namespace: Optional[str] = None,
+    ) -> dict:
+        """Get the status of a graph deployment."""
+        from agentic_assistants.kubernetes import DeploymentManager
+        
+        deployer = DeploymentManager(config=self.config)
+        ns = namespace or self.config.kubernetes.default_deploy_namespace
+        
+        return await deployer.get_deployment_status(name, ns)

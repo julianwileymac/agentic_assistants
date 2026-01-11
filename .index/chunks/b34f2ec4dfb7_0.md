@@ -1,0 +1,47 @@
+# Chunk: b34f2ec4dfb7_0
+
+- source: `frontend/browser-app/lib/frontend/C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-mlflow_lib-255529.js`
+- lines: 1-41
+- chunk: 1/16
+
+```
+"use strict";
+(self["webpackChunkbrowser_app"] = self["webpackChunkbrowser_app"] || []).push([["C_Users_Julian_Wiley_Documents_GitHub_agentic_assistants_frontend_packages_agentic-mlflow_lib-255529"],{
+
+/***/ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\index.js"
+/*!*********************************************************************************************************************!*\
+  !*** C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\frontend\packages\agentic-core\lib\browser\index.js ***!
+  \*********************************************************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+
+/**
+ * Agentic Core Extension - Browser Entry Point
+ *
+ * Re-exports all public APIs from the core extension.
+ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__webpack_require__(/*! ./agentic-backend-service */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-backend-service.js"), exports);
+__exportStar(__webpack_require__(/*! ./agentic-websocket-client */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-websocket-client.js"), exports);
+__exportStar(__webpack_require__(/*! ./agentic-configuration */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-configuration.js"), exports);
+__exportStar(__webpack_require__(/*! ./agentic-commands */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-commands.js"), exports);
+__exportStar(__webpack_require__(/*! ./agentic-menu */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-menu.js"), exports);
+__exportStar(__webpack_require__(/*! ./agentic-status-bar */ "C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants\\frontend\\packages\\agentic-core\\lib\\browser\\agentic-status-bar.js"), exports);
+
+
+/***/ },
+```
