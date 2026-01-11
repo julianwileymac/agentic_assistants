@@ -1,86 +1,85 @@
-﻿# Architecture Overview
+# Architecture Overview
 
 This document describes the architecture and design decisions of the Agentic Assistants framework.
 
 ## System Architecture
 
 ```
-Entry Points
-----------------------------
-CLI (Click)  |  Python Imports  |  Startup Scripts (bash/ps1)
-             |
-             v
-Configuration Layer
-----------------------------
-AgenticConfig  |  OllamaSettings  |  MLFlow/TelemetrySettings
-             |
-             v
-Core Components
-----------------------------
-OllamaManager  |  MLFlowTracker  |  TelemetryManager
-             |
-             v
-Framework Adapters
-----------------------------
-CrewAIAdapter  |  LangGraphAdapter
-             |
-             v
-External Services
-----------------------------
-Ollama (LLM)  |  MLFlow Server  |  OTEL Collector / Jaeger
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Entry Points                                    │
+├─────────────────┬─────────────────────┬─────────────────────────────────────┤
+│   CLI (Click)   │   Python Imports    │   Startup Scripts (bash/ps1)       │
+└────────┬────────┴──────────┬──────────┴─────────────────────────────────────┘
+         │                   │
+         ▼                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Configuration Layer                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────────┐  │
+│  │  AgenticConfig  │  │  OllamaSettings │  │  MLFlow/TelemetrySettings   │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            Core Components                                   │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────────┐  │
+│  │  OllamaManager  │  │  MLFlowTracker  │  │    TelemetryManager         │  │
+│  │  - start/stop   │  │  - experiments  │  │    - tracing                │  │
+│  │  - models       │  │  - metrics      │  │    - metrics                │  │
+│  │  - chat         │  │  - artifacts    │  │    - spans                  │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Framework Adapters                                  │
+│  ┌───────────────────────────┐  ┌───────────────────────────────────────┐   │
+│  │      CrewAIAdapter        │  │         LangGraphAdapter              │   │
+│  │  - create_ollama_agent    │  │  - wrap_node                          │   │
+│  │  - run_crew               │  │  - run_graph                          │   │
+│  │  - tracking integration   │  │  - stream_graph                       │   │
+│  └───────────────────────────┘  └───────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         External Services                                    │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────────┐  │
+│  │     Ollama      │  │  MLFlow Server  │  │  OTEL Collector / Jaeger   │  │
+│  │  (LLM Runtime)  │  │  (Experiments)  │  │  (Tracing)                 │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Expanded Architecture (Server + UI + Pipelines + LLM Lifecycle)
+## Expanded Architecture (Server + UI + Pipelines)
 
-This repo now includes a FastAPI backend, Next.js control panel, Kedro-inspired pipelines, knowledge bases, and comprehensive LLM lifecycle management.
+This repo has grown beyond “CLI + adapters”: it now includes a FastAPI backend, a Next.js control panel, and Kedro-inspired pipeline + knowledge base subsystems.
 
-```mermaid
-flowchart TB
-    subgraph EntryPoints [Entry Points]
-        CLI[CLI - agentic]
-        WebUI[Web UI Control Panel]
-        PythonAPI[Python API]
-    end
-
-    subgraph Backend [FastAPI Backend]
-        REST[REST API /api/v1/*]
-        WS[WebSocket /ws]
-        MCP[MCP Protocol /mcp]
-    end
-
-    subgraph Core [Core Engine]
-        Engine[AgenticEngine]
-        Sessions[Session Manager]
-        Indexing[Indexing/Search]
-    end
-
-    subgraph LLMLifecycle [LLM Lifecycle Management]
-        Training[Training Jobs]
-        RL[RL/RLHF Experiments]
-        Serving[Model Serving]
-    end
-
-    subgraph DataLayer [Data Layer]
-        VectorDB[(Vector Stores)]
-        KB[Knowledge Bases]
-        Datasets[Training Datasets]
-        Lineage[Data Lineage]
-    end
-
-    subgraph ExtServices [External Services]
-        Ollama[Ollama]
-        MLFlow[MLFlow]
-        HF[HuggingFace Hub]
-    end
-
-    EntryPoints --> Backend
-    Backend --> Core
-    Core --> LLMLifecycle
-    Core --> DataLayer
-    LLMLifecycle --> ExtServices
-    DataLayer --> ExtServices
 ```
-
+┌──────────────────────────┐        ┌──────────────────────────┐
+│         Web UI           │        │           CLI            │
+│  Next.js Control Panel   │        │         (Click)          │
+│  webui/ (port 3000)      │        │  agentic ...             │
+└─────────────┬────────────┘        └─────────────┬────────────┘
+              │                                   │
+              ▼                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           FastAPI Server (port 8080)                         │
+│  REST: /api/v1/*  |  Legacy: /search /index /chat /sessions  |  WS: /ws      │
+│  MCP over WebSocket: /mcp                                                     │
+└───────────────────────────────┬─────────────────────────────────────────────┘
+                                ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               AgenticEngine                                  │
+│  - sessions  - indexing/search  - vector store  - pipelines  - knowledge      │
+└───────────────┬───────────────────────────────┬─────────────────────────────┘
+                ▼                               ▼
+┌──────────────────────────┐        ┌─────────────────────────────────────────┐
+│     Vector Stores         │        │      Data + Pipelines + Knowledge       │
+│  LanceDB / ChromaDB       │        │  data/  pipelines/  knowledge/          │
+│  data/vectors             │        │  + optional k8s/minio/redis integrations│
+└──────────────────────────┘        └─────────────────────────────────────────┘
+```
 
 ## Component Design
 
@@ -133,6 +132,7 @@ class BaseAdapter(ABC):
     
     @contextmanager
     def track_run(self, name):
+        # Combined MLFlow + OTEL tracking
         with self.tracker.start_run(name):
             with self.telemetry.span(name):
                 yield
@@ -143,9 +143,9 @@ class BaseAdapter(ABC):
 ### Experiment Tracking Flow
 
 ```
-User Code -> Adapter -> MLFlowTracker -> MLFlow Server
-                    \
-                     TelemetryManager -> OTEL Collector -> Jaeger
+User Code → Adapter → MLFlowTracker → MLFlow Server
+                   ↘
+                    TelemetryManager → OTEL Collector → Jaeger
 ```
 
 ### Agent Execution Flow
@@ -163,24 +163,28 @@ User Code -> Adapter -> MLFlowTracker -> MLFlow Server
 ## Design Decisions
 
 ### Why Pydantic Settings?
+
 - Type safety with validation
 - Automatic environment variable parsing
 - Documentation via Field descriptions
 - Nested configuration support
 
 ### Why Context Managers?
+
 - Automatic cleanup (end runs, flush telemetry)
 - Exception handling without data loss
 - Composable (can nest tracking + tracing)
 - Familiar Python pattern
 
 ### Why Adapters Instead of Monkey Patching?
+
 - Explicit integration (user controls when tracking happens)
 - No surprises in production
 - Easier to debug
 - Framework-independent interface
 
 ### Why Optional Docker?
+
 - Lower barrier to entry (local-first)
 - Production-ready path available
 - Full observability stack when needed
@@ -201,14 +205,14 @@ class MyFrameworkAdapter(BaseAdapter):
 
 ### Custom Telemetry Exporters
 
-```bash
+```python
 # Configure via environment
 OTEL_EXPORTER_OTLP_ENDPOINT=http://custom-collector:4317
 ```
 
 ### Custom MLFlow Backend
 
-```bash
+```python
 # Use cloud storage
 MLFLOW_TRACKING_URI=databricks://...
 MLFLOW_ARTIFACT_LOCATION=s3://bucket/artifacts
@@ -217,32 +221,38 @@ MLFLOW_ARTIFACT_LOCATION=s3://bucket/artifacts
 ## Performance Considerations
 
 ### Lazy Loading
+
 - Sub-configurations loaded on first access
 - MLFlow/OTEL only initialized when used
 - Import costs minimized
 
 ### Batching
+
 - OpenTelemetry uses BatchSpanProcessor
 - MLFlow batches artifact uploads
 - Reduces network overhead
 
 ### Async Support
+
 - Ollama manager uses httpx (async-capable)
 - Future: async adapters for concurrent agents
 
 ## Security Considerations
 
 ### API Keys
+
 - Never logged or stored in artifacts
 - Environment variables only
 - Not included in MLFlow parameters
 
 ### Local-First
+
 - Default configuration works offline
 - No external service dependencies required
 - Data stays on your machine
 
 ### Container Isolation
+
 - Docker services run in separate network
 - Non-root container user
 - Read-only config mounts
@@ -277,43 +287,43 @@ flowchart TB
         VLLMBackend[vLLM Backend]
     end
 
-    subgraph DataMgmt [Data Management]
+    subgraph Data [Data Management]
         Datasets[Training Datasets]
         Tagging[Data Tagging]
         Lineage[Lineage Tracking]
         Quality[Quality Metrics]
     end
 
-    subgraph ExtSvc [External Services]
+    subgraph External [External Services]
         MLFlow[MLFlow]
         HFHub[HuggingFace Hub]
-        OllamaSvc[Ollama Server]
+        Ollama[Ollama Server]
     end
 
     Training --> MLFlow
     Training --> HFHub
     RL --> MLFlow
-    Serving --> OllamaSvc
-    DataMgmt --> Training
-    DataMgmt --> RL
+    Serving --> Ollama
+    Data --> Training
+    Data --> RL
 ```
 
 ### Training Subsystem
 
-The training subsystem (src/agentic_assistants/training/) provides:
+The training subsystem (`src/agentic_assistants/training/`) provides:
 
 #### Components
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| **TrainingConfig** | config.py | Pydantic models for training configuration (LoRA, QLoRA, full) |
-| **TrainingJob** | jobs.py | Job lifecycle management and status tracking |
-| **TrainingDataset** | datasets.py | Dataset registration, validation, and loading |
-| **TrainingFrameworkAdapter** | frameworks/base.py | Abstract base for training framework integrations |
-| **LlamaFactoryAdapter** | frameworks/llama_factory.py | Llama Factory integration |
-| **ModelExporter** | export.py | Export models to various formats (HF, GGUF, ONNX) |
-| **ModelQuantizer** | quantization.py | Model quantization utilities |
-| **KnowledgeDistiller** | distillation.py | Knowledge distillation support |
+| **TrainingConfig** | `config.py` | Pydantic models for training configuration (LoRA, QLoRA, full) |
+| **TrainingJob** | `jobs.py` | Job lifecycle management and status tracking |
+| **TrainingDataset** | `datasets.py` | Dataset registration, validation, and loading |
+| **TrainingFrameworkAdapter** | `frameworks/base.py` | Abstract base for training framework integrations |
+| **LlamaFactoryAdapter** | `frameworks/llama_factory.py` | Llama Factory integration |
+| **ModelExporter** | `export.py` | Export models to various formats (HF, GGUF, ONNX) |
+| **ModelQuantizer** | `quantization.py` | Model quantization utilities |
+| **KnowledgeDistiller** | `distillation.py` | Knowledge distillation support |
 
 #### Training Flow
 
@@ -339,22 +349,23 @@ class TrainingConfig(BaseModel):
     num_epochs: int           # Training epochs
     learning_rate: float      # Learning rate
     batch_size: int           # Batch size
+    # ... additional hyperparameters
 ```
 
 ### Reinforcement Learning Subsystem
 
-The RL subsystem (src/agentic_assistants/rl/) supports preference-based alignment:
+The RL subsystem (`src/agentic_assistants/rl/`) supports preference-based alignment:
 
 #### Components
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| **RLConfig** | config.py | Configuration for RLHF, DPO, PPO, ORPO, KTO |
-| **RLExperiment** | experiments.py | Experiment tracking and management |
-| **RLFrameworkAdapter** | adapters/base.py | Abstract base for RL framework integrations |
-| **TRLAdapter** | adapters/trl_adapter.py | HuggingFace TRL integration |
-| **PreferenceData** | config.py | Preference data structures |
-| **HumanFeedback** | config.py | Human feedback collection |
+| **RLConfig** | `config.py` | Configuration for RLHF, DPO, PPO, ORPO, KTO |
+| **RLExperiment** | `experiments.py` | Experiment tracking and management |
+| **RLFrameworkAdapter** | `adapters/base.py` | Abstract base for RL framework integrations |
+| **TRLAdapter** | `adapters/trl_adapter.py` | HuggingFace TRL integration |
+| **PreferenceData** | `config.py` | Preference data structures |
+| **HumanFeedback** | `config.py` | Human feedback collection |
 
 #### Supported Methods
 
@@ -379,17 +390,17 @@ The RL subsystem (src/agentic_assistants/rl/) supports preference-based alignmen
 
 ### Model Serving Subsystem
 
-The serving subsystem (src/agentic_assistants/serving/) manages model deployment:
+The serving subsystem (`src/agentic_assistants/serving/`) manages model deployment:
 
 #### Components
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| **ServingConfig** | config.py | Configuration for serving backends |
-| **DeploymentManager** | manager.py | Orchestrates deployments across backends |
-| **OllamaBackend** | backends/ollama.py | Ollama integration (GGUF models) |
-| **VLLMBackend** | backends/vllm.py | vLLM integration (future) |
-| **TGIBackend** | backends/tgi.py | Text Generation Inference (future) |
+| **ServingConfig** | `config.py` | Configuration for serving backends |
+| **DeploymentManager** | `manager.py` | Orchestrates deployments across backends |
+| **OllamaBackend** | `backends/ollama.py` | Ollama integration (GGUF models) |
+| **VLLMBackend** | `backends/vllm.py` | vLLM integration (future) |
+| **TGIBackend** | `backends/tgi.py` | Text Generation Inference (future) |
 
 #### Supported Backends
 
@@ -412,15 +423,15 @@ The serving subsystem (src/agentic_assistants/serving/) manages model deployment
 
 ### Data Observability Subsystem
 
-The data observability subsystem (src/agentic_assistants/data/training/) provides:
+The data observability subsystem (`src/agentic_assistants/data/training/`) provides:
 
 #### Components
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| **DataTaggingSystem** | tagging.py | Hierarchical tagging for datasets |
-| **DataLineageTracker** | lineage.py | Track data transformations and provenance |
-| **DataQualityAnalyzer** | quality.py | Quality metrics and validation |
+| **DataTaggingSystem** | `tagging.py` | Hierarchical tagging for datasets |
+| **DataLineageTracker** | `lineage.py` | Track data transformations and provenance |
+| **DataQualityAnalyzer** | `quality.py` | Quality metrics and validation |
 
 #### Tagging System
 
@@ -452,9 +463,10 @@ The lineage tracker records:
 
 ### HuggingFace Hub Integration
 
-The HuggingFace integration (src/agentic_assistants/integrations/huggingface.py) provides:
+The HuggingFace integration (`src/agentic_assistants/integrations/huggingface.py`) provides:
 
 #### Capabilities
+
 - **Model Push/Pull**: Upload trained models, download base models
 - **Dataset Push/Pull**: Share training datasets
 - **Model Cards**: Auto-generate documentation
@@ -482,45 +494,45 @@ hf.push_model(
 
 ### Database Schema
 
-The LLM lifecycle uses SQLite tables (migration 003_llm_training.sql):
+The LLM lifecycle uses SQLite tables (migration `003_llm_training.sql`):
 
 | Table | Purpose |
 |-------|---------|
-| custom_models | Model registry with metadata |
-| training_jobs | Training job tracking |
-| training_datasets | Dataset registry |
-| rl_experiments | RL experiment tracking |
-| data_tags | Tag definitions |
-| dataset_tags | Tag assignments |
-| data_lineage | Lineage records |
-| preference_data | Preference pairs for RL |
-| human_feedback | Human feedback collection |
-| model_deployments | Deployment tracking |
+| `custom_models` | Model registry with metadata |
+| `training_jobs` | Training job tracking |
+| `training_datasets` | Dataset registry |
+| `rl_experiments` | RL experiment tracking |
+| `data_tags` | Tag definitions |
+| `dataset_tags` | Tag assignments |
+| `data_lineage` | Lineage records |
+| `preference_data` | Preference pairs for RL |
+| `human_feedback` | Human feedback collection |
+| `model_deployments` | Deployment tracking |
 
 ### API Endpoints
 
-#### Training API (/api/v1/training)
+#### Training API (`/api/v1/training`)
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| /jobs | POST | Create training job |
-| /jobs | GET | List training jobs |
-| /jobs/{id} | GET | Get job status |
-| /jobs/{id}/logs | GET | Get job logs |
-| /jobs/{id}/stop | POST | Stop running job |
-| /datasets | POST | Register dataset |
-| /datasets | GET | List datasets |
-| /export | POST | Export model |
-| /distillation | POST | Start distillation |
+| `/jobs` | POST | Create training job |
+| `/jobs` | GET | List training jobs |
+| `/jobs/{id}` | GET | Get job status |
+| `/jobs/{id}/logs` | GET | Get job logs |
+| `/jobs/{id}/stop` | POST | Stop running job |
+| `/datasets` | POST | Register dataset |
+| `/datasets` | GET | List datasets |
+| `/export` | POST | Export model |
+| `/distillation` | POST | Start distillation |
 
-#### Models API (/api/v1/models/custom)
+#### Models API (`/api/v1/models/custom`)
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| / | POST | Register model |
-| / | GET | List models |
-| /{id} | GET | Get model details |
-| /{id} | PATCH | Update model |
-| /{id} | DELETE | Delete model |
-| /{id}/deploy | POST | Deploy model |
-| /{id}/metrics | GET | Get model metrics |
+| `/` | POST | Register model |
+| `/` | GET | List models |
+| `/{id}` | GET | Get model details |
+| `/{id}` | PATCH | Update model |
+| `/{id}` | DELETE | Delete model |
+| `/{id}/deploy` | POST | Deploy model |
+| `/{id}/metrics` | GET | Get model metrics |
