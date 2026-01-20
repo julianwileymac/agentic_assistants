@@ -34,9 +34,17 @@ Configuration is loaded from multiple sources in this order (later sources overr
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MLFLOW_TRACKING_URI` | `http://localhost:5000` | MLFlow server URL |
+| `MLFLOW_TRACKING_URI` | `http://localhost:5000` | MLFlow server URL (auto-uses cluster service if K8S enabled) |
 | `MLFLOW_EXPERIMENT_NAME` | `agentic-experiments` | Default experiment name |
-| `MLFLOW_ARTIFACT_LOCATION` | `None` | Custom artifact storage path |
+| `MLFLOW_ARTIFACT_LOCATION` | `None` | Custom artifact storage path (auto-uses MinIO if enabled) |
+| `MLFLOW_BACKEND_STORE_URI` | `None` | PostgreSQL backend store URI (auto-uses POSTGRES_* if enabled) |
+| `MLFLOW_S3_ENDPOINT_URL` | `None` | S3/MinIO endpoint URL (auto-uses MINIO_ENDPOINT if enabled) |
+
+When both PostgreSQL and MinIO are enabled, MLflow will automatically use:
+- PostgreSQL backend store for metadata and experiment tracking
+- MinIO/S3 for artifact storage
+
+This provides centralized persistence for all MLflow runs across the cluster.
 
 ### OpenTelemetry Settings
 
@@ -54,6 +62,44 @@ Configuration is loaded from multiple sources in this order (later sources overr
 | `VECTORDB_EMBEDDING_PROVIDER` | `ollama` | Embedding provider (`ollama`, etc.) |
 | `VECTORDB_EMBEDDING_MODEL` | `nomic-embed-text` | Embedding model name |
 | `VECTORDB_EMBEDDING_DIMENSION` | `768` | Embedding vector dimension |
+| `VECTORDB_DEFAULT_SCOPE` | `project` | Default scope (`global`, `user`, `project`, `experiment`) |
+| `VECTORDB_ENABLE_CROSS_SCOPE_SEARCH` | `true` | Enable searching across scopes |
+| `VECTORDB_TRACK_LINEAGE` | `true` | Track document lineage |
+
+### Redis Cache Settings (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REDIS_ENABLED` | `false` | Enable Redis integration |
+| `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
+| `REDIS_DB` | `0` | Redis database number |
+| `REDIS_PREFIX` | `agentic` | Key prefix for all Redis keys |
+| `REDIS_SOLUTION_TTL_HOURS` | `168` | TTL for cached solutions (hours) |
+| `REDIS_WORKFLOW_TTL_HOURS` | `24` | TTL for workflow state (hours) |
+| `REDIS_SESSION_TTL_HOURS` | `2` | TTL for session data (hours) |
+| `REDIS_EMBEDDING_TTL_HOURS` | `24` | TTL for cached embeddings (hours) |
+
+### Embedding Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `EMBEDDING_MODE` | `local` | Embedding mode (`local` or `remote`) |
+| `EMBEDDING_LOCAL_PROVIDER` | `ollama` | Local provider (`ollama`, `sentence_transformers`) |
+| `EMBEDDING_LOCAL_MODEL` | `nomic-embed-text` | Local embedding model |
+| `EMBEDDING_REMOTE_PROVIDER` | `openai` | Remote provider (`openai`, `huggingface`, `cohere`) |
+| `EMBEDDING_OPENAI_MODEL` | `text-embedding-3-small` | OpenAI embedding model |
+| `EMBEDDING_BATCH_SIZE` | `32` | Batch size for embedding |
+| `EMBEDDING_FALLBACK_TO_LOCAL` | `true` | Fall back to local if remote fails |
+
+### Memory Settings (mem0)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MEMORY_BACKEND` | `mem0` | Memory backend |
+| `MEMORY_ENABLED` | `true` | Enable agent memory |
+| `MEMORY_PERSISTENCE_PATH` | `./data/memory` | Memory storage path |
+| `MEMORY_CONTEXT_WINDOW` | `10` | Number of memories for context |
+| `MEMORY_MAX_CONTEXT_LENGTH` | `4000` | Maximum context length |
 
 ### Server Settings
 
@@ -79,17 +125,67 @@ Configuration is loaded from multiple sources in this order (later sources overr
 |----------|---------|-------------|
 | `K8S_ENABLED` | `false` | Enable Kubernetes integration |
 | `K8S_NAMESPACE` | `agentic` | Default namespace |
-| `K8S_KUBECONFIG_PATH` | `None` | Optional kubeconfig path |
-| `K8S_CONTEXT` | `None` | Optional kubecontext |
+| `K8S_KUBECONFIG_PATH` | `None` | Optional kubeconfig path (auto-discovers rpi_kubernetes if not set) |
+| `K8S_CONTEXT` | `None` | Optional kubecontext (uses "default" for rpi_kubernetes cluster) |
+| `K8S_CLUSTER_ENDPOINT` | `None` | Direct cluster API endpoint (alternative to kubeconfig) |
+| `K8S_CLUSTER_TOKEN` | `None` | Bearer token for cluster authentication |
+| `K8S_VERIFY_SSL` | `true` | Verify SSL certificates for cluster connections |
+| `K8S_AUTODETECT_ENABLED` | `true` | Enable automatic kubeconfig discovery |
+| `K8S_AUTODETECT_EXTRA_PATHS` | `""` | Comma-separated list of additional kubeconfig paths to try |
+| `K8S_REQUEST_TIMEOUT_SECONDS` | `10` | Request timeout for API calls in seconds |
+| `K8S_INSECURE_SKIP_TLS_VERIFY` | `false` | Skip TLS verification (insecure, for testing only) |
+| `K8S_PREFER_INCLUSTER` | `auto` | Prefer in-cluster config (auto-detects if running in cluster) |
+
+#### Auto-Discovery
+
+The framework will automatically search for kubeconfig files in this priority order:
+
+1. **Explicit path** (`K8S_KUBECONFIG_PATH` if set)
+2. **KUBECONFIG environment variable** (can contain multiple paths separated by `:` or `;`)
+3. **rpi_kubernetes discovery** (searches standard repository locations)
+4. **Standard locations** (`~/.kube/config` or `%USERPROFILE%\.kube\config` on Windows)
+5. **Extra paths** (`K8S_AUTODETECT_EXTRA_PATHS`)
+
+The auto-discovery tries each candidate in order and uses the first one that successfully connects to the cluster API.
+
+#### Troubleshooting
+
+If connection fails, use the diagnostics endpoint to get detailed information:
+
+```bash
+curl http://localhost:8080/api/v1/kubernetes/cluster/diagnostics
+```
+
+This will show:
+- Which kubeconfig candidates were tried
+- Specific error messages for each attempt
+- Actionable suggestions to fix the issue
+- Current capabilities and warnings (for partial connections)
 
 ### MinIO Settings (optional)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `MINIO_ENABLED` | `false` | Enable MinIO integration |
-| `MINIO_ENDPOINT` | `minio.data-services.svc.cluster.local:9000` | MinIO endpoint |
-| `MINIO_ACCESS_KEY` | `None` | Access key |
-| `MINIO_SECRET_KEY` | `None` | Secret key |
+| `MINIO_ENDPOINT` | `minio.data-services.svc.cluster.local:9000` | MinIO endpoint (rpi_kubernetes cluster default) |
+| `MINIO_EXTERNAL_ENDPOINT` | `None` | External MinIO endpoint for access outside cluster |
+| `MINIO_ACCESS_KEY` | `minioadmin` | Access key (rpi_kubernetes cluster default) |
+| `MINIO_SECRET_KEY` | `minioadmin123` | Secret key (rpi_kubernetes cluster default) |
+| `MINIO_SECURE` | `false` | Use HTTPS for MinIO connections |
+| `MINIO_DEFAULT_BUCKET` | `agentic-artifacts` | Default bucket for artifact storage |
+| `MINIO_MODEL_BUCKET` | `model-cache` | Bucket for cached model files |
+
+### PostgreSQL Settings (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `POSTGRES_ENABLED` | `false` | Enable PostgreSQL database integration |
+| `POSTGRES_HOST` | `postgresql.data-services.svc.cluster.local` | PostgreSQL server host (rpi_kubernetes cluster) |
+| `POSTGRES_PORT` | `5432` | PostgreSQL server port |
+| `POSTGRES_DATABASE` | `mlflow` | Default database name |
+| `POSTGRES_USER` | `mlflow` | PostgreSQL user (rpi_kubernetes cluster default) |
+| `POSTGRES_PASSWORD` | `mlflow123` | PostgreSQL password (rpi_kubernetes cluster default) |
+| `POSTGRES_CONNECTION_STRING` | `None` | Full PostgreSQL connection string (overrides individual settings) |
 
 ## Example .env File
 
@@ -126,15 +222,30 @@ VECTORDB_EMBEDDING_MODEL=nomic-embed-text
 SERVER_HOST=127.0.0.1
 SERVER_PORT=8080
 
-# Optional: Kubernetes
+# Optional: Kubernetes (auto-discovers rpi_kubernetes cluster)
 # K8S_ENABLED=false
 # K8S_NAMESPACE=agentic
+# K8S_KUBECONFIG_PATH=
+# K8S_CONTEXT=default
+# K8S_AUTODETECT_ENABLED=true
+# K8S_AUTODETECT_EXTRA_PATHS=
+# K8S_REQUEST_TIMEOUT_SECONDS=10
+# K8S_INSECURE_SKIP_TLS_VERIFY=false
+# K8S_PREFER_INCLUSTER=auto
 
-# Optional: MinIO
+# Optional: MinIO (configured for rpi_kubernetes cluster)
 # MINIO_ENABLED=false
-# MINIO_ENDPOINT=localhost:9000
+# MINIO_ENDPOINT=minio.data-services.svc.cluster.local:9000
 # MINIO_ACCESS_KEY=minioadmin
-# MINIO_SECRET_KEY=minioadmin
+# MINIO_SECRET_KEY=minioadmin123
+
+# Optional: PostgreSQL (configured for rpi_kubernetes cluster)
+# POSTGRES_ENABLED=false
+# POSTGRES_HOST=postgresql.data-services.svc.cluster.local
+# POSTGRES_PORT=5432
+# POSTGRES_DATABASE=mlflow
+# POSTGRES_USER=mlflow
+# POSTGRES_PASSWORD=mlflow123
 
 # Optional: LLM Provider API Keys
 # OPENAI_API_KEY=sk-...

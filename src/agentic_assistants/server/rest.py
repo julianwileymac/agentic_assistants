@@ -43,7 +43,16 @@ from agentic_assistants.server.api import (
     datasources_router,
     generation_router,
     kubernetes_router,
+    docs_router,
+    assistant_router,
+    learning_router,
+    evaluations_router,
+    framework_assistant_router,
+    ollama_router,
 )
+
+# Import examples router
+from agentic_assistants.server.api.examples import router as examples_router
 
 # Import new pipeline and catalog routers
 from agentic_assistants.server.api.pipelines import router as pipelines_router
@@ -52,8 +61,14 @@ from agentic_assistants.server.api.pipelines import router as pipelines_router
 from agentic_assistants.server.api.training import router as training_router
 from agentic_assistants.server.api.models import router as models_router
 
+# Import ML deployments router
+from agentic_assistants.server.api.ml_deployments import router as ml_deployments_router
+
 # Import WebSocket support
 from agentic_assistants.server.websocket import add_websocket_routes
+
+# Import error handling
+from agentic_assistants.server.errors import register_exception_handlers, create_error_routes
 
 logger = get_logger(__name__)
 
@@ -178,6 +193,13 @@ class HealthResponse(BaseModel):
     vector_store: str
 
 
+class ReadyResponse(BaseModel):
+    """Response from readiness endpoint."""
+    
+    status: str
+    version: str
+
+
 # Global state (initialized on app startup)
 _state: Optional[ServerState] = None
 
@@ -226,6 +248,86 @@ def create_rest_app(
         allow_headers=["*"],
     )
     
+    # Register verbose error handlers
+    register_exception_handlers(app)
+
+    # Track server readiness for health checks
+    app.state.ready = False
+    app.state.bootstrap_complete = False
+    
+    @app.on_event("startup")
+    async def bootstrap_starter_assets() -> None:
+        """Register pipelines, seed starter assets, and start schedulers."""
+        import asyncio
+        import os
+        import time
+        
+        # Mark server as ready immediately so /ready endpoint works
+        app.state.ready = True
+        logger.info("Server accepting connections")
+        
+        # Run bootstrap in background to not block startup
+        async def background_bootstrap():
+            start_time = time.time()
+            logger.info("Starting background bootstrap...")
+            
+            config_path = os.environ.get(
+                "AGENTIC_REPO_INGESTION_CONFIG",
+                "examples/global-knowledgebase-starter/config.yaml",
+            )
+
+            # Try to register built-in pipelines (may fail if crewai/chromadb deps are broken)
+            # Note: chromadb raises ValueError (not ImportError) when onnxruntime fails
+            try:
+                t0 = time.time()
+                from agentic_assistants.pipelines.bootstrap import register_builtin_pipelines
+                register_builtin_pipelines(config_path=config_path)
+                logger.info("Registered pipelines in %.2fs", time.time() - t0)
+            except (ImportError, ValueError, OSError) as exc:
+                logger.warning("Pipeline registration skipped (dependency issue): %s", exc)
+            except Exception as exc:
+                logger.warning("Failed to register built-in pipelines: %s", exc)
+
+            # Try to seed starter assets
+            try:
+                t0 = time.time()
+                from agentic_assistants.server.bootstrap import seed_starter_assets
+                seed_starter_assets(config_path=config_path)
+                logger.info("Seeded starter assets in %.2fs", time.time() - t0)
+            except (ImportError, ValueError, OSError) as exc:
+                logger.warning("Starter asset seeding skipped (dependency issue): %s", exc)
+            except Exception as exc:
+                logger.warning("Failed to seed starter assets: %s", exc)
+
+            # Try to start scheduler
+            try:
+                t0 = time.time()
+                from agentic_assistants.scheduling import get_scheduler, register_repo_ingestion_jobs
+                scheduler = get_scheduler()
+                scheduler.start()
+                logger.info("Started scheduler in %.2fs", time.time() - t0)
+                
+                # Try to register repo ingestion jobs
+                try:
+                    from pathlib import Path
+                    if Path(config_path).exists():
+                        t0 = time.time()
+                        register_repo_ingestion_jobs(config_path=config_path, scheduler=scheduler)
+                        logger.info("Registered repo ingestion jobs in %.2fs", time.time() - t0)
+                except Exception as exc:
+                    logger.warning("Failed to register repo ingestion schedules: %s", exc)
+            except (ImportError, ValueError, OSError) as exc:
+                logger.warning("Scheduler skipped (dependency issue): %s", exc)
+            except Exception as exc:
+                logger.warning("Failed to start scheduler: %s", exc)
+            
+            app.state.bootstrap_complete = True
+            logger.info("Bootstrap completed in %.2fs total", time.time() - start_time)
+        
+        # Schedule bootstrap to run in background
+        asyncio.create_task(background_bootstrap())
+
+    
     # Include modular API routers
     app.include_router(experiments_router, prefix="/api/v1")
     app.include_router(artifacts_router, prefix="/api/v1")
@@ -242,6 +344,21 @@ def create_rest_app(
     app.include_router(tags_router, prefix="/api/v1")
     app.include_router(datasources_router, prefix="/api/v1")
     app.include_router(generation_router, prefix="/api/v1")
+    app.include_router(docs_router, prefix="/api/v1")
+    app.include_router(assistant_router, prefix="/api/v1")
+    app.include_router(examples_router, prefix="/api/v1")
+    
+    # Framework Assistant routers (new)
+    app.include_router(framework_assistant_router, prefix="/api/v1")
+    app.include_router(ollama_router, prefix="/api/v1")
+    
+    # Learning framework routers
+    app.include_router(learning_router, prefix="/api/v1")
+    app.include_router(evaluations_router, prefix="/api/v1")
+    
+    # Error management routes
+    error_router = create_error_routes()
+    app.include_router(error_router, prefix="/api/v1")
     
     # Pipeline and Data Catalog routers (Kedro-inspired)
     app.include_router(pipelines_router, prefix="/api/v1/pipelines", tags=["pipelines"])
@@ -253,16 +370,43 @@ def create_rest_app(
     app.include_router(training_router, prefix="/api/v1")
     app.include_router(models_router, prefix="/api/v1")
     
-    # === Legacy Endpoints (kept for backwards compatibility) ===
+    # ML Deployments router
+    app.include_router(ml_deployments_router, prefix="/api/v1")
+    
+    # === Health Check Endpoints ===
+    
+    @app.get("/ready", response_model=ReadyResponse)
+    @app.get("/readyz", response_model=ReadyResponse)
+    @app.get("/livez", response_model=ReadyResponse)
+    async def readiness_check():
+        """
+        Lightweight readiness check - returns immediately without initializing services.
+        Use this for startup scripts and load balancer health checks.
+        """
+        return ReadyResponse(
+            status="ready" if getattr(app.state, "ready", False) else "starting",
+            version=version,
+        )
     
     @app.get("/health", response_model=HealthResponse)
+    @app.get("/healthz", response_model=HealthResponse)
     async def health_check():
-        """Health check endpoint."""
-        state = get_state()
+        """
+        Full health check endpoint - may trigger lazy initialization.
+        Returns detailed health status including service dependencies.
+        """
+        try:
+            state = get_state()
+            vector_store = state.config.vectordb.backend
+        except Exception as e:
+            logger.warning("Health check - config access failed: %s", e)
+            vector_store = "unavailable"
+        
+        bootstrap_status = "complete" if getattr(app.state, "bootstrap_complete", False) else "in_progress"
         return HealthResponse(
-            status="healthy",
+            status=f"healthy (bootstrap: {bootstrap_status})",
             version=version,
-            vector_store=state.config.vectordb.backend,
+            vector_store=vector_store,
         )
     
     @app.post("/chat")

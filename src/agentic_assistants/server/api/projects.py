@@ -92,7 +92,7 @@ class GitConfigResponse(BaseModel):
 class ServiceCreate(BaseModel):
     """Request to create a service resource."""
     name: str = Field(..., description="Service name")
-    service_type: str = Field(..., description="Service type (web_ui, api_endpoint, file_store, background_service, database, ml_deployment)")
+    service_type: str = Field(..., description="Service type (web_ui, api_endpoint, file_store, background_service, database, ml_deployment, remote_dev_server, model_endpoint, container_registry, message_queue, jupyter, mlflow)")
     endpoint_url: str = Field(default="", description="Service endpoint URL")
     description: str = Field(default="", description="Service description")
     health_endpoint: Optional[str] = Field(default=None, description="Health check endpoint")
@@ -326,19 +326,412 @@ async def sync_git(project_id: str) -> dict:
     if not settings.git or not settings.git.remote_url:
         raise HTTPException(status_code=400, detail="Git not configured for this project")
     
-    # TODO: Implement actual git sync logic
-    # For now, return a placeholder response
+    # Use GitOperations for actual sync
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    if not git_ops.is_git_repo(str(project_path)):
+        raise HTTPException(status_code=400, detail="Project directory is not a git repository")
+    
+    result = git_ops.pull(str(project_path))
+    
     return {
-        "status": "synced",
+        "status": "synced" if result.success else "failed",
         "project_id": project_id,
         "remote_url": settings.git.remote_url,
         "branch": settings.git.branch,
+        "details": result.to_dict(),
     }
+
+
+# === Git Init/Clone Endpoints ===
+
+
+class GitInitRequest(BaseModel):
+    """Request to initialize a git repository."""
+    initial_branch: str = Field(default="main", description="Initial branch name")
+
+
+class GitCloneRequest(BaseModel):
+    """Request to clone a git repository."""
+    url: str = Field(..., description="Repository URL to clone")
+    branch: Optional[str] = Field(default=None, description="Branch to clone")
+    depth: Optional[int] = Field(default=None, description="Clone depth (shallow clone)")
+
+
+class GitStatusResponse(BaseModel):
+    """Git repository status response."""
+    project_id: str
+    is_git_repo: bool
+    branch: Optional[str] = None
+    is_clean: bool = True
+    staged_files: List[str] = []
+    modified_files: List[str] = []
+    untracked_files: List[str] = []
+    ahead: int = 0
+    behind: int = 0
+    has_remote: bool = False
+    remote_url: Optional[str] = None
+
+
+@router.post("/{project_id}/git/init")
+async def init_git(project_id: str, request: GitInitRequest) -> dict:
+    """Initialize a new git repository for a project."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    # Create project directory if it doesn't exist
+    project_path.mkdir(parents=True, exist_ok=True)
+    
+    # Check if already a git repo
+    if git_ops.is_git_repo(str(project_path)):
+        raise HTTPException(status_code=400, detail="Project directory is already a git repository")
+    
+    # Initialize the repository
+    result = git_ops.init(str(project_path), initial_branch=request.initial_branch)
+    
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.message)
+    
+    return {
+        "status": "initialized",
+        "project_id": project_id,
+        "path": str(project_path),
+        "branch": request.initial_branch,
+        "details": result.to_dict(),
+    }
+
+
+@router.post("/{project_id}/git/clone")
+async def clone_git(project_id: str, request: GitCloneRequest) -> dict:
+    """Clone a git repository into a project directory."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    # Check if directory already exists
+    if project_path.exists():
+        # If it's already a git repo, fail
+        if git_ops.is_git_repo(str(project_path)):
+            raise HTTPException(status_code=400, detail="Project directory is already a git repository")
+        # If directory exists but isn't empty, fail
+        if any(project_path.iterdir()):
+            raise HTTPException(status_code=400, detail="Project directory is not empty")
+    
+    # Clone the repository
+    result = git_ops.clone(
+        url=request.url,
+        dest_path=str(project_path),
+        branch=request.branch,
+        depth=request.depth,
+    )
+    
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.message)
+    
+    # Update project git config
+    settings = ProjectSettings.load_for_project(project_id, Path("./data/projects"))
+    settings.git = GitConfig(
+        remote_url=request.url,
+        branch=request.branch or "main",
+        auto_sync=False,
+    )
+    settings.save(Path("./data/projects"))
+    
+    return {
+        "status": "cloned",
+        "project_id": project_id,
+        "url": request.url,
+        "path": str(project_path),
+        "details": result.to_dict(),
+    }
+
+
+@router.get("/{project_id}/git/status", response_model=GitStatusResponse)
+async def get_git_status(project_id: str) -> GitStatusResponse:
+    """Get detailed git status for a project repository."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    if not project_path.exists():
+        return GitStatusResponse(project_id=project_id, is_git_repo=False)
+    
+    if not git_ops.is_git_repo(str(project_path)):
+        return GitStatusResponse(project_id=project_id, is_git_repo=False)
+    
+    status = git_ops.get_status(str(project_path))
+    
+    if status is None:
+        return GitStatusResponse(project_id=project_id, is_git_repo=True)
+    
+    return GitStatusResponse(
+        project_id=project_id,
+        is_git_repo=True,
+        branch=status.branch,
+        is_clean=status.is_clean,
+        staged_files=status.staged_files,
+        modified_files=status.modified_files,
+        untracked_files=status.untracked_files,
+        ahead=status.ahead,
+        behind=status.behind,
+        has_remote=status.has_remote,
+        remote_url=status.remote_url,
+    )
+
+
+@router.post("/{project_id}/git/add-remote")
+async def add_git_remote(
+    project_id: str,
+    name: str = Query(default="origin", description="Remote name"),
+    url: str = Query(..., description="Remote URL"),
+) -> dict:
+    """Add a remote to the project repository."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    if not git_ops.is_git_repo(str(project_path)):
+        raise HTTPException(status_code=400, detail="Project directory is not a git repository")
+    
+    result = git_ops.add_remote(str(project_path), name, url)
+    
+    if not result.success:
+        raise HTTPException(status_code=500, detail=result.message)
+    
+    # Update project settings
+    settings = ProjectSettings.load_for_project(project_id, Path("./data/projects"))
+    if settings.git:
+        settings.git.remote_url = url
+    else:
+        settings.git = GitConfig(remote_url=url, branch="main", auto_sync=False)
+    settings.save(Path("./data/projects"))
+    
+    return {
+        "status": "remote_added",
+        "project_id": project_id,
+        "remote_name": name,
+        "remote_url": url,
+        "details": result.to_dict(),
+    }
+
+
+@router.get("/{project_id}/git/branches")
+async def list_git_branches(
+    project_id: str,
+    include_remote: bool = Query(default=True, description="Include remote branches"),
+) -> dict:
+    """List all branches in the project repository."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    if not git_ops.is_git_repo(str(project_path)):
+        raise HTTPException(status_code=400, detail="Project directory is not a git repository")
+    
+    branches = git_ops.get_branches(str(project_path), include_remote=include_remote)
+    
+    return {
+        "project_id": project_id,
+        "branches": [b.to_dict() for b in branches],
+        "total": len(branches),
+    }
+
+
+@router.get("/{project_id}/git/commits")
+async def list_git_commits(
+    project_id: str,
+    branch: Optional[str] = Query(default=None, description="Branch name"),
+    limit: int = Query(default=50, ge=1, le=200, description="Maximum commits"),
+) -> dict:
+    """List recent commits in the project repository."""
+    store = _get_store()
+    project = store.get_project(project_id)
+    
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    from pathlib import Path
+    from agentic_assistants.integrations.git_ops import GitOperations
+    
+    git_ops = GitOperations()
+    project_path = Path("./data/projects") / project_id
+    
+    if not git_ops.is_git_repo(str(project_path)):
+        raise HTTPException(status_code=400, detail="Project directory is not a git repository")
+    
+    commits = git_ops.get_commits(str(project_path), branch=branch, limit=limit)
+    
+    return {
+        "project_id": project_id,
+        "branch": branch,
+        "commits": [c.to_dict() for c in commits],
+        "total": len(commits),
+    }
+
+
+# === SSH Key Management Endpoints ===
+
+
+class SSHKeyGenerateRequest(BaseModel):
+    """Request to generate an SSH key."""
+    name: str = Field(..., description="Key name")
+    key_type: str = Field(default="ed25519", description="Key type (ed25519, rsa)")
+    comment: Optional[str] = Field(default=None, description="Key comment")
+
+
+class SSHKeyResponse(BaseModel):
+    """SSH key response."""
+    name: str
+    path: str
+    has_public_key: bool
+    public_key: Optional[str] = None
+    created: Optional[str] = None
+
+
+@router.get("/ssh-keys", response_model=List[SSHKeyResponse])
+async def list_ssh_keys() -> List[SSHKeyResponse]:
+    """List all SSH keys managed by the system."""
+    from agentic_assistants.integrations.git_ops import SSHKeyManager
+    
+    key_manager = SSHKeyManager()
+    keys = key_manager.list_keys()
+    
+    result = []
+    for key in keys:
+        public_key = key_manager.get_public_key(key["name"])
+        result.append(
+            SSHKeyResponse(
+                name=key["name"],
+                path=key["path"],
+                has_public_key=key["has_public_key"],
+                public_key=public_key,
+                created=key.get("created"),
+            )
+        )
+    
+    return result
+
+
+@router.post("/ssh-keys", response_model=SSHKeyResponse)
+async def generate_ssh_key(request: SSHKeyGenerateRequest) -> SSHKeyResponse:
+    """Generate a new SSH key pair."""
+    from agentic_assistants.integrations.git_ops import SSHKeyManager
+    
+    key_manager = SSHKeyManager()
+    
+    try:
+        private_path, public_key = key_manager.generate_key(
+            name=request.name,
+            key_type=request.key_type,
+            comment=request.comment,
+        )
+        
+        return SSHKeyResponse(
+            name=request.name,
+            path=private_path,
+            has_public_key=True,
+            public_key=public_key,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate key: {e}")
+
+
+@router.get("/ssh-keys/{name}", response_model=SSHKeyResponse)
+async def get_ssh_key(name: str) -> SSHKeyResponse:
+    """Get details about a specific SSH key."""
+    from agentic_assistants.integrations.git_ops import SSHKeyManager
+    
+    key_manager = SSHKeyManager()
+    keys = key_manager.list_keys()
+    
+    key = next((k for k in keys if k["name"] == name), None)
+    if not key:
+        raise HTTPException(status_code=404, detail="SSH key not found")
+    
+    public_key = key_manager.get_public_key(name)
+    
+    return SSHKeyResponse(
+        name=key["name"],
+        path=key["path"],
+        has_public_key=key["has_public_key"],
+        public_key=public_key,
+        created=key.get("created"),
+    )
+
+
+@router.delete("/ssh-keys/{name}")
+async def delete_ssh_key(name: str) -> dict:
+    """Delete an SSH key pair."""
+    from agentic_assistants.integrations.git_ops import SSHKeyManager
+    
+    key_manager = SSHKeyManager()
+    
+    if not key_manager.delete_key(name):
+        raise HTTPException(status_code=404, detail="SSH key not found")
+    
+    return {"status": "deleted", "name": name}
 
 
 # === Service Resource Endpoints ===
 
-VALID_SERVICE_TYPES = {"web_ui", "api_endpoint", "file_store", "background_service", "database", "ml_deployment"}
+VALID_SERVICE_TYPES = {
+    "web_ui",           # Web interface (dashboards, admin panels)
+    "api_endpoint",     # REST/GraphQL API endpoints
+    "file_store",       # File storage services (S3, MinIO)
+    "background_service",  # Background workers, cron jobs
+    "database",         # Database connections
+    "ml_deployment",    # Deployed ML models
+    "remote_dev_server",  # Remote development servers (SSH, code-server)
+    "model_endpoint",   # ML model serving endpoints
+    "container_registry",  # Docker/container registries
+    "message_queue",    # Message queues (Kafka, RabbitMQ)
+    "jupyter",          # Jupyter notebook servers
+    "mlflow",           # MLflow tracking servers
+}
 
 
 @router.get("/{project_id}/services", response_model=ServicesListResponse)

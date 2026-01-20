@@ -1,0 +1,34 @@
+collection: global-knowledgebase
+repos_manifest: examples/global-knowledgebase-starter/repos.yaml
+cache_dir: ./data/repo_cache
+vectordb:
+  backend: chroma
+  path: ./data/vectors
+  embedding_model: nomic-embed-text
+  embedding_dimension: 768
+
+ingestion:
+  chunk_size: 1200
+  chunk_overlap: 200
+  chunking_strategy: code_aware
+  include_hidden: false
+  force_reindex: false
+  respect_manual_override: true
+  summary_output: examples/global-knowledgebase-starter/summaries
+  augment_strategy: crew  # crew | langchain | none
+  tags:
+    - global
+    - knowledgebase
+  context: "Global knowledgebase ingestion"
+
+scheduling:
+  default_cron: "0 */6 * * *"  # every 6 hours
+  timezone: UTC
+
+augmentation:
+  crew:
+    model: llama3.2
+    verbose: false
+  langchain:
+    model: llama3.2
+    temperature: 0.2

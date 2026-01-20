@@ -6,8 +6,10 @@ wrapping the kubernetes-python library with async support.
 """
 
 import logging
+import os
 from datetime import datetime, timezone
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Dict, List, Any
 
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.kubernetes.models import (
@@ -24,6 +26,130 @@ from agentic_assistants.kubernetes.models import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def discover_rpi_kubeconfig() -> Optional[str]:
+    """
+    Discover the rpi_kubernetes kubeconfig file.
+    
+    Searches for kubeconfig.yaml in the rpi_kubernetes repository directory.
+    Falls back to standard locations if not found.
+    
+    Returns:
+        Path to kubeconfig file if found, None otherwise
+    """
+    # Get username with fallback
+    username = os.getenv("USERNAME") or os.getenv("USER") or ""
+    
+    # Build search paths
+    search_paths = []
+    
+    # Path.home() based paths (most reliable cross-platform)
+    search_paths.append(Path.home() / "Documents" / "GitHub" / "rpi_kubernetes" / "kubeconfig.yaml")
+    search_paths.append(Path.home() / "rpi_kubernetes" / "kubeconfig.yaml")
+    
+    # Windows-specific paths with username
+    if username:
+        search_paths.append(Path(f"C:/Users/{username}/Documents/GitHub/rpi_kubernetes/kubeconfig.yaml"))
+        # WSL path
+        search_paths.append(Path(f"/mnt/c/Users/{username}/Documents/GitHub/rpi_kubernetes/kubeconfig.yaml"))
+    
+    # Try USERPROFILE environment variable (Windows)
+    userprofile = os.getenv("USERPROFILE")
+    if userprofile:
+        search_paths.append(Path(userprofile) / "Documents" / "GitHub" / "rpi_kubernetes" / "kubeconfig.yaml")
+    
+    # Relative to current working directory (for running from repo)
+    search_paths.append(Path.cwd().parent / "rpi_kubernetes" / "kubeconfig.yaml")
+    
+    logger.debug(f"Searching for rpi_kubernetes kubeconfig in: {[str(p) for p in search_paths]}")
+    
+    for path in search_paths:
+        try:
+            if path.exists() and path.is_file():
+                logger.info(f"Discovered rpi_kubernetes kubeconfig at: {path}")
+                return str(path)
+        except Exception as e:
+            logger.debug(f"Error checking path {path}: {e}")
+    
+    logger.debug("rpi_kubernetes kubeconfig not found in standard locations")
+    return None
+
+
+def _is_running_in_cluster() -> bool:
+    """Check if we're running inside a Kubernetes cluster."""
+    return os.path.exists("/var/run/secrets/kubernetes.io/serviceaccount/token")
+
+
+def _candidate_kubeconfigs(config: AgenticConfig) -> List[Dict[str, Any]]:
+    """
+    Collect candidate kubeconfig files in priority order.
+    
+    Returns:
+        List of dicts with 'path' and 'source' keys, ordered by priority
+    """
+    candidates = []
+    k8s_settings = config.kubernetes
+    
+    # 1. Explicit K8S_KUBECONFIG_PATH if set
+    if k8s_settings.kubeconfig_path:
+        candidates.append({
+            "path": k8s_settings.kubeconfig_path,
+            "source": "K8S_KUBECONFIG_PATH"
+        })
+    
+    # 2. KUBECONFIG environment variable (can be multiple paths separated by os.pathsep)
+    kubeconfig_env = os.getenv("KUBECONFIG")
+    if kubeconfig_env:
+        for path_str in kubeconfig_env.split(os.pathsep):
+            path = Path(path_str).expanduser().resolve()
+            if path.exists():
+                candidates.append({
+                    "path": str(path),
+                    "source": "KUBECONFIG"
+                })
+    
+    # 3. rpi_kubernetes discovery (if autodetect enabled)
+    if k8s_settings.autodetect_enabled:
+        rpi_path = discover_rpi_kubeconfig()
+        if rpi_path:
+            candidates.append({
+                "path": rpi_path,
+                "source": "rpi_kubernetes_discovery"
+            })
+    
+    # 4. Standard kubeconfig locations
+    standard_paths = [
+        (Path.home() / ".kube" / "config", "standard_home"),
+    ]
+    
+    # Windows-specific standard path
+    if os.name == "nt":
+        userprofile = os.getenv("USERPROFILE")
+        if userprofile:
+            standard_paths.append((Path(userprofile) / ".kube" / "config", "standard_userprofile"))
+    
+    for path, source in standard_paths:
+        path_expanded = path.expanduser().resolve()
+        if path_expanded.exists():
+            candidates.append({
+                "path": str(path_expanded),
+                "source": source
+            })
+    
+    # 5. Extra paths from config
+    if k8s_settings.autodetect_enabled and k8s_settings.autodetect_extra_paths:
+        for path_str in k8s_settings.autodetect_extra_paths.split(","):
+            path_str = path_str.strip()
+            if path_str:
+                path = Path(path_str).expanduser().resolve()
+                if path.exists():
+                    candidates.append({
+                        "path": str(path),
+                        "source": "autodetect_extra_paths"
+                    })
+    
+    return candidates
 
 
 class KubernetesClient:
@@ -60,15 +186,27 @@ class KubernetesClient:
         self._initialized = False
         self._k8s_available = False
         
+        # Diagnostics tracking
+        self._last_init: Dict[str, Any] = {}
+        self._last_init_error: Optional[str] = None
+        self._candidates_tried: List[Dict[str, Any]] = []
+        self._connection_method: Optional[str] = None
+        self._selected_kubeconfig: Optional[str] = None
+        self._selected_context: Optional[str] = None
+        self._capabilities: Dict[str, bool] = {}
+        self._warnings: List[str] = []
+        
         # Check if kubernetes library is available
         try:
             from kubernetes import client, config as k8s_config
             self._k8s_available = True
         except ImportError:
             logger.warning("kubernetes library not installed. K8s features disabled.")
+            self._last_init_error = "kubernetes library not installed"
+            self._initialized = True
 
     def _initialize(self) -> bool:
-        """Initialize Kubernetes client connection."""
+        """Initialize Kubernetes client connection with enhanced diagnostics."""
         if self._initialized:
             return self._k8s_available
         
@@ -76,53 +214,230 @@ class KubernetesClient:
             self._initialized = True
             return False
         
+        # Reset diagnostics
+        self._last_init = {}
+        self._last_init_error = None
+        self._candidates_tried = []
+        self._connection_method = None
+        self._selected_kubeconfig = None
+        self._selected_context = None
+        self._capabilities = {}
+        self._warnings = []
+        
         try:
             from kubernetes import client, config as k8s_config
             
-            # Determine connection method
             conn = self.connection_config
             k8s_settings = self.config.kubernetes
+            timeout = k8s_settings.request_timeout_seconds
             
-            kubeconfig_path = conn.kubeconfig_path if conn else k8s_settings.kubeconfig_path
-            context = conn.context if conn else k8s_settings.context
+            # Determine preferred incluster setting
+            prefer_incluster = k8s_settings.prefer_incluster
+            if prefer_incluster is None:
+                prefer_incluster = _is_running_in_cluster()
+            
+            # Try direct connection first if configured
             cluster_endpoint = conn.cluster_endpoint if conn else k8s_settings.cluster_endpoint
             token = conn.token if conn else k8s_settings.cluster_token
             
             if cluster_endpoint and token:
-                # Direct connection with endpoint and token
-                configuration = client.Configuration()
-                configuration.host = cluster_endpoint
-                configuration.api_key = {"authorization": f"Bearer {token}"}
-                if conn and not conn.verify_ssl:
-                    configuration.verify_ssl = False
-                elif not k8s_settings.verify_ssl:
-                    configuration.verify_ssl = False
-                client.Configuration.set_default(configuration)
-            elif kubeconfig_path:
-                # Load from specific kubeconfig file
-                k8s_config.load_kube_config(
-                    config_file=kubeconfig_path,
-                    context=context,
-                )
-            else:
-                # Try in-cluster config first, fall back to default kubeconfig
                 try:
-                    k8s_config.load_incluster_config()
-                except k8s_config.ConfigException:
-                    k8s_config.load_kube_config(context=context)
+                    self._connection_method = "direct_endpoint"
+                    configuration = client.Configuration()
+                    configuration.host = cluster_endpoint
+                    configuration.api_key = {"authorization": f"Bearer {token}"}
+                    verify_ssl = not (k8s_settings.insecure_skip_tls_verify or 
+                                    (conn and not conn.verify_ssl) or 
+                                    not k8s_settings.verify_ssl)
+                    configuration.verify_ssl = verify_ssl
+                    configuration.ssl_ca_cert = None if not verify_ssl else None
+                    client.Configuration.set_default(configuration)
+                    
+                    # Test connectivity
+                    test_api = client.VersionApi()
+                    version_info = test_api.get_code(_request_timeout=timeout)
+                    self._last_init = {
+                        "method": "direct_endpoint",
+                        "endpoint": cluster_endpoint,
+                        "verify_ssl": verify_ssl,
+                        "version": version_info.git_version,
+                    }
+                    logger.info(f"Connected via direct endpoint: {cluster_endpoint}")
+                except Exception as e:
+                    self._last_init_error = f"Direct endpoint connection failed: {str(e)}"
+                    logger.error(f"{self._last_init_error}")
+                    raise
             
+            # Try in-cluster config if preferred and available
+            elif prefer_incluster:
+                try:
+                    self._connection_method = "incluster"
+                    k8s_config.load_incluster_config()
+                    
+                    # Test connectivity
+                    test_api = client.VersionApi()
+                    version_info = test_api.get_code(_request_timeout=timeout)
+                    self._last_init = {
+                        "method": "incluster",
+                        "version": version_info.git_version,
+                    }
+                    logger.info("Connected via in-cluster config")
+                except Exception as e:
+                    self._connection_method = None
+                    self._last_init_error = f"In-cluster config failed: {str(e)}"
+                    logger.debug(f"{self._last_init_error}")
+                    # Continue to try kubeconfig
+            
+            # Try kubeconfig-based connection
+            if not self._connection_method:
+                context = conn.context if conn else k8s_settings.context
+                explicit_path = conn.kubeconfig_path if conn else k8s_settings.kubeconfig_path
+                
+                candidates = []
+                if explicit_path:
+                    # Explicit path gets highest priority
+                    candidates.insert(0, {
+                        "path": explicit_path,
+                        "source": "explicit_config"
+                    })
+                elif k8s_settings.autodetect_enabled:
+                    # Get auto-discovered candidates
+                    candidates = _candidate_kubeconfigs(self.config)
+                
+                # If no candidates and we haven't tried incluster, try standard load
+                if not candidates and not prefer_incluster:
+                    candidates.append({
+                        "path": None,  # Will use default kubeconfig
+                        "source": "default_kubeconfig"
+                    })
+                
+                # Try each candidate
+                for candidate in candidates:
+                    kubeconfig_path = candidate.get("path")
+                    source = candidate.get("source", "unknown")
+                    
+                    try:
+                        if kubeconfig_path:
+                            # Verify file exists
+                            if not Path(kubeconfig_path).exists():
+                                self._candidates_tried.append({
+                                    "path": kubeconfig_path,
+                                    "source": source,
+                                    "error": "File does not exist"
+                                })
+                                continue
+                            
+                            k8s_config.load_kube_config(
+                                config_file=kubeconfig_path,
+                                context=context,
+                            )
+                            self._selected_kubeconfig = kubeconfig_path
+                        else:
+                            # Use default kubeconfig location
+                            k8s_config.load_kube_config(context=context)
+                            default_path = str(Path.home() / ".kube" / "config")
+                            self._selected_kubeconfig = default_path if Path(default_path).exists() else None
+                        
+                        # Override SSL verification if requested
+                        if k8s_settings.insecure_skip_tls_verify:
+                            current_config = client.Configuration()
+                            current_config.verify_ssl = False
+                            client.Configuration.set_default(current_config)
+                        
+                        # Test connectivity
+                        test_api = client.VersionApi()
+                        version_info = test_api.get_code(_request_timeout=timeout)
+                        
+                        # Success!
+                        self._connection_method = "kubeconfig"
+                        self._selected_context = context
+                        self._last_init = {
+                            "method": "kubeconfig",
+                            "kubeconfig": self._selected_kubeconfig,
+                            "context": context,
+                            "source": source,
+                            "verify_ssl": not k8s_settings.insecure_skip_tls_verify,
+                            "version": version_info.git_version,
+                        }
+                        
+                        logger.info(
+                            f"Connected via kubeconfig: {self._selected_kubeconfig} "
+                            f"(context: {context or 'current'}, source: {source})"
+                        )
+                        break
+                        
+                    except Exception as e:
+                        error_msg = str(e)
+                        self._candidates_tried.append({
+                            "path": kubeconfig_path or "default",
+                            "source": source,
+                            "error": error_msg
+                        })
+                        logger.debug(f"Failed to load kubeconfig from {kubeconfig_path or 'default'}: {error_msg}")
+                        continue
+                
+                if not self._connection_method:
+                    # All candidates failed
+                    all_errors = [f"{c['source']}: {c.get('error', 'unknown')}" for c in self._candidates_tried]
+                    self._last_init_error = f"All kubeconfig candidates failed. Tried: {', '.join(all_errors)}"
+                    raise Exception(self._last_init_error)
+            
+            # Initialize API clients
             self._core_api = client.CoreV1Api()
             self._apps_api = client.AppsV1Api()
             self._version_api = client.VersionApi()
             self._custom_api = client.CustomObjectsApi()
+            
+            # Probe capabilities (best-effort, don't fail on errors)
+            self._probe_capabilities(timeout)
+            
             self._initialized = True
             logger.info("Kubernetes client initialized successfully")
             return True
             
         except Exception as e:
-            logger.error(f"Failed to initialize Kubernetes client: {e}")
+            error_str = str(e)
+            if not self._last_init_error:
+                self._last_init_error = error_str
+            logger.error(f"Failed to initialize Kubernetes client: {error_str}")
             self._initialized = True
             return False
+    
+    def _probe_capabilities(self, timeout: int) -> None:
+        """Probe cluster capabilities (best-effort, doesn't fail on errors)."""
+        if not self._core_api or not self._apps_api:
+            return
+        
+        try:
+            # Test: can list namespaces
+            try:
+                self._core_api.list_namespace(_request_timeout=timeout)
+                self._capabilities["list_namespaces"] = True
+            except Exception as e:
+                self._capabilities["list_namespaces"] = False
+                self._warnings.append(f"Cannot list namespaces: {str(e)}")
+            
+            # Test: can list deployments in default namespace
+            try:
+                self._apps_api.list_namespaced_deployment(
+                    namespace="default",
+                    _request_timeout=timeout
+                )
+                self._capabilities["list_deployments"] = True
+            except Exception as e:
+                self._capabilities["list_deployments"] = False
+                self._warnings.append(f"Cannot list deployments: {str(e)}")
+            
+            # Test: can list pods
+            try:
+                self._core_api.list_pod_for_all_namespaces(_request_timeout=timeout)
+                self._capabilities["list_pods"] = True
+            except Exception as e:
+                self._capabilities["list_pods"] = False
+                self._warnings.append(f"Cannot list pods: {str(e)}")
+                
+        except Exception as e:
+            logger.debug(f"Capability probe encountered error: {e}")
 
     @property
     def is_available(self) -> bool:
@@ -207,7 +522,7 @@ class KubernetesClient:
             # Get cluster name from context
             cluster_name = self.config.kubernetes.context or "kubernetes"
             
-            return ClusterInfo(
+            cluster_info = ClusterInfo(
                 name=cluster_name,
                 version=k8s_version,
                 node_count=len(nodes),
@@ -219,8 +534,17 @@ class KubernetesClient:
                 namespaces=namespace_names,
                 nodes=nodes,
                 is_connected=True,
-                context=self.config.kubernetes.context,
+                context=self.config.kubernetes.context or self._selected_context,
             )
+            
+            # Add capabilities and warnings if available (for partial connections)
+            if self._warnings:
+                # Store warnings in a way that can be accessed if needed
+                # Note: ClusterInfo model may not have warnings field, but we can log them
+                for warning in self._warnings:
+                    logger.warning(f"Cluster connection warning: {warning}")
+            
+            return cluster_info
             
         except Exception as e:
             logger.error(f"Failed to get cluster info: {e}")
@@ -592,38 +916,101 @@ class KubernetesClient:
             logger.error(f"Failed to create namespace {name}: {e}")
             return False
 
-    async def test_connection(self) -> dict:
+    def get_diagnostics(self) -> Dict[str, Any]:
         """
-        Test the Kubernetes cluster connection.
+        Get detailed diagnostics about connection attempts and current status.
         
         Returns:
-            Dict with connection status and details
+            Dict with comprehensive diagnostics information
+        """
+        diagnostics = {
+            "kubernetes_library_available": self._k8s_available,
+            "initialized": self._initialized,
+            "connected": self._initialized and self._core_api is not None,
+            "connection_method": self._connection_method,
+            "last_init": self._last_init.copy() if self._last_init else {},
+            "error": self._last_init_error,
+            "candidates_tried": self._candidates_tried.copy(),
+            "selected_kubeconfig": self._selected_kubeconfig,
+            "selected_context": self._selected_context,
+            "capabilities": self._capabilities.copy(),
+            "warnings": self._warnings.copy(),
+        }
+        
+        # Add actionable suggestions
+        suggestions = []
+        if not self._k8s_available:
+            suggestions.append("Install the kubernetes library: pip install kubernetes")
+        elif not diagnostics["connected"]:
+            if self._last_init_error:
+                error_lower = self._last_init_error.lower()
+                if "ssl" in error_lower or "certificate" in error_lower:
+                    suggestions.append("Try setting K8S_INSECURE_SKIP_TLS_VERIFY=true (insecure, for testing only)")
+                if "connection" in error_lower or "timeout" in error_lower:
+                    suggestions.append("Verify the cluster API server is reachable from this machine")
+                    suggestions.append("Check network connectivity and firewall rules")
+                if "kubeconfig" in error_lower or "config" in error_lower:
+                    suggestions.append("Set K8S_KUBECONFIG_PATH to the correct kubeconfig file path")
+                    suggestions.append("Verify the kubeconfig file is valid: kubectl --kubeconfig=<path> get nodes")
+                if not self._candidates_tried:
+                    suggestions.append("Set K8S_AUTODETECT_ENABLED=true to enable auto-discovery")
+                    suggestions.append("Set K8S_KUBECONFIG_PATH explicitly if auto-discovery doesn't work")
+        
+        diagnostics["suggestions"] = suggestions
+        
+        # If connected, try to get version info
+        if diagnostics["connected"] and self._version_api:
+            try:
+                version_info = self._version_api.get_code(_request_timeout=5)
+                diagnostics["version"] = version_info.git_version
+                diagnostics["platform"] = version_info.platform
+            except Exception as e:
+                diagnostics["warnings"].append(f"Could not retrieve version info: {str(e)}")
+        
+        return diagnostics
+    
+    async def test_connection(self) -> dict:
+        """
+        Test the Kubernetes cluster connection with diagnostics.
+        
+        Returns:
+            Dict with connection status, diagnostics, and suggestions
         """
         if not self._k8s_available:
             return {
                 "connected": False,
                 "error": "kubernetes library not installed",
+                "suggestions": ["Install the kubernetes library: pip install kubernetes"],
             }
         
         try:
             self._initialize()
-            if not self._core_api:
+            diagnostics = self.get_diagnostics()
+            
+            if diagnostics["connected"]:
+                return {
+                    "connected": True,
+                    "version": diagnostics.get("version"),
+                    "platform": diagnostics.get("platform"),
+                    "connection_method": diagnostics["connection_method"],
+                    "capabilities": diagnostics["capabilities"],
+                    "warnings": diagnostics["warnings"] if diagnostics["warnings"] else None,
+                }
+            else:
                 return {
                     "connected": False,
-                    "error": "Failed to initialize client",
+                    "error": diagnostics["error"] or "Failed to initialize client",
+                    "connection_method": diagnostics["connection_method"],
+                    "candidates_tried": diagnostics["candidates_tried"],
+                    "suggestions": diagnostics["suggestions"],
                 }
             
-            # Try to get version
-            version = self._version_api.get_code()
-            
-            return {
-                "connected": True,
-                "version": version.git_version,
-                "platform": version.platform,
-            }
-            
         except Exception as e:
+            diagnostics = self.get_diagnostics()
             return {
                 "connected": False,
                 "error": str(e),
+                "connection_method": diagnostics.get("connection_method"),
+                "candidates_tried": diagnostics.get("candidates_tried", []),
+                "suggestions": diagnostics.get("suggestions", []),
             }

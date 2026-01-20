@@ -98,6 +98,11 @@ class ConnectionTestResponse(BaseModel):
     version: Optional[str] = None
     platform: Optional[str] = None
     error: Optional[str] = None
+    connection_method: Optional[str] = None
+    capabilities: Optional[dict] = None
+    warnings: Optional[list] = None
+    candidates_tried: Optional[list] = None
+    suggestions: Optional[list] = None
 
 
 class ScaleRequest(BaseModel):
@@ -183,6 +188,14 @@ class StorageTestResponse(BaseModel):
     error: Optional[str] = None
 
 
+class StorageTestRequest(BaseModel):
+    """Request to test MinIO storage connection with custom configuration."""
+    endpoint: Optional[str] = Field(default=None, description="MinIO endpoint (host:port)")
+    access_key: Optional[str] = Field(default=None, description="MinIO access key")
+    secret_key: Optional[str] = Field(default=None, description="MinIO secret key")
+    secure: bool = Field(default=False, description="Use HTTPS")
+
+
 class BucketListResponse(BaseModel):
     """Response with list of buckets."""
     buckets: list[str]
@@ -208,13 +221,21 @@ async def get_cluster_info():
 
 @router.get("/cluster/status")
 async def get_cluster_status():
-    """Get quick cluster connection status."""
+    """Get quick cluster connection status with diagnostics."""
     client = get_client()
     result = await client.test_connection()
     return result
 
 
-@router.post("/cluster/test", response_model=ConnectionTestResponse)
+@router.get("/cluster/diagnostics")
+async def get_cluster_diagnostics():
+    """Get detailed diagnostics about cluster connection attempts and current status."""
+    client = get_client()
+    diagnostics = client.get_diagnostics()
+    return diagnostics
+
+
+@router.post("/cluster/test")
 async def test_cluster_connection(request: ConnectionTestRequest):
     """Test connection to a Kubernetes cluster with custom configuration."""
     conn_config = ClusterConnectionConfig(
@@ -231,7 +252,7 @@ async def test_cluster_connection(request: ConnectionTestRequest):
     )
     
     result = await test_client.test_connection()
-    return ConnectionTestResponse(**result)
+    return result
 
 
 # ============================================================================
@@ -467,6 +488,27 @@ async def get_storage_status():
     """Get MinIO storage connection status."""
     storage = get_storage()
     result = await storage.test_connection()
+    return StorageTestResponse(**result)
+
+
+@router.post("/storage/test", response_model=StorageTestResponse)
+async def test_storage_connection(request: StorageTestRequest):
+    """Test MinIO storage connection with custom configuration."""
+    from agentic_assistants.kubernetes.storage import MinIOStorage
+    
+    # Create a test config with provided settings
+    config = get_config()
+    
+    # Override MinIO settings for this test
+    test_storage = MinIOStorage(
+        config=config,
+        endpoint_override=request.endpoint,
+        access_key_override=request.access_key,
+        secret_key_override=request.secret_key,
+        secure_override=request.secure,
+    )
+    
+    result = await test_storage.test_connection()
     return StorageTestResponse(**result)
 
 

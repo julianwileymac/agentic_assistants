@@ -30,17 +30,41 @@ class MinIOStorage:
         >>> data = await storage.download_file("my-bucket", "path/to/file.txt")
     """
 
-    def __init__(self, config: Optional[AgenticConfig] = None):
+    def __init__(
+        self,
+        config: Optional[AgenticConfig] = None,
+        endpoint_override: Optional[str] = None,
+        access_key_override: Optional[str] = None,
+        secret_key_override: Optional[str] = None,
+        secure_override: Optional[bool] = None,
+    ):
         """
         Initialize MinIO storage client.
         
         Args:
             config: Agentic configuration instance
+            endpoint_override: Override the endpoint from config
+            access_key_override: Override the access key from config
+            secret_key_override: Override the secret key from config
+            secure_override: Override the secure setting from config
         """
         self.config = config or AgenticConfig()
         self._client = None
         self._initialized = False
         self._minio_available = False
+        
+        # Store overrides
+        self._endpoint_override = endpoint_override
+        self._access_key_override = access_key_override
+        self._secret_key_override = secret_key_override
+        self._secure_override = secure_override
+        
+        # Flag for tracking if overrides are present (allows testing when disabled)
+        self._has_overrides = any([
+            endpoint_override,
+            access_key_override,
+            secret_key_override,
+        ])
         
         # Check if minio library is available
         try:
@@ -59,7 +83,8 @@ class MinIOStorage:
             return False
         
         minio_config = self.config.minio
-        if not minio_config.enabled:
+        
+        if not minio_config.enabled and not self._has_overrides:
             logger.info("MinIO storage is disabled in configuration")
             self._initialized = True
             return False
@@ -67,14 +92,17 @@ class MinIOStorage:
         try:
             from minio import Minio
             
-            # Use external endpoint if available, otherwise internal
-            endpoint = minio_config.external_endpoint or minio_config.endpoint
+            # Use overrides if provided, otherwise use config
+            endpoint = self._endpoint_override or minio_config.external_endpoint or minio_config.endpoint
+            access_key = self._access_key_override or minio_config.access_key
+            secret_key = self._secret_key_override or minio_config.secret_key
+            secure = self._secure_override if self._secure_override is not None else minio_config.secure
             
             self._client = Minio(
                 endpoint,
-                access_key=minio_config.access_key,
-                secret_key=minio_config.secret_key,
-                secure=minio_config.secure,
+                access_key=access_key,
+                secret_key=secret_key,
+                secure=secure,
                 region=minio_config.region,
             )
             
@@ -485,10 +513,11 @@ class MinIOStorage:
                 "error": "minio library not installed",
             }
         
-        if not self.config.minio.enabled:
+        # Skip enabled check if overrides are provided (for testing)
+        if not self.config.minio.enabled and not self._has_overrides:
             return {
                 "connected": False,
-                "error": "MinIO storage is disabled",
+                "error": "MinIO storage is disabled. Enable it in Settings > Kubernetes > MinIO Storage.",
             }
         
         try:
@@ -502,9 +531,12 @@ class MinIOStorage:
             # Try to list buckets
             buckets = await self.list_buckets()
             
+            # Use override endpoint if provided, otherwise use config
+            endpoint = self._endpoint_override or self.config.minio.external_endpoint or self.config.minio.endpoint
+            
             return {
                 "connected": True,
-                "endpoint": self.config.minio.external_endpoint or self.config.minio.endpoint,
+                "endpoint": endpoint,
                 "buckets": buckets,
             }
             

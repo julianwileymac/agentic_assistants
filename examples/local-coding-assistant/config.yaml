@@ -1,0 +1,311 @@
+# Local Coding Assistant Configuration
+# =====================================
+# This configuration defines how the coding assistant operates,
+# including vector store settings, memory, caching, and agent behavior.
+
+# Project identification
+project:
+  id: local-coding-assistant
+  name: Local Coding Assistant
+  description: AI-powered coding assistant for local development
+
+# Paths (relative to config file location unless absolute)
+paths:
+  data_dir: ./data
+  cache_dir: ./data/cache
+  memory_dir: ./data/memory
+  vectordb_dir: ./data/vectordb
+  logs_dir: ./data/logs
+
+# Vector Store Configuration
+vectordb:
+  backend: lancedb  # lancedb or chromadb
+  default_scope: project
+  
+  # Scoped paths
+  global_path: ./data/vectordb/global
+  project_path_template: ./data/vectordb/projects/{project_id}
+  user_path_template: ./data/vectordb/users/{user_id}
+  experiment_path_template: ./data/vectordb/experiments/{experiment_id}
+  
+  # Collections
+  collections:
+    codebase:
+      description: Indexed source code
+      scope: project
+    documentation:
+      description: Project documentation
+      scope: project
+    solutions:
+      description: Cached solutions and patterns
+      scope: global
+  
+  # Search behavior
+  enable_cross_scope_search: true
+  enable_scope_inheritance: true
+  track_lineage: true
+
+# Embedding Configuration
+embedding:
+  mode: local  # local or remote
+  
+  # Local embedding settings (Ollama)
+  local_provider: ollama
+  local_model: nomic-embed-text
+  ollama_base_url: http://localhost:11434
+  
+  # Remote embedding settings (uncomment to use)
+  # mode: remote
+  # remote_provider: openai
+  # openai_model: text-embedding-3-small
+  # openai_api_key: ${OPENAI_API_KEY}
+  
+  # Behavior
+  dimension: 768
+  batch_size: 32
+  enable_cache: true
+  cache_ttl_hours: 24
+  fallback_to_local: true
+
+# Memory Configuration (mem0)
+memory:
+  backend: mem0
+  enabled: true
+  
+  # Embedding for memory search
+  embedding_model: nomic-embed-text
+  
+  # Storage
+  persistence_path: ./data/memory
+  
+  # Search settings
+  default_search_limit: 10
+  similarity_threshold: 0.7
+  
+  # Context management
+  context_window: 10
+  max_context_length: 4000
+  
+  # Retention (days, 0 = forever)
+  retention_days: 0
+
+# Episodic Memory
+episodic:
+  enabled: true
+  record_conversations: true
+  record_tasks: true
+  record_errors: true
+  record_learnings: true
+  
+  # Automatic learning extraction
+  auto_extract_learnings: true
+  learning_threshold: 0.8
+
+# Cache Configuration (Redis)
+cache:
+  enabled: true
+  url: redis://localhost:6379
+  db: 0
+  key_prefix: coding-assistant
+  
+  # TTL settings (hours)
+  solution_ttl_hours: 168  # 1 week
+  workflow_ttl_hours: 24
+  session_ttl_hours: 2
+  embedding_ttl_hours: 24
+  
+  # Feature flags
+  cache_solutions: true
+  cache_workflows: true
+  cache_embeddings: true
+
+# LLM Configuration
+llm:
+  provider: ollama
+  model: llama3.2
+  base_url: http://localhost:11434
+  
+  # For OpenAI/Anthropic (uncomment to use)
+  # provider: openai
+  # model: gpt-4-turbo-preview
+  # api_key: ${OPENAI_API_KEY}
+  
+  # Generation settings
+  temperature: 0.7
+  max_tokens: 4096
+  timeout: 120
+
+# Agent Configuration
+agents:
+  coding_assistant:
+    name: Coding Assistant
+    description: Main coding assistant agent
+    system_prompt: |
+      You are an expert coding assistant with deep knowledge of software development.
+      You have access to the user's codebase and can search for relevant code,
+      explain implementations, suggest improvements, and help debug issues.
+      
+      Always:
+      - Cite specific files and line numbers when referencing code
+      - Explain your reasoning step by step
+      - Suggest best practices and potential improvements
+      - Consider edge cases and error handling
+    
+    tools:
+      - code_search
+      - file_read
+      - code_analysis
+      - memory_search
+      - solution_cache
+    
+    memory:
+      enabled: true
+      episodic: true
+      context_limit: 5
+  
+  researcher:
+    name: Research Agent
+    description: Deep analysis and research agent
+    system_prompt: |
+      You are a thorough technical researcher. Your job is to deeply analyze
+      codebases, understand architecture decisions, and provide comprehensive reports.
+      
+      Focus on:
+      - Understanding the overall architecture
+      - Identifying patterns and anti-patterns
+      - Finding potential issues and improvements
+      - Documenting findings clearly
+    
+    tools:
+      - code_search
+      - file_read
+      - dependency_analysis
+      - architecture_analysis
+  
+  reviewer:
+    name: Code Reviewer
+    description: Code review specialist
+    system_prompt: |
+      You are an experienced code reviewer. Review code for:
+      - Correctness and logic errors
+      - Security vulnerabilities
+      - Performance issues
+      - Code style and readability
+      - Test coverage
+      
+      Provide actionable feedback with specific suggestions.
+    
+    tools:
+      - code_search
+      - file_read
+      - style_check
+      - security_scan
+
+# Tool Configuration
+tools:
+  code_search:
+    enabled: true
+    default_collection: codebase
+    max_results: 10
+    
+  file_read:
+    enabled: true
+    max_file_size_kb: 500
+    allowed_extensions:
+      - .py
+      - .ts
+      - .js
+      - .tsx
+      - .jsx
+      - .go
+      - .rs
+      - .java
+      - .md
+      - .yaml
+      - .yml
+      - .json
+  
+  code_analysis:
+    enabled: true
+    analyzers:
+      - complexity
+      - dependencies
+      - imports
+
+# Workflow Configuration
+workflows:
+  code_review:
+    enabled: true
+    agents:
+      - reviewer
+    steps:
+      - analyze_changes
+      - check_style
+      - security_review
+      - generate_report
+  
+  documentation:
+    enabled: true
+    agents:
+      - researcher
+      - coding_assistant
+    steps:
+      - analyze_module
+      - extract_docstrings
+      - generate_docs
+      - review_docs
+
+# Indexing Configuration
+indexing:
+  # File patterns to include
+  include_patterns:
+    - "**/*.py"
+    - "**/*.ts"
+    - "**/*.js"
+    - "**/*.tsx"
+    - "**/*.jsx"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+  
+  # Patterns to exclude
+  exclude_patterns:
+    - "**/node_modules/**"
+    - "**/__pycache__/**"
+    - "**/venv/**"
+    - "**/.venv/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/.git/**"
+    - "**/*.pyc"
+    - "**/*.min.js"
+  
+  # Chunking settings
+  chunk_size: 1000
+  chunk_overlap: 200
+  
+  # Processing
+  extract_docstrings: true
+  extract_imports: true
+  generate_summaries: true
+  
+  # Incremental indexing
+  incremental: true
+  watch_for_changes: false
+
+# Lineage Tracking
+lineage:
+  enabled: true
+  track_processing_steps: true
+  track_relationships: true
+  
+  # Database path
+  db_path: ./data/lineage.db
+
+# Logging
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: ./data/logs/assistant.log
+  max_size_mb: 10
+  backup_count: 5

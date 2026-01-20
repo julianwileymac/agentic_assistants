@@ -64,6 +64,11 @@ class EventType(str, Enum):
     CONFIG_CHANGED = "config.changed"
     ERROR = "error"
     NOTIFICATION = "notification"
+    
+    # Log streaming events
+    LOG_ENTRY = "log.entry"
+    LOG_SUBSCRIBED = "log.subscribed"
+    LOG_UNSUBSCRIBED = "log.unsubscribed"
 
 
 class WSMessage(BaseModel):
@@ -653,12 +658,14 @@ def add_websocket_routes(
     async def start_websocket_manager():
         """Start the WebSocket connection manager on app startup."""
         await manager.start()
+        await log_stream_manager.start()
         logger.info("WebSocket manager started")
     
     @app.on_event("shutdown")
     async def stop_websocket_manager():
         """Stop the WebSocket connection manager on app shutdown."""
         await manager.stop()
+        await log_stream_manager.stop()
         logger.info("WebSocket manager stopped")
     
     @app.websocket("/ws")
@@ -669,12 +676,196 @@ def add_websocket_routes(
     async def ws_endpoint_with_id(websocket: WebSocket, client_id: str):
         await websocket_endpoint(websocket, client_id)
     
+    @app.websocket("/ws/logs")
+    async def ws_logs_endpoint(websocket: WebSocket):
+        """WebSocket endpoint for real-time log streaming."""
+        await log_stream_endpoint(websocket)
+    
     @app.get("/ws/status")
     async def ws_status():
         """Get WebSocket connection status."""
-        return manager.get_connection_info()
+        return {
+            **manager.get_connection_info(),
+            "log_stream_subscribers": log_stream_manager.subscriber_count,
+        }
     
     return app
+
+
+# === Log Streaming WebSocket ===
+
+
+class LogStreamManager:
+    """
+    Manages log streaming WebSocket connections.
+    
+    Connects to the logging system's StreamingHandler and broadcasts
+    log entries to subscribed WebSocket clients.
+    """
+    
+    def __init__(self):
+        self._subscribers: dict[str, WebSocket] = {}
+        self._unsubscribe_fn: Optional[Callable] = None
+        self._running = False
+        self._lock = asyncio.Lock()
+        self._log_queue: asyncio.Queue = asyncio.Queue()
+        self._broadcast_task: Optional[asyncio.Task] = None
+    
+    async def start(self):
+        """Start the log stream manager."""
+        if self._running:
+            return
+        
+        self._running = True
+        
+        # Subscribe to the logging system
+        from agentic_assistants.utils.logging import subscribe_to_logs
+        
+        self._unsubscribe_fn = subscribe_to_logs(self._on_log_entry)
+        self._broadcast_task = asyncio.create_task(self._broadcast_loop())
+        
+        logger.info("LogStreamManager started")
+    
+    async def stop(self):
+        """Stop the log stream manager."""
+        self._running = False
+        
+        if self._unsubscribe_fn:
+            self._unsubscribe_fn()
+            self._unsubscribe_fn = None
+        
+        if self._broadcast_task:
+            self._broadcast_task.cancel()
+            try:
+                await self._broadcast_task
+            except asyncio.CancelledError:
+                pass
+            self._broadcast_task = None
+        
+        logger.info("LogStreamManager stopped")
+    
+    def _on_log_entry(self, log_entry: dict):
+        """Handle log entry from the logging system (sync callback)."""
+        try:
+            # Non-blocking put
+            self._log_queue.put_nowait(log_entry)
+        except asyncio.QueueFull:
+            pass  # Drop if queue is full
+    
+    async def _broadcast_loop(self):
+        """Background task to broadcast log entries."""
+        while self._running:
+            try:
+                # Get log entry with timeout
+                try:
+                    log_entry = await asyncio.wait_for(
+                        self._log_queue.get(),
+                        timeout=1.0
+                    )
+                except asyncio.TimeoutError:
+                    continue
+                
+                # Broadcast to all subscribers
+                await self._broadcast_log(log_entry)
+                
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Error in log broadcast loop: {e}")
+    
+    async def _broadcast_log(self, log_entry: dict):
+        """Broadcast a log entry to all subscribers."""
+        if not self._subscribers:
+            return
+        
+        message = WSMessage(
+            type=EventType.LOG_ENTRY,
+            data=log_entry,
+        )
+        
+        disconnected = []
+        
+        async with self._lock:
+            for connection_id, websocket in list(self._subscribers.items()):
+                try:
+                    await websocket.send_text(message.to_json())
+                except Exception:
+                    disconnected.append(connection_id)
+        
+        # Clean up disconnected
+        for connection_id in disconnected:
+            await self.unsubscribe(connection_id)
+    
+    async def subscribe(self, connection_id: str, websocket: WebSocket):
+        """Subscribe a connection to log streaming."""
+        async with self._lock:
+            self._subscribers[connection_id] = websocket
+        
+        # Send confirmation
+        await websocket.send_text(WSMessage(
+            type=EventType.LOG_SUBSCRIBED,
+            data={"connection_id": connection_id},
+        ).to_json())
+        
+        logger.info(f"Log stream subscriber added: {connection_id}")
+    
+    async def unsubscribe(self, connection_id: str):
+        """Unsubscribe a connection from log streaming."""
+        async with self._lock:
+            if connection_id in self._subscribers:
+                del self._subscribers[connection_id]
+        
+        logger.info(f"Log stream subscriber removed: {connection_id}")
+    
+    @property
+    def subscriber_count(self) -> int:
+        """Get number of active subscribers."""
+        return len(self._subscribers)
+
+
+# Global log stream manager
+log_stream_manager = LogStreamManager()
+
+
+async def log_stream_endpoint(websocket: WebSocket):
+    """
+    WebSocket endpoint for real-time log streaming.
+    
+    Clients connect and immediately start receiving log entries.
+    The connection stays open until the client disconnects.
+    """
+    await websocket.accept()
+    
+    connection_id = str(uuid4())
+    
+    try:
+        # Subscribe to log stream
+        await log_stream_manager.subscribe(connection_id, websocket)
+        
+        # Keep connection alive and handle client messages
+        while True:
+            try:
+                data = await websocket.receive_text()
+                
+                # Handle ping/pong
+                try:
+                    message = json.loads(data)
+                    if message.get("command") == "ping":
+                        await websocket.send_text(WSMessage(
+                            type=EventType.PONG,
+                            data={"timestamp": datetime.now().isoformat()},
+                        ).to_json())
+                except json.JSONDecodeError:
+                    pass
+                    
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                logger.error(f"Log stream error: {e}")
+                break
+    
+    finally:
+        await log_stream_manager.unsubscribe(connection_id)
 
 
 # === Utilities ===
@@ -688,6 +879,11 @@ def get_emitter() -> EventEmitter:
 def get_manager() -> ConnectionManager:
     """Get the global connection manager."""
     return manager
+
+
+def get_log_stream_manager() -> LogStreamManager:
+    """Get the global log stream manager."""
+    return log_stream_manager
 
 
 async def broadcast_event(event_type: EventType, data: dict[str, Any], topic: Optional[str] = None):

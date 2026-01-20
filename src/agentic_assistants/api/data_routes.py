@@ -52,7 +52,7 @@ class FeatureRequest(BaseModel):
 
 class JobRequest(BaseModel):
     """Request to create a scheduled job."""
-    job_type: str  # rss_monitor, website_monitor, data_sync, feature_materialization
+    job_type: str  # rss_monitor, website_monitor, data_sync, feature_materialization, repo_ingestion
     config: Dict[str, Any] = Field(default_factory=dict)
     trigger: str = "interval"
     trigger_args: Dict[str, Any] = Field(default_factory=dict)
@@ -330,6 +330,7 @@ async def create_job(request: JobRequest):
         WebsiteMonitorJob,
         DataSyncJob,
         FeatureMaterializationJob,
+        RepoIngestionJob,
     )
     
     scheduler = get_scheduler()
@@ -340,6 +341,7 @@ async def create_job(request: JobRequest):
         "website_monitor": WebsiteMonitorJob,
         "data_sync": DataSyncJob,
         "feature_materialization": FeatureMaterializationJob,
+        "repo_ingestion": RepoIngestionJob,
     }
     
     job_class = job_types.get(request.job_type)

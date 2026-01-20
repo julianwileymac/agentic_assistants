@@ -49,10 +49,13 @@ class LangGraphAdapter(BaseAdapter):
         default_model: Default LLM model for nodes
     """
 
+    framework_name = "langgraph"
+
     def __init__(
         self,
         config: Optional[AgenticConfig] = None,
         default_model: Optional[str] = None,
+        **kwargs,
     ):
         """
         Initialize the LangGraph adapter.
@@ -60,8 +63,9 @@ class LangGraphAdapter(BaseAdapter):
         Args:
             config: Configuration instance
             default_model: Default model for LLM nodes (uses config default if None)
+            **kwargs: Additional arguments passed to BaseAdapter
         """
-        super().__init__(config, name="LangGraph")
+        super().__init__(config, name="LangGraph", **kwargs)
         self.default_model = default_model or self.config.ollama.default_model
 
     def run(self, graph: Any, inputs: dict, **kwargs) -> Any:
@@ -311,7 +315,6 @@ class LangGraphAdapter(BaseAdapter):
 
         return StateGraph(state_class)
 
-
     async def deploy_graph(
         self,
         flow_id: str,
@@ -347,6 +350,14 @@ class LangGraphAdapter(BaseAdapter):
         
         Returns:
             DeploymentInfo if successful
+        
+        Example:
+            >>> deployment = await adapter.deploy_graph(
+            ...     flow_id="chat-flow-001",
+            ...     name="chat-flow",
+            ...     model_endpoint="http://ollama.model-serving:11434",
+            ...     state_backend="minio"
+            ... )
         """
         from agentic_assistants.kubernetes import (
             DeploymentManager,
@@ -389,20 +400,45 @@ class LangGraphAdapter(BaseAdapter):
         name: str,
         namespace: Optional[str] = None,
     ) -> bool:
-        """Remove a graph deployment from Kubernetes."""
+        """
+        Remove a graph deployment from Kubernetes.
+        
+        Args:
+            name: Deployment name
+            namespace: Kubernetes namespace
+        
+        Returns:
+            True if successfully deleted
+        """
         from agentic_assistants.kubernetes import DeploymentManager
         
         deployer = DeploymentManager(config=self.config)
         ns = namespace or self.config.kubernetes.default_deploy_namespace
         
-        return await deployer.delete_deployment(name, ns)
+        success = await deployer.delete_deployment(name, ns)
+        
+        if success:
+            logger.info(f"Undeployed graph {name} from Kubernetes")
+        else:
+            logger.error(f"Failed to undeploy graph {name}")
+        
+        return success
 
     async def get_graph_deployment_status(
         self,
         name: str,
         namespace: Optional[str] = None,
     ) -> dict:
-        """Get the status of a graph deployment."""
+        """
+        Get the status of a graph deployment.
+        
+        Args:
+            name: Deployment name
+            namespace: Kubernetes namespace
+        
+        Returns:
+            Deployment status dict
+        """
         from agentic_assistants.kubernetes import DeploymentManager
         
         deployer = DeploymentManager(config=self.config)

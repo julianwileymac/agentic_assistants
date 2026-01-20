@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { ErrorBoundary, ErrorStoreProvider } from "@/components/error-display";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,8 +13,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      {children}
-      <Toaster richColors position="top-right" />
+      <ErrorStoreProvider>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+      </ErrorStoreProvider>
+      <Toaster richColors position="top-right" closeButton />
     </NextThemesProvider>
   );
 }

@@ -170,19 +170,13 @@ function Start-PythonBackend {
             return $false
         }
         
-        # Check if port is listening
+        # Check if backend is ready using lightweight /ready endpoint
         try {
-            $connection = Test-NetConnection -ComputerName "127.0.0.1" -Port 8080 -WarningAction SilentlyContinue -InformationLevel Quiet
-            if ($connection) {
-                Start-Sleep -Seconds 2  # Give it a moment to be fully ready
-                try {
-                    $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction Stop
-                    if ($response.StatusCode -eq 200) {
-                        Write-Host ""
-                        Write-Success "Backend is ready"
-                        return $true
-                    }
-                } catch {}
+            $response = Invoke-WebRequest -Uri "http://localhost:8080/ready" -TimeoutSec 2 -ErrorAction Stop
+            if ($response.StatusCode -eq 200) {
+                Write-Host ""
+                Write-Success "Backend is ready"
+                return $true
             }
         } catch {}
         

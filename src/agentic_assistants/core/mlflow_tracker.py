@@ -79,28 +79,66 @@ class MLFlowTracker:
         self._initialized = False
 
     def _initialize(self) -> None:
-        """Initialize MLFlow connection and experiment."""
+        """Initialize MLFlow connection and experiment with centralized persistence."""
         if self._initialized or not self.enabled:
             return
 
         try:
             mlflow = _get_mlflow()
-            mlflow.set_tracking_uri(self.config.mlflow.tracking_uri)
-
+            
+            # Set tracking URI (prefer cluster service if available)
+            tracking_uri = self.config.mlflow.tracking_uri
+            
+            # If Kubernetes is enabled, try to use cluster MLflow service
+            if self.config.kubernetes.enabled:
+                cluster_uri = "http://mlflow.ml-platform.svc.cluster.local:5000"
+                # Try cluster URI, fall back to configured URI
+                tracking_uri = cluster_uri
+            
+            mlflow.set_tracking_uri(tracking_uri)
+            
+            # Configure backend store URI (PostgreSQL if enabled)
+            backend_store_uri = self.config.mlflow.backend_store_uri
+            if not backend_store_uri and self.config.postgresql.enabled:
+                backend_store_uri = self.config.postgresql.dsn
+                os.environ["MLFLOW_BACKEND_STORE_URI"] = backend_store_uri
+                logger.info(f"Using PostgreSQL backend store: {backend_store_uri}")
+            
+            # Configure artifact storage (MinIO/S3 if enabled)
+            artifact_location = self.config.mlflow.artifact_location
+            s3_endpoint_url = self.config.mlflow.s3_endpoint_url
+            
+            if not artifact_location and self.config.minio.enabled:
+                # Use MinIO for artifact storage
+                s3_endpoint = s3_endpoint_url or f"http://{self.config.minio.endpoint}"
+                artifact_location = f"s3://{self.config.minio.default_bucket}/"
+                
+                # Set MinIO/S3 environment variables for MLflow
+                os.environ["MLFLOW_S3_ENDPOINT_URL"] = s3_endpoint
+                os.environ["AWS_ACCESS_KEY_ID"] = self.config.minio.access_key or "minioadmin"
+                os.environ["AWS_SECRET_ACCESS_KEY"] = self.config.minio.secret_key or "minioadmin123"
+                os.environ["MLFLOW_DEFAULT_ARTIFACT_ROOT"] = artifact_location
+                
+                logger.info(f"Using MinIO artifact storage: {artifact_location} (endpoint: {s3_endpoint})")
+            
             # Create or get experiment
             experiment = mlflow.get_experiment_by_name(self.experiment_name)
             if experiment is None:
                 mlflow.create_experiment(
                     self.experiment_name,
-                    artifact_location=self.config.mlflow.artifact_location,
+                    artifact_location=artifact_location,
                 )
             mlflow.set_experiment(self.experiment_name)
 
             self._initialized = True
             logger.info(
-                f"MLFlow initialized - tracking URI: {self.config.mlflow.tracking_uri}, "
+                f"MLFlow initialized - tracking URI: {tracking_uri}, "
                 f"experiment: {self.experiment_name}"
             )
+            if backend_store_uri:
+                logger.info(f"  Backend store: PostgreSQL")
+            if artifact_location and "s3://" in artifact_location:
+                logger.info(f"  Artifact store: MinIO/S3")
 
         except Exception as e:
             logger.warning(f"Failed to initialize MLFlow: {e}. Tracking disabled.")

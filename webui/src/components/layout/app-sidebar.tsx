@@ -25,6 +25,13 @@ import {
   Sliders,
   Rocket,
   Tag,
+  GraduationCap,
+  Target,
+  BookOpen,
+  ClipboardCheck,
+  Sparkles,
+  BarChart3,
+  MessageSquare,
 } from "lucide-react";
 
 import {
@@ -89,11 +96,57 @@ const observabilityItems = [
   },
 ];
 
+const learningItems = [
+  {
+    title: "Learning Hub",
+    url: "/learning",
+    icon: GraduationCap,
+  },
+  {
+    title: "Goals",
+    url: "/learning/goals",
+    icon: Target,
+  },
+  {
+    title: "Active Topics",
+    url: "/learning/topics",
+    icon: BookOpen,
+  },
+  {
+    title: "Evaluations",
+    url: "/learning/evaluations",
+    icon: ClipboardCheck,
+  },
+];
+
+const assistantItems = [
+  {
+    title: "Assistant",
+    url: "/assistant",
+    icon: Sparkles,
+  },
+  {
+    title: "Chat",
+    url: "/assistant/chat",
+    icon: MessageSquare,
+  },
+  {
+    title: "Analytics",
+    url: "/assistant/analytics",
+    icon: BarChart3,
+  },
+];
+
 const modelItems = [
   {
     title: "Models",
     url: "/models",
     icon: Brain,
+  },
+  {
+    title: "Ollama",
+    url: "/models/ollama",
+    icon: Cpu,
   },
   {
     title: "Training",
@@ -136,6 +189,11 @@ const dataItems = [
 ];
 
 const resourceItems = [
+  {
+    title: "Documentation",
+    url: "/docs",
+    icon: Book,
+  },
   {
     title: "Settings",
     url: "/settings",
@@ -217,6 +275,42 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Framework Assistant */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Assistant
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {assistantItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          item.url === "/assistant"
+                            ? pathname === "/assistant"
+                            : pathname.startsWith(item.url)
+                        }
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
         {/* Models & Training */}
         <SidebarGroup>
           <Collapsible defaultOpen className="group/collapsible">
@@ -274,6 +368,42 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Learning */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Learning
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {learningItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          item.url === "/learning"
+                            ? pathname === "/learning"
+                            : pathname.startsWith(item.url)
+                        }
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
 
         {/* Data & Resources */}

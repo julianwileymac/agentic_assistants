@@ -35,6 +35,15 @@ langchain = "~0.2.16"
 langgraph = "^0.2"
 langchain-ollama = "^0.1"
 
+# Additional Agent Frameworks (optional)
+pyautogen = {version = "^0.2", optional = true}
+agno = {version = "^1.0", optional = true}
+langflow = {version = "^1.0", optional = true}
+prefect = {version = "^3.0", optional = true}
+
+# Model Conversion (optional)
+llama-cpp-python = {version = "^0.2", optional = true}
+
 # Notebooks
 jupyter = "^1.0"
 ipykernel = "^6.0"
@@ -86,10 +95,49 @@ transformers = {version = "^4.40", optional = true}
 # RL (optional)
 ray = {version = "^2.9", extras = ["rllib"], optional = true}
 
+# Database Drivers (optional)
+pymongo = {version = "^4.6", optional = true}
+redis = {version = "^5.0", optional = true}
+elasticsearch = {version = "^8.12", optional = true}
+opensearch-py = {version = "^2.4", optional = true}
+google-cloud-bigquery = {version = "^3.17", optional = true}
+snowflake-connector-python = {version = "^3.6", optional = true}
+sqlalchemy = {version = "^2.0", optional = true}
+
+# Remote Development (optional)
+paramiko = {version = "^3.4", optional = true}
+gitpython = {version = "^3.1", optional = true}
+
+# Memory & RAG (optional)
+mem0ai = {version = "^0.1", optional = true}
+sentence-transformers = {version = "^3.0", optional = true}
+
+# Cloud Storage (optional)
+boto3 = {version = "^1.34", optional = true}
+
+# Document Processing (optional)
+pypdf = {version = "^4.0", optional = true}
+python-docx = {version = "^1.1", optional = true}
+
+# OpenAI/Anthropic (optional)
+openai = {version = "^1.30", optional = true}
+anthropic = {version = "^0.26", optional = true}
+cohere = {version = "^5.0", optional = true}
+
 [tool.poetry.extras]
 training = ["trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers"]
 rl = ["ray"]
-all = ["trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "ray"]
+databases = ["pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy"]
+remote = ["paramiko", "gitpython"]
+memory = ["mem0ai", "redis"]
+embeddings = ["sentence-transformers"]
+cloud = ["boto3"]
+documents = ["pypdf", "python-docx"]
+llm-providers = ["openai", "anthropic", "cohere"]
+coding-assistant = ["mem0ai", "redis", "sentence-transformers", "pypdf", "python-docx", "gitpython"]
+assistant = ["pyautogen", "agno", "langflow", "llama-cpp-python", "mem0ai", "sentence-transformers"]
+orchestration = ["prefect"]
+all = ["trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "ray", "pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy", "paramiko", "gitpython", "mem0ai", "sentence-transformers", "boto3", "pypdf", "python-docx", "openai", "anthropic", "cohere", "pyautogen", "agno", "langflow", "llama-cpp-python", "prefect"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

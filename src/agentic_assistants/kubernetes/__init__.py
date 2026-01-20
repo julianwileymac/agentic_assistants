@@ -18,7 +18,7 @@ Example:
     >>> await deployer.deploy_agent(agent_config)
 """
 
-from agentic_assistants.kubernetes.client import KubernetesClient
+from agentic_assistants.kubernetes.client import KubernetesClient, discover_rpi_kubeconfig
 from agentic_assistants.kubernetes.deployments import DeploymentManager
 from agentic_assistants.kubernetes.models import (
     ClusterInfo,
@@ -44,6 +44,7 @@ from agentic_assistants.kubernetes.model_serving import ModelServingManager
 __all__ = [
     # Client
     "KubernetesClient",
+    "discover_rpi_kubeconfig",
     # Deployment
     "DeploymentManager",
     # Model Serving

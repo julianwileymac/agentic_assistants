@@ -23,6 +23,7 @@ resources:
   
   # CronJobs
   - cronjobs/data-sync-cronjob.yaml
+  - cronjobs/global-repo-ingestion.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: agentic-assistants

@@ -15,6 +15,10 @@ This module provides modular FastAPI routers for different components:
 - tags: Resource tagging (Control Panel)
 - datasources: Data source management
 - kubernetes: Kubernetes cluster management
+- learning: Learning goals, topics, and lesson plans
+- evaluations: Learning assessments and grading
+- framework_assistant: Framework Assistant Agent API
+- ollama: Ollama model management
 """
 
 from agentic_assistants.server.api.experiments import router as experiments_router
@@ -31,6 +35,12 @@ from agentic_assistants.server.api.tags import router as tags_router
 from agentic_assistants.server.api.datasources import router as datasources_router
 from agentic_assistants.server.api.generation import router as generation_router
 from agentic_assistants.server.api.kubernetes import router as kubernetes_router
+from agentic_assistants.server.api.docs import router as docs_router
+from agentic_assistants.server.api.assistant import router as assistant_router
+from agentic_assistants.server.api.learning import router as learning_router
+from agentic_assistants.server.api.evaluations import router as evaluations_router
+from agentic_assistants.server.api.framework_assistant import router as framework_assistant_router
+from agentic_assistants.server.api.ollama import router as ollama_router
 
 __all__ = [
     # Original routers
@@ -48,6 +58,14 @@ __all__ = [
     "tags_router",
     "datasources_router",
     "generation_router",
+    "docs_router",
+    "assistant_router",
     # Infrastructure routers
     "kubernetes_router",
+    # Learning routers
+    "learning_router",
+    "evaluations_router",
+    # Framework Assistant routers
+    "framework_assistant_router",
+    "ollama_router",
 ]

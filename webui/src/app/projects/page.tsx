@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Search, Filter, MoreHorizontal, FolderKanban, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, MoreHorizontal, FolderKanban, Pencil, Trash2, Download } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import {
 import { useProjects, useDeleteProject } from "@/lib/api";
 import type { Project } from "@/lib/types";
 import { toast } from "sonner";
+import { ImportExampleDialog } from "@/components/import-example-dialog";
 
 const statusColors: Record<string, string> = {
   active: "bg-green-500/10 text-green-500 border-green-500/20",
@@ -106,6 +107,7 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: () => 
 export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [importDialogOpen, setImportDialogOpen] = React.useState(false);
   
   const { data, isLoading, mutate } = useProjects({
     status: statusFilter === "all" ? undefined : statusFilter,
@@ -155,12 +157,18 @@ export default function ProjectsPage() {
             Manage your agentic solution projects
           </p>
         </div>
-        <Button asChild>
-          <Link href="/projects/new">
-            <Plus className="size-4 mr-2" />
-            New Project
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Download className="size-4 mr-2" />
+            Import Example
+          </Button>
+          <Button asChild>
+            <Link href="/projects/new">
+              <Plus className="size-4 mr-2" />
+              New Project
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -243,6 +251,12 @@ export default function ProjectsPage() {
           Showing {filteredProjects.length} of {data.total} projects
         </div>
       )}
+
+      {/* Import Example Dialog */}
+      <ImportExampleDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+      />
     </div>
   );
 }

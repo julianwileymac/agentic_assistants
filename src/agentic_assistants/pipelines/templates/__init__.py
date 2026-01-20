@@ -30,6 +30,10 @@ from agentic_assistants.pipelines.templates.rss_monitoring import (
     create_rss_monitoring_pipeline,
     RSSMonitoringConfig,
 )
+from agentic_assistants.pipelines.templates.repo_ingestion import (
+    create_repo_ingestion_pipeline,
+    RepoIngestionConfig,
+)
 
 __all__ = [
     # Web ingestion
@@ -44,4 +48,7 @@ __all__ = [
     # RSS monitoring
     "create_rss_monitoring_pipeline",
     "RSSMonitoringConfig",
+    # Repo ingestion
+    "create_repo_ingestion_pipeline",
+    "RepoIngestionConfig",
 ]

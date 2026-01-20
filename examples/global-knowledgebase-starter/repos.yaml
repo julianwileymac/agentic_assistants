@@ -1,0 +1,25 @@
+repos:
+  - name: agentic-assistants
+    url: https://github.com/AI-Engineer-Solutions/agentic_assistants.git
+    branch: main
+    tags: ["framework", "reference"]
+    context: "Core framework reference implementation"
+    schedule: "0 */12 * * *"  # every 12 hours
+    manual_override: false
+    enabled: true
+  - name: crewai-examples
+    url: https://github.com/joaomdmoura/crewai.git
+    branch: main
+    tags: ["crewai", "agents"]
+    context: "CrewAI agents and orchestration patterns"
+    schedule: "@daily"
+    manual_override: false
+    enabled: true
+  - name: langchain-templates
+    url: https://github.com/langchain-ai/langchain.git
+    branch: master
+    tags: ["langchain", "patterns"]
+    context: "LangChain patterns and abstractions"
+    schedule: "0 3 * * 1"  # weekly Monday 03:00
+    manual_override: true
+    enabled: true

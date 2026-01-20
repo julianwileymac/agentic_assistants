@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Search, Moon, Sun, Bell, User } from "lucide-react";
+import { Search, Moon, Sun, Bell, User, LifeBuoy, ScrollText } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useUIStore, useAuthStore } from "@/lib/store";
+import { useUIStore, useAuthStore, useHelpStore } from "@/lib/store";
+import { HelpTooltip } from "@/components/help/help-tooltip";
+import { LogsPanel } from "@/components/logs-panel";
 
 // Map paths to readable names
 const pathNames: Record<string, string> = {
@@ -45,6 +47,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const { searchQuery, setSearchQuery } = useUIStore();
   const { isAuthenticated, logout } = useAuthStore();
+  const { toggle: toggleHelp } = useHelpStore();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -107,11 +110,29 @@ export function Header() {
 
       {/* Right side: Actions */}
       <div className="flex items-center gap-2">
+        {/* Logs */}
+        <LogsPanel
+          trigger={
+            <Button variant="ghost" size="icon">
+              <ScrollText className="size-4" />
+              <span className="sr-only">Logs</span>
+            </Button>
+          }
+        />
+
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="size-4" />
           <span className="sr-only">Notifications</span>
         </Button>
+
+        {/* Help */}
+        <HelpTooltip content="Open help & docs">
+          <Button variant="ghost" size="icon" onClick={() => toggleHelp()}>
+            <LifeBuoy className="size-4" />
+            <span className="sr-only">Help</span>
+          </Button>
+        </HelpTooltip>
 
         {/* Theme toggle */}
         {mounted && (

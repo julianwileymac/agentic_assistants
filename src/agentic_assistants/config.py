@@ -73,7 +73,7 @@ class MLFlowSettings(BaseSettings):
 
     tracking_uri: str = Field(
         default="http://localhost:5000",
-        description="MLFlow tracking server URI",
+        description="MLFlow tracking server URI (defaults to cluster service if available)",
     )
     experiment_name: str = Field(
         default="agentic-experiments",
@@ -81,7 +81,15 @@ class MLFlowSettings(BaseSettings):
     )
     artifact_location: Optional[str] = Field(
         default=None,
-        description="Location for storing artifacts",
+        description="Location for storing artifacts (defaults to MinIO S3 if configured)",
+    )
+    backend_store_uri: Optional[str] = Field(
+        default=None,
+        description="PostgreSQL backend store URI for MLflow (defaults to config.postgresql.dsn if enabled)",
+    )
+    s3_endpoint_url: Optional[str] = Field(
+        default=None,
+        description="S3/MinIO endpoint URL for artifacts (defaults to config.minio.endpoint if enabled)",
     )
 
 
@@ -105,8 +113,105 @@ class TelemetrySettings(BaseSettings):
     )
 
 
+class EmbeddingSettings(BaseSettings):
+    """Configuration for embedding providers with local/remote mode support."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="EMBEDDING_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # Mode selection
+    mode: str = Field(
+        default="local",
+        description="Embedding mode: 'local' or 'remote'",
+    )
+    
+    # Local provider settings
+    local_provider: str = Field(
+        default="ollama",
+        description="Local embedding provider (ollama, sentence_transformers)",
+    )
+    local_model: str = Field(
+        default="nomic-embed-text",
+        description="Local embedding model name",
+    )
+    
+    # Remote provider settings
+    remote_provider: str = Field(
+        default="openai",
+        description="Remote embedding provider (openai, huggingface, cohere)",
+    )
+    remote_model: str = Field(
+        default="text-embedding-3-small",
+        description="Remote embedding model name",
+    )
+    remote_api_key_env: str = Field(
+        default="OPENAI_API_KEY",
+        description="Environment variable for remote API key",
+    )
+    
+    # HuggingFace Inference API settings
+    huggingface_inference_endpoint: Optional[str] = Field(
+        default=None,
+        description="Custom HuggingFace inference endpoint URL",
+    )
+    huggingface_api_key_env: str = Field(
+        default="HF_API_KEY",
+        description="Environment variable for HuggingFace API key",
+    )
+    
+    # Fallback behavior
+    fallback_to_local: bool = Field(
+        default=True,
+        description="Fall back to local embeddings if remote fails",
+    )
+    
+    # Performance settings
+    batch_size: int = Field(
+        default=32,
+        description="Batch size for embedding generation",
+    )
+    max_retries: int = Field(
+        default=3,
+        description="Maximum retries for remote embedding calls",
+    )
+    timeout: float = Field(
+        default=60.0,
+        description="Timeout in seconds for embedding requests",
+    )
+    
+    # Caching
+    cache_embeddings: bool = Field(
+        default=True,
+        description="Cache embeddings to avoid recomputation",
+    )
+    cache_backend: str = Field(
+        default="redis",
+        description="Cache backend: 'redis', 'memory', 'disk'",
+    )
+    
+    # Model dimensions (auto-detected but can be overridden)
+    dimension_overrides: dict = Field(
+        default_factory=dict,
+        description="Model-specific dimension overrides",
+    )
+    
+    @property
+    def active_provider(self) -> str:
+        """Get the currently active provider based on mode."""
+        return self.local_provider if self.mode == "local" else self.remote_provider
+    
+    @property
+    def active_model(self) -> str:
+        """Get the currently active model based on mode."""
+        return self.local_model if self.mode == "local" else self.remote_model
+
+
 class VectorDBSettings(BaseSettings):
-    """Configuration for vector database storage."""
+    """Configuration for vector database storage with multi-level scoping."""
 
     model_config = SettingsConfigDict(
         env_prefix="VECTORDB_",
@@ -138,6 +243,58 @@ class VectorDBSettings(BaseSettings):
     use_both_backends: bool = Field(
         default=False,
         description="Store in both LanceDB and ChromaDB simultaneously",
+    )
+    
+    # Multi-level scope configuration
+    default_scope: str = Field(
+        default="project",
+        description="Default vector store scope (global, user, project, experiment)",
+    )
+    global_namespace: str = Field(
+        default="global",
+        description="Namespace prefix for global collections",
+    )
+    user_namespace_template: str = Field(
+        default="user_{user_id}",
+        description="Template for user-scoped collection namespaces",
+    )
+    project_namespace_template: str = Field(
+        default="project_{project_id}",
+        description="Template for project-scoped collection namespaces",
+    )
+    experiment_namespace_template: str = Field(
+        default="exp_{experiment_id}",
+        description="Template for experiment-scoped collection namespaces",
+    )
+    
+    # Scope-specific paths
+    global_path: Optional[Path] = Field(
+        default=None,
+        description="Override path for global vector storage",
+    )
+    user_path_template: str = Field(
+        default="./users/{user_id}/vectors",
+        description="Path template for user vector storage",
+    )
+    project_path_template: str = Field(
+        default="./data/projects/{project_id}/vectors",
+        description="Path template for project vector storage",
+    )
+    
+    # Cross-scope features
+    enable_cross_scope_search: bool = Field(
+        default=False,
+        description="Allow searching across multiple scopes",
+    )
+    enable_scope_inheritance: bool = Field(
+        default=True,
+        description="Project collections can inherit from global in search",
+    )
+    
+    # Lineage tracking
+    track_lineage: bool = Field(
+        default=True,
+        description="Track document lineage by default",
     )
 
 
@@ -345,6 +502,27 @@ class KubernetesSettings(BaseSettings):
         default="1Gi",
         description="Default memory limit for deployments",
     )
+    # Auto-detection and debugging
+    autodetect_enabled: bool = Field(
+        default=True,
+        description="Enable automatic kubeconfig discovery",
+    )
+    autodetect_extra_paths: str = Field(
+        default="",
+        description="Comma-separated list of additional kubeconfig paths to try",
+    )
+    request_timeout_seconds: int = Field(
+        default=10,
+        description="Request timeout for API calls in seconds",
+    )
+    insecure_skip_tls_verify: bool = Field(
+        default=False,
+        description="Skip TLS verification for cluster connections (insecure)",
+    )
+    prefer_incluster: Optional[bool] = Field(
+        default=None,  # Auto-detect: True if running in cluster, False otherwise
+        description="Prefer in-cluster config over kubeconfig (auto-detected if None)",
+    )
 
 
 class MinIOSettings(BaseSettings):
@@ -358,7 +536,7 @@ class MinIOSettings(BaseSettings):
     )
 
     enabled: bool = Field(
-        default=False,
+        default=True,
         description="Enable MinIO storage integration",
     )
     endpoint: str = Field(
@@ -370,11 +548,11 @@ class MinIOSettings(BaseSettings):
         description="External MinIO endpoint for access outside cluster",
     )
     access_key: Optional[str] = Field(
-        default=None,
+        default="minioadmin",
         description="MinIO access key",
     )
     secret_key: Optional[str] = Field(
-        default=None,
+        default="minioadmin123",
         description="MinIO secret key",
     )
     secure: bool = Field(
@@ -392,6 +570,225 @@ class MinIOSettings(BaseSettings):
     region: str = Field(
         default="us-east-1",
         description="S3 region (for compatibility)",
+    )
+
+
+class PostgreSQLSettings(BaseSettings):
+    """Configuration for PostgreSQL database persistence."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="POSTGRES_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable PostgreSQL database integration",
+    )
+    host: str = Field(
+        default="postgresql.data-services.svc.cluster.local",
+        description="PostgreSQL server host",
+    )
+    port: int = Field(
+        default=5432,
+        description="PostgreSQL server port",
+    )
+    database: str = Field(
+        default="mlflow",
+        description="Default database name",
+    )
+    user: str = Field(
+        default="mlflow",
+        description="PostgreSQL user",
+    )
+    password: Optional[str] = Field(
+        default="mlflow123",
+        description="PostgreSQL password",
+    )
+    connection_string: Optional[str] = Field(
+        default=None,
+        description="Full PostgreSQL connection string (overrides individual settings)",
+    )
+    
+    @property
+    def dsn(self) -> str:
+        """Get PostgreSQL connection DSN."""
+        if self.connection_string:
+            return self.connection_string
+        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
+
+
+class RedisSettings(BaseSettings):
+    """Configuration for Redis cache and solution store."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="REDIS_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable Redis integration",
+    )
+    url: str = Field(
+        default="redis://localhost:6379",
+        description="Redis connection URL",
+    )
+    host: str = Field(
+        default="localhost",
+        description="Redis server host",
+    )
+    port: int = Field(
+        default=6379,
+        description="Redis server port",
+    )
+    db: int = Field(
+        default=0,
+        description="Redis database number",
+    )
+    password: Optional[str] = Field(
+        default=None,
+        description="Redis password",
+    )
+    prefix: str = Field(
+        default="agentic:",
+        description="Key prefix for all Redis keys",
+    )
+    
+    # Connection pool settings
+    max_connections: int = Field(
+        default=10,
+        description="Maximum number of connections in the pool",
+    )
+    socket_timeout: float = Field(
+        default=5.0,
+        description="Socket timeout in seconds",
+    )
+    socket_connect_timeout: float = Field(
+        default=5.0,
+        description="Socket connection timeout in seconds",
+    )
+    
+    # TTL settings for different cache types
+    default_ttl: int = Field(
+        default=3600,
+        description="Default TTL in seconds (1 hour)",
+    )
+    solution_cache_ttl: int = Field(
+        default=86400,
+        description="TTL for cached solutions (24 hours)",
+    )
+    workflow_state_ttl: int = Field(
+        default=3600,
+        description="TTL for workflow state (1 hour)",
+    )
+    session_cache_ttl: int = Field(
+        default=7200,
+        description="TTL for session data (2 hours)",
+    )
+    embedding_cache_ttl: int = Field(
+        default=604800,
+        description="TTL for cached embeddings (7 days)",
+    )
+    
+    # Feature flags
+    cache_embeddings: bool = Field(
+        default=True,
+        description="Cache embedding vectors in Redis",
+    )
+    cache_solutions: bool = Field(
+        default=True,
+        description="Cache agent solutions in Redis",
+    )
+    cache_workflow_state: bool = Field(
+        default=True,
+        description="Cache workflow state in Redis",
+    )
+    
+    @property
+    def connection_url(self) -> str:
+        """Get Redis connection URL."""
+        if self.url and self.url != "redis://localhost:6379":
+            return self.url
+        
+        if self.password:
+            return f"redis://:{self.password}@{self.host}:{self.port}/{self.db}"
+        return f"redis://{self.host}:{self.port}/{self.db}"
+
+
+class FrameworkAssistantSettings(BaseSettings):
+    """Configuration for the built-in Framework Assistant Agent."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="ASSISTANT_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=True,
+        description="Enable the framework assistant agent",
+    )
+    default_framework: str = Field(
+        default="crewai",
+        description="Default agent framework (crewai, langgraph, autogen, google_adk, agno, langflow)",
+    )
+    model: str = Field(
+        default="llama3.2",
+        description="LLM model for the assistant",
+    )
+    enable_coding_helper: bool = Field(
+        default=True,
+        description="Enable coding assistance features",
+    )
+    enable_framework_guide: bool = Field(
+        default=True,
+        description="Enable framework guidance features",
+    )
+    enable_meta_analysis: bool = Field(
+        default=True,
+        description="Enable meta-analysis for self-improvement suggestions",
+    )
+    rag_enabled: bool = Field(
+        default=True,
+        description="Enable RAG for context-aware responses",
+    )
+    memory_enabled: bool = Field(
+        default=True,
+        description="Enable persistent memory for conversation context",
+    )
+    code_kb_project_id: Optional[str] = Field(
+        default=None,
+        description="Project ID for the code knowledge base",
+    )
+    docs_kb_name: str = Field(
+        default="framework_docs",
+        description="Knowledge base name for framework documentation",
+    )
+    usage_tracking_enabled: bool = Field(
+        default=True,
+        description="Enable usage tracking for analytics and meta-analysis",
+    )
+    usage_db_path: Path = Field(
+        default=Path("./data/observability/usage.db"),
+        description="Path to the usage tracking database",
+    )
+    meta_analysis_interval_hours: int = Field(
+        default=24,
+        description="Interval for automatic meta-analysis runs (in hours)",
+    )
+    max_context_messages: int = Field(
+        default=20,
+        description="Maximum number of messages to include in conversation context",
+    )
+    system_prompt: Optional[str] = Field(
+        default=None,
+        description="Custom system prompt for the assistant (uses default if None)",
     )
 
 
@@ -750,6 +1147,10 @@ class AgenticConfig(BaseSettings):
         default=True,
         description="Enable MLFlow experiment tracking",
     )
+    framework_model: Optional[str] = Field(
+        default=None,
+        description="Model the framework uses for built-in assistant/docs help (falls back to Ollama default)",
+    )
     telemetry_enabled: bool = Field(
         default=True,
         description="Enable OpenTelemetry tracing and metrics",
@@ -782,16 +1183,20 @@ class AgenticConfig(BaseSettings):
     _mlflow: Optional[MLFlowSettings] = None
     _telemetry: Optional[TelemetrySettings] = None
     _vectordb: Optional[VectorDBSettings] = None
+    _embedding: Optional[EmbeddingSettings] = None
     _session: Optional[SessionSettings] = None
     _server: Optional[ServerSettings] = None
     _data_layer: Optional[DataLayerSettings] = None
     _indexing: Optional[IndexingSettings] = None
     _kubernetes: Optional[KubernetesSettings] = None
     _minio: Optional[MinIOSettings] = None
+    _postgresql: Optional[PostgreSQLSettings] = None
+    _redis: Optional[RedisSettings] = None
     _user: Optional[UserConfig] = None
     _session_config: Optional[SessionConfig] = None
     _global: Optional[GlobalConfig] = None
     _project: Optional[ProjectSettings] = None
+    _assistant: Optional[FrameworkAssistantSettings] = None
 
     @property
     def ollama(self) -> OllamaSettings:
@@ -820,6 +1225,13 @@ class AgenticConfig(BaseSettings):
         if self._vectordb is None:
             self._vectordb = VectorDBSettings()
         return self._vectordb
+
+    @property
+    def embedding(self) -> EmbeddingSettings:
+        """Get embedding configuration."""
+        if self._embedding is None:
+            self._embedding = EmbeddingSettings()
+        return self._embedding
 
     @property
     def session(self) -> SessionSettings:
@@ -864,11 +1276,32 @@ class AgenticConfig(BaseSettings):
         return self._minio
 
     @property
+    def postgresql(self) -> PostgreSQLSettings:
+        """Get PostgreSQL database configuration."""
+        if self._postgresql is None:
+            self._postgresql = PostgreSQLSettings()
+        return self._postgresql
+
+    @property
+    def redis(self) -> RedisSettings:
+        """Get Redis cache configuration."""
+        if self._redis is None:
+            self._redis = RedisSettings()
+        return self._redis
+
+    @property
     def project(self) -> ProjectSettings:
         """Get project configuration."""
         if self._project is None:
             self._project = ProjectSettings()
         return self._project
+
+    @property
+    def assistant(self) -> FrameworkAssistantSettings:
+        """Get framework assistant configuration."""
+        if self._assistant is None:
+            self._assistant = FrameworkAssistantSettings()
+        return self._assistant
 
     @property
     def user(self) -> UserConfig:
@@ -1016,6 +1449,7 @@ class AgenticConfig(BaseSettings):
                 "experiment_name": self.mlflow.experiment_name,
                 "artifact_location": self.mlflow.artifact_location,
             },
+            "framework_model": self.framework_model or self.ollama.default_model,
             "telemetry": {
                 "endpoint": self.telemetry.exporter_otlp_endpoint,
                 "service_name": self.telemetry.service_name,
@@ -1025,6 +1459,21 @@ class AgenticConfig(BaseSettings):
                 "path": str(self.vectordb.path),
                 "embedding_model": self.vectordb.embedding_model,
                 "embedding_dimension": self.vectordb.embedding_dimension,
+                "default_scope": self.vectordb.default_scope,
+                "global_namespace": self.vectordb.global_namespace,
+                "enable_cross_scope_search": self.vectordb.enable_cross_scope_search,
+                "enable_scope_inheritance": self.vectordb.enable_scope_inheritance,
+                "track_lineage": self.vectordb.track_lineage,
+            },
+            "embedding": {
+                "mode": self.embedding.mode,
+                "local_provider": self.embedding.local_provider,
+                "local_model": self.embedding.local_model,
+                "remote_provider": self.embedding.remote_provider,
+                "remote_model": self.embedding.remote_model,
+                "fallback_to_local": self.embedding.fallback_to_local,
+                "batch_size": self.embedding.batch_size,
+                "cache_embeddings": self.embedding.cache_embeddings,
             },
             "session": {
                 "database_path": str(self.session.database_path),
@@ -1080,11 +1529,37 @@ class AgenticConfig(BaseSettings):
                 "default_bucket": self.minio.default_bucket,
                 "model_bucket": self.minio.model_bucket,
             },
+            "redis": {
+                "enabled": self.redis.enabled,
+                "url": self.redis.connection_url,
+                "prefix": self.redis.prefix,
+                "default_ttl": self.redis.default_ttl,
+                "solution_cache_ttl": self.redis.solution_cache_ttl,
+                "workflow_state_ttl": self.redis.workflow_state_ttl,
+                "cache_embeddings": self.redis.cache_embeddings,
+                "cache_solutions": self.redis.cache_solutions,
+            },
             "project": {
                 "project_id": self.project.project_id,
                 "auto_index": self.project.auto_index,
                 "indexing_version": self.project.indexing_version,
                 "data_sources": self.project.data_sources,
+            },
+            "assistant": {
+                "enabled": self.assistant.enabled,
+                "default_framework": self.assistant.default_framework,
+                "model": self.assistant.model,
+                "enable_coding_helper": self.assistant.enable_coding_helper,
+                "enable_framework_guide": self.assistant.enable_framework_guide,
+                "enable_meta_analysis": self.assistant.enable_meta_analysis,
+                "rag_enabled": self.assistant.rag_enabled,
+                "memory_enabled": self.assistant.memory_enabled,
+                "code_kb_project_id": self.assistant.code_kb_project_id,
+                "docs_kb_name": self.assistant.docs_kb_name,
+                "usage_tracking_enabled": self.assistant.usage_tracking_enabled,
+                "usage_db_path": str(self.assistant.usage_db_path),
+                "meta_analysis_interval_hours": self.assistant.meta_analysis_interval_hours,
+                "max_context_messages": self.assistant.max_context_messages,
             },
         }
     

@@ -3,7 +3,38 @@
 import * as React from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Loader2, Trash2, Bot, GitBranch, FileText, Database, Server, Search, RefreshCw, CheckCircle2, XCircle, Clock, Link2, Sparkles, MoreHorizontal } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Save, 
+  Loader2, 
+  Trash2, 
+  Bot, 
+  GitBranch, 
+  FileText, 
+  Database, 
+  Server, 
+  Search, 
+  RefreshCw, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  Link2, 
+  Sparkles, 
+  MoreHorizontal,
+  Plus,
+  Globe,
+  Plug,
+  Monitor,
+  Container,
+  Cpu,
+  Cloud,
+  ExternalLink,
+  Play,
+  Pause,
+  Activity,
+  Code,
+  Terminal
+} from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +44,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { HelpTooltip } from "@/components/help/help-tooltip";
 import {
   Select,
   SelectContent,
@@ -32,11 +65,26 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { GenerationModal, useGenerationModal } from "@/components/generation-modal";
 import { 
   useProject, 
@@ -44,6 +92,8 @@ import {
   useCreateNote,
   useDataSources,
   useProjectServices,
+  useCreateProjectService,
+  useCheckServiceHealth,
   useProjectGitConfig,
   useUpdateProjectGitConfig,
   useSyncProjectGit,
@@ -552,11 +602,321 @@ function ProjectDataSourcesTab({ projectId }: { projectId: string }) {
 }
 
 // ============================================================================
+// Service Types Configuration
+// ============================================================================
+
+interface ServiceTypeConfig {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  description: string;
+  color: string;
+  category: "frontend" | "backend" | "infrastructure" | "development";
+}
+
+const SERVICE_TYPES: ServiceTypeConfig[] = [
+  {
+    id: "web_ui",
+    name: "Web UI",
+    icon: <Globe className="size-5" />,
+    description: "Frontend web application or dashboard",
+    color: "from-blue-500 to-cyan-500",
+    category: "frontend",
+  },
+  {
+    id: "api_endpoint",
+    name: "API Endpoint",
+    icon: <Plug className="size-5" />,
+    description: "REST or GraphQL API service",
+    color: "from-purple-500 to-pink-500",
+    category: "backend",
+  },
+  {
+    id: "ml_deployment",
+    name: "ML Deployment",
+    icon: <Cpu className="size-5" />,
+    description: "Machine learning model serving endpoint",
+    color: "from-green-500 to-emerald-500",
+    category: "backend",
+  },
+  {
+    id: "model_endpoint",
+    name: "Model Endpoint",
+    icon: <Bot className="size-5" />,
+    description: "LLM or AI model inference endpoint",
+    color: "from-orange-500 to-amber-500",
+    category: "backend",
+  },
+  {
+    id: "remote_dev_server",
+    name: "Remote Dev Server",
+    icon: <Terminal className="size-5" />,
+    description: "Remote development environment (SSH, VS Code Server)",
+    color: "from-gray-600 to-gray-700",
+    category: "development",
+  },
+  {
+    id: "container_registry",
+    name: "Container Registry",
+    icon: <Container className="size-5" />,
+    description: "Docker/OCI container image registry",
+    color: "from-sky-500 to-blue-600",
+    category: "infrastructure",
+  },
+  {
+    id: "file_store",
+    name: "File Store",
+    icon: <Cloud className="size-5" />,
+    description: "Object storage or file server",
+    color: "from-teal-500 to-cyan-600",
+    category: "infrastructure",
+  },
+  {
+    id: "background_service",
+    name: "Background Service",
+    icon: <Activity className="size-5" />,
+    description: "Worker, scheduler, or background job processor",
+    color: "from-indigo-500 to-violet-600",
+    category: "backend",
+  },
+  {
+    id: "database",
+    name: "Database",
+    icon: <Database className="size-5" />,
+    description: "Database management interface",
+    color: "from-rose-500 to-red-600",
+    category: "infrastructure",
+  },
+];
+
+// ============================================================================
+// Add Service Dialog
+// ============================================================================
+
+function AddServiceDialog({
+  projectId,
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  projectId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: () => void;
+}) {
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { trigger: createService } = useCreateProjectService(projectId);
+  
+  const [formData, setFormData] = React.useState({
+    name: "",
+    service_type: "web_ui",
+    endpoint_url: "",
+    description: "",
+    health_endpoint: "",
+    auth_type: "none",
+  });
+
+  React.useEffect(() => {
+    if (open) {
+      setFormData({
+        name: "",
+        service_type: "web_ui",
+        endpoint_url: "",
+        description: "",
+        health_endpoint: "",
+        auth_type: "none",
+      });
+    }
+  }, [open]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) {
+      toast.error("Service name is required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createService({
+        name: formData.name.trim(),
+        service_type: formData.service_type,
+        endpoint_url: formData.endpoint_url.trim(),
+        description: formData.description.trim(),
+        health_endpoint: formData.health_endpoint.trim() || null,
+        auth_type: formData.auth_type === "none" ? null : formData.auth_type,
+      });
+
+      toast.success("Service added");
+      onOpenChange(false);
+      onCreated();
+    } catch (error) {
+      toast.error("Failed to add service");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const selectedType = SERVICE_TYPES.find((t) => t.id === formData.service_type);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Add Service</DialogTitle>
+            <DialogDescription>
+              Connect a web UI, API, ML deployment, or other service to this project
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            {/* Service Type Selection */}
+            <div className="space-y-2">
+              <Label>Service Type</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {SERVICE_TYPES.slice(0, 6).map((type) => (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, service_type: type.id })}
+                    className={`p-3 rounded-lg border transition-all text-left ${
+                      formData.service_type === type.id
+                        ? "border-primary bg-primary/5"
+                        : "border-transparent bg-muted/50 hover:bg-muted"
+                    }`}
+                  >
+                    <div className={`p-1.5 rounded-md bg-gradient-to-br ${type.color} text-white w-fit mb-2`}>
+                      {type.icon}
+                    </div>
+                    <p className="text-xs font-medium">{type.name}</p>
+                  </button>
+                ))}
+              </div>
+              <Select
+                value={formData.service_type}
+                onValueChange={(v) => setFormData({ ...formData, service_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SERVICE_TYPES.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      <div className="flex items-center gap-2">
+                        {type.icon}
+                        <span>{type.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedType && (
+                <p className="text-xs text-muted-foreground">{selectedType.description}</p>
+              )}
+            </div>
+
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="service-name">Name *</Label>
+              <Input
+                id="service-name"
+                placeholder="My Service"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            {/* Endpoint URL */}
+            <div className="space-y-2">
+              <Label htmlFor="endpoint-url">Endpoint URL</Label>
+              <Input
+                id="endpoint-url"
+                placeholder="https://api.example.com"
+                value={formData.endpoint_url}
+                onChange={(e) => setFormData({ ...formData, endpoint_url: e.target.value })}
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="service-description">Description</Label>
+              <Textarea
+                id="service-description"
+                placeholder="Brief description of this service..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={2}
+              />
+            </div>
+
+            {/* Health Endpoint */}
+            <div className="space-y-2">
+              <Label htmlFor="health-endpoint">Health Check Endpoint</Label>
+              <Input
+                id="health-endpoint"
+                placeholder="/health or /api/health"
+                value={formData.health_endpoint}
+                onChange={(e) => setFormData({ ...formData, health_endpoint: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Relative path for health checks (appended to endpoint URL)
+              </p>
+            </div>
+
+            {/* Auth Type */}
+            <div className="space-y-2">
+              <Label>Authentication</Label>
+              <Select
+                value={formData.auth_type}
+                onValueChange={(v) => setFormData({ ...formData, auth_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="api_key">API Key</SelectItem>
+                  <SelectItem value="bearer">Bearer Token</SelectItem>
+                  <SelectItem value="basic">Basic Auth</SelectItem>
+                  <SelectItem value="oauth">OAuth</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Plus className="size-4 mr-2" />
+                  Add Service
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ============================================================================
 // Services Tab Component
 // ============================================================================
 
 function ProjectServicesTab({ projectId }: { projectId: string }) {
   const { data: services, isLoading, mutate } = useProjectServices(projectId);
+  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+  const [checkingHealth, setCheckingHealth] = React.useState<Set<string>>(new Set());
 
   if (isLoading) {
     return (
@@ -577,94 +937,225 @@ function ProjectServicesTab({ projectId }: { projectId: string }) {
   const projectServices = services?.items || [];
 
   const getServiceIcon = (type: string) => {
-    switch (type) {
-      case "web_ui": return "🌐";
-      case "api": return "🔌";
-      case "ml_deployment": return "🤖";
-      case "jupyter": return "📓";
-      case "mlflow": return "📊";
-      case "remote_dev": return "💻";
-      default: return "⚙️";
+    const serviceType = SERVICE_TYPES.find((t) => t.id === type);
+    if (serviceType) {
+      return (
+        <div className={`p-2 rounded-md bg-gradient-to-br ${serviceType.color} text-white`}>
+          {serviceType.icon}
+        </div>
+      );
+    }
+    return (
+      <div className="p-2 rounded-md bg-muted">
+        <Server className="size-5" />
+      </div>
+    );
+  };
+
+  const handleCheckHealth = async (serviceId: string) => {
+    setCheckingHealth((prev) => new Set([...prev, serviceId]));
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/projects/${projectId}/services/${serviceId}/health`,
+        { method: "POST" }
+      );
+      const result = await response.json();
+      if (result.status === "healthy") {
+        toast.success("Service is healthy");
+      } else {
+        toast.error(result.message || "Service is unhealthy");
+      }
+      mutate();
+    } catch (error) {
+      toast.error("Failed to check health");
+    } finally {
+      setCheckingHealth((prev) => {
+        const next = new Set(prev);
+        next.delete(serviceId);
+        return next;
+      });
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string, serviceName: string) => {
+    if (!confirm(`Delete service "${serviceName}"?`)) return;
+    
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/projects/${projectId}/services/${serviceId}`,
+        { method: "DELETE" }
+      );
+      if (response.ok) {
+        toast.success("Service deleted");
+        mutate();
+      } else {
+        toast.error("Failed to delete service");
+      }
+    } catch (error) {
+      toast.error("Failed to delete service");
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Project Services</CardTitle>
-            <CardDescription>
-              Web UIs, API endpoints, ML deployments, and development servers
-            </CardDescription>
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Project Services</CardTitle>
+              <CardDescription>
+                Web UIs, API endpoints, ML deployments, and development servers
+              </CardDescription>
+            </div>
+            <Button size="sm" onClick={() => setAddDialogOpen(true)}>
+              <Plus className="size-4 mr-2" />
+              Add Service
+            </Button>
           </div>
-          <Button size="sm">
-            <Server className="size-4 mr-2" />
-            Add Service
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {projectServices.length > 0 ? (
-          <div className="space-y-3">
-            {projectServices.map((service) => (
-              <div
-                key={service.id}
-                className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-2 rounded-md bg-primary/10 text-xl">
+        </CardHeader>
+        <CardContent>
+          {projectServices.length > 0 ? (
+            <div className="space-y-3">
+              {projectServices.map((service) => (
+                <div
+                  key={service.id}
+                  className="group flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
                     {getServiceIcon(service.service_type)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{service.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {service.service_type}
-                      </Badge>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{service.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {service.service_type.replace(/_/g, " ")}
+                        </Badge>
+                      </div>
+                      {service.endpoint_url && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Link2 className="size-3" />
+                          {service.endpoint_url}
+                        </p>
+                      )}
+                      {service.description && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                          {service.description}
+                        </p>
+                      )}
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={service.status === "healthy" ? "default" : service.status === "unhealthy" ? "destructive" : "secondary"}
+                      className="gap-1"
+                    >
+                      {service.status === "healthy" ? (
+                        <CheckCircle2 className="size-3" />
+                      ) : service.status === "unhealthy" ? (
+                        <XCircle className="size-3" />
+                      ) : (
+                        <Clock className="size-3" />
+                      )}
+                      {service.status}
+                    </Badge>
+                    
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            onClick={() => handleCheckHealth(service.id)}
+                            disabled={checkingHealth.has(service.id)}
+                          >
+                            {checkingHealth.has(service.id) ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <RefreshCw className="size-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Check Health</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
                     {service.endpoint_url && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Link2 className="size-3" />
-                        {service.endpoint_url}
-                      </p>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8" asChild>
+                              <a href={service.endpoint_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="size-4" />
+                              </a>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Open in new tab</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleCheckHealth(service.id)}>
+                          <RefreshCw className="size-4 mr-2" />
+                          Check Health
+                        </DropdownMenuItem>
+                        {service.endpoint_url && (
+                          <DropdownMenuItem asChild>
+                            <a href={service.endpoint_url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="size-4 mr-2" />
+                              Open Service
+                            </a>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleDeleteService(service.id, service.name)}
+                        >
+                          <Trash2 className="size-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    variant={service.status === "healthy" ? "default" : service.status === "unhealthy" ? "destructive" : "secondary"}
-                    className="gap-1"
-                  >
-                    {service.status === "healthy" ? (
-                      <CheckCircle2 className="size-3" />
-                    ) : service.status === "unhealthy" ? (
-                      <XCircle className="size-3" />
-                    ) : (
-                      <Clock className="size-3" />
-                    )}
-                    {service.status}
-                  </Badge>
-                  {service.endpoint_url && (
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={service.endpoint_url} target="_blank" rel="noopener noreferrer">
-                        Open
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <Server className="size-12 mx-auto mb-4 opacity-50" />
-            <p>No services configured</p>
-            <p className="text-sm mt-1">Add web UIs, APIs, or ML deployments</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Server className="size-12 mx-auto mb-4 opacity-50" />
+              <p>No services configured</p>
+              <p className="text-sm mt-1">Add web UIs, APIs, or ML deployments</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setAddDialogOpen(true)}
+              >
+                <Plus className="size-4 mr-2" />
+                Add First Service
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <AddServiceDialog
+        projectId={projectId}
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onCreated={() => mutate()}
+      />
+    </>
   );
 }
 
@@ -809,16 +1300,100 @@ function ProjectIndexingTab({ projectId }: { projectId: string }) {
 // Git Tab Component
 // ============================================================================
 
+const API_BASE = "http://localhost:8080/api/v1";
+
+interface GitStatus {
+  project_id: string;
+  is_git_repo: boolean;
+  branch?: string;
+  is_clean: boolean;
+  staged_files: string[];
+  modified_files: string[];
+  untracked_files: string[];
+  ahead: number;
+  behind: number;
+  has_remote: boolean;
+  remote_url?: string;
+}
+
+interface SSHKey {
+  name: string;
+  path: string;
+  has_public_key: boolean;
+  public_key?: string;
+  created?: string;
+}
+
+function useGitStatus(projectId: string) {
+  const [data, setData] = React.useState<GitStatus | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const refresh = React.useCallback(() => {
+    setIsLoading(true);
+    fetch(`${API_BASE}/projects/${projectId}/git/status`)
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setData(null);
+        setIsLoading(false);
+      });
+  }, [projectId]);
+
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { data, isLoading, refresh };
+}
+
+function useSSHKeys() {
+  const [data, setData] = React.useState<SSHKey[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const refresh = React.useCallback(() => {
+    setIsLoading(true);
+    fetch(`${API_BASE}/projects/ssh-keys`)
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data || []);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setData([]);
+        setIsLoading(false);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { data, isLoading, refresh };
+}
+
 function ProjectGitTab({ projectId }: { projectId: string }) {
-  const { data: gitConfig, isLoading, mutate } = useProjectGitConfig(projectId);
+  const { data: gitConfig, isLoading: isConfigLoading, mutate } = useProjectGitConfig(projectId);
   const { trigger: updateGitConfig, isMutating: isUpdating } = useUpdateProjectGitConfig(projectId);
   const { trigger: syncGit, isMutating: isSyncing } = useSyncProjectGit(projectId);
+  const { data: gitStatus, isLoading: isStatusLoading, refresh: refreshStatus } = useGitStatus(projectId);
+  const { data: sshKeys, refresh: refreshKeys } = useSSHKeys();
 
   const [formData, setFormData] = React.useState({
     remote_url: "",
     branch: "main",
     auto_sync: false,
   });
+
+  const [isInitializing, setIsInitializing] = React.useState(false);
+  const [isCloning, setIsCloning] = React.useState(false);
+  const [cloneUrl, setCloneUrl] = React.useState("");
+  const [showCloneDialog, setShowCloneDialog] = React.useState(false);
+  const [showKeyDialog, setShowKeyDialog] = React.useState(false);
+  const [newKeyName, setNewKeyName] = React.useState("");
+  const [isGeneratingKey, setIsGeneratingKey] = React.useState(false);
 
   React.useEffect(() => {
     if (gitConfig) {
@@ -843,11 +1418,103 @@ function ProjectGitTab({ projectId }: { projectId: string }) {
   const handleSync = async () => {
     try {
       await syncGit();
-      toast.success("Git sync initiated");
+      toast.success("Git sync completed");
+      refreshStatus();
     } catch (error) {
       toast.error("Failed to sync repository");
     }
   };
+
+  const handleInit = async () => {
+    setIsInitializing(true);
+    try {
+      const response = await fetch(`${API_BASE}/projects/${projectId}/git/init`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initial_branch: "main" }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to initialize repository");
+      }
+
+      toast.success("Git repository initialized");
+      refreshStatus();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to initialize repository");
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  const handleClone = async () => {
+    if (!cloneUrl.trim()) {
+      toast.error("Repository URL is required");
+      return;
+    }
+
+    setIsCloning(true);
+    try {
+      const response = await fetch(`${API_BASE}/projects/${projectId}/git/clone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: cloneUrl.trim() }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to clone repository");
+      }
+
+      toast.success("Repository cloned successfully");
+      setShowCloneDialog(false);
+      setCloneUrl("");
+      refreshStatus();
+      mutate();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to clone repository");
+    } finally {
+      setIsCloning(false);
+    }
+  };
+
+  const handleGenerateKey = async () => {
+    if (!newKeyName.trim()) {
+      toast.error("Key name is required");
+      return;
+    }
+
+    setIsGeneratingKey(true);
+    try {
+      const response = await fetch(`${API_BASE}/projects/ssh-keys`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newKeyName.trim(), key_type: "ed25519" }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to generate key");
+      }
+
+      toast.success("SSH key generated");
+      setShowKeyDialog(false);
+      setNewKeyName("");
+      refreshKeys();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to generate key");
+    } finally {
+      setIsGeneratingKey(false);
+    }
+  };
+
+  const handleCopyPublicKey = (publicKey: string) => {
+    navigator.clipboard.writeText(publicKey);
+    toast.success("Public key copied to clipboard");
+  };
+
+  const isLoading = isConfigLoading || isStatusLoading;
 
   if (isLoading) {
     return (
@@ -862,108 +1529,328 @@ function ProjectGitTab({ projectId }: { projectId: string }) {
     );
   }
 
+  const isGitRepo = gitStatus?.is_git_repo ?? false;
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Git Configuration</CardTitle>
-            <CardDescription>
-              Connect your project to a Git repository
-            </CardDescription>
+    <div className="space-y-6">
+      {/* Repository Status */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <GitBranch className="size-5" />
+                Repository Status
+              </CardTitle>
+              <CardDescription>
+                {isGitRepo ? "Git repository is configured" : "No git repository detected"}
+              </CardDescription>
+            </div>
+            {isGitRepo && gitStatus?.has_remote && (
+              <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="size-4 mr-2" />
+                    Sync
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-          {gitConfig?.remote_url && (
-            <Button 
-              variant="outline" 
-              onClick={handleSync}
-              disabled={isSyncing}
-            >
-              {isSyncing ? (
+        </CardHeader>
+        <CardContent>
+          {!isGitRepo ? (
+            <div className="space-y-4">
+              <div className="p-6 rounded-lg border-2 border-dashed text-center">
+                <GitBranch className="size-10 mx-auto mb-3 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-4">
+                  This project doesn&apos;t have a git repository yet
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <Button onClick={handleInit} disabled={isInitializing}>
+                    {isInitializing ? (
+                      <>
+                        <Loader2 className="size-4 mr-2 animate-spin" />
+                        Initializing...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="size-4 mr-2" />
+                        Initialize Repository
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowCloneDialog(true)}>
+                    <Cloud className="size-4 mr-2" />
+                    Clone from URL
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Status Overview */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <p className="text-sm text-muted-foreground">Branch</p>
+                  <p className="font-medium">{gitStatus?.branch || "unknown"}</p>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <div className="flex items-center gap-2">
+                    {gitStatus?.is_clean ? (
+                      <>
+                        <CheckCircle2 className="size-4 text-green-500" />
+                        <span className="font-medium">Clean</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="size-4 text-yellow-500" />
+                        <span className="font-medium">Modified</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <p className="text-sm text-muted-foreground">Ahead/Behind</p>
+                  <p className="font-medium">
+                    {gitStatus?.ahead || 0} / {gitStatus?.behind || 0}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <p className="text-sm text-muted-foreground">Remote</p>
+                  <p className="font-medium">{gitStatus?.has_remote ? "Connected" : "None"}</p>
+                </div>
+              </div>
+
+              {/* Modified Files */}
+              {!gitStatus?.is_clean && (
+                <div className="p-4 rounded-lg border">
+                  <p className="text-sm font-medium mb-2">Changes</p>
+                  <div className="space-y-2 text-sm">
+                    {(gitStatus?.staged_files || []).map((file) => (
+                      <div key={file} className="flex items-center gap-2 text-green-600">
+                        <CheckCircle2 className="size-3" />
+                        <span>Staged: {file}</span>
+                      </div>
+                    ))}
+                    {(gitStatus?.modified_files || []).map((file) => (
+                      <div key={file} className="flex items-center gap-2 text-yellow-600">
+                        <Code className="size-3" />
+                        <span>Modified: {file}</span>
+                      </div>
+                    ))}
+                    {(gitStatus?.untracked_files || []).slice(0, 5).map((file) => (
+                      <div key={file} className="flex items-center gap-2 text-muted-foreground">
+                        <Plus className="size-3" />
+                        <span>Untracked: {file}</span>
+                      </div>
+                    ))}
+                    {(gitStatus?.untracked_files || []).length > 5 && (
+                      <p className="text-xs text-muted-foreground">
+                        ...and {gitStatus!.untracked_files.length - 5} more untracked files
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Remote Configuration */}
+      {isGitRepo && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Remote Configuration</CardTitle>
+            <CardDescription>Configure the remote repository connection</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="remote_url">Repository URL</Label>
+              <Input
+                id="remote_url"
+                placeholder="https://github.com/user/repo.git"
+                value={formData.remote_url}
+                onChange={(e) => setFormData({ ...formData, remote_url: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">HTTPS or SSH URL</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="branch">Default Branch</Label>
+              <Input
+                id="branch"
+                placeholder="main"
+                value={formData.branch}
+                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-lg border">
+              <div>
+                <p className="font-medium">Auto Sync</p>
+                <p className="text-sm text-muted-foreground">
+                  Automatically sync changes with remote
+                </p>
+              </div>
+              <Button
+                variant={formData.auto_sync ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFormData({ ...formData, auto_sync: !formData.auto_sync })}
+              >
+                {formData.auto_sync ? "Enabled" : "Disabled"}
+              </Button>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={handleSave} disabled={isUpdating}>
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="size-4 mr-2" />
+                    Save Configuration
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* SSH Keys */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>SSH Keys</CardTitle>
+              <CardDescription>Manage SSH keys for Git authentication</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setShowKeyDialog(true)}>
+              <Plus className="size-4 mr-2" />
+              Generate Key
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {sshKeys.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <Terminal className="size-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No SSH keys generated yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sshKeys.map((key) => (
+                <div key={key.name} className="p-4 rounded-lg border bg-muted/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium">{key.name}</span>
+                    {key.public_key && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopyPublicKey(key.public_key!)}
+                      >
+                        Copy Public Key
+                      </Button>
+                    )}
+                  </div>
+                  {key.public_key && (
+                    <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                      {key.public_key.substring(0, 80)}...
+                    </pre>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Clone Dialog */}
+      <Dialog open={showCloneDialog} onOpenChange={setShowCloneDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clone Repository</DialogTitle>
+            <DialogDescription>Enter the URL of the repository to clone</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="clone-url">Repository URL</Label>
+              <Input
+                id="clone-url"
+                placeholder="https://github.com/user/repo.git"
+                value={cloneUrl}
+                onChange={(e) => setCloneUrl(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCloneDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleClone} disabled={isCloning}>
+              {isCloning ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
-                  Syncing...
+                  Cloning...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="size-4 mr-2" />
-                  Sync Now
+                  <Cloud className="size-4 mr-2" />
+                  Clone
                 </>
               )}
             </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Remote URL */}
-        <div className="space-y-2">
-          <Label htmlFor="remote_url">Repository URL</Label>
-          <Input
-            id="remote_url"
-            placeholder="https://github.com/user/repo.git"
-            value={formData.remote_url}
-            onChange={(e) => setFormData({ ...formData, remote_url: e.target.value })}
-          />
-          <p className="text-xs text-muted-foreground">
-            HTTPS or SSH URL for your Git repository
-          </p>
-        </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {/* Branch */}
-        <div className="space-y-2">
-          <Label htmlFor="branch">Default Branch</Label>
-          <Input
-            id="branch"
-            placeholder="main"
-            value={formData.branch}
-            onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-          />
-        </div>
-
-        {/* Auto Sync */}
-        <div className="flex items-center justify-between p-4 rounded-lg border">
-          <div>
-            <p className="font-medium">Auto Sync</p>
-            <p className="text-sm text-muted-foreground">
-              Automatically sync changes with remote repository
-            </p>
+      {/* Generate Key Dialog */}
+      <Dialog open={showKeyDialog} onOpenChange={setShowKeyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate SSH Key</DialogTitle>
+            <DialogDescription>Create a new SSH key for Git authentication</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="key-name">Key Name</Label>
+              <Input
+                id="key-name"
+                placeholder="my-project-key"
+                value={newKeyName}
+                onChange={(e) => setNewKeyName(e.target.value)}
+              />
+            </div>
           </div>
-          <Button
-            variant={formData.auto_sync ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFormData({ ...formData, auto_sync: !formData.auto_sync })}
-          >
-            {formData.auto_sync ? "Enabled" : "Disabled"}
-          </Button>
-        </div>
-
-        {/* Status */}
-        {gitConfig?.last_synced && (
-          <div className="p-4 rounded-lg border bg-muted/30">
-            <p className="text-sm text-muted-foreground">Last Synced</p>
-            <p className="font-medium">
-              {new Date(gitConfig.last_synced).toLocaleString()}
-            </p>
-          </div>
-        )}
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={isUpdating}>
-            {isUpdating ? (
-              <>
-                <Loader2 className="size-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="size-4 mr-2" />
-                Save Configuration
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowKeyDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleGenerateKey} disabled={isGeneratingKey}>
+              {isGeneratingKey ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate Key"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -1022,15 +1909,17 @@ function NotesTabWithGeneration({
               </CardDescription>
             </div>
             {selectedText && (
-              <Button 
-                size="sm" 
-                variant="secondary"
-                onClick={handleGenerateFromSelection}
-                className="gap-2"
-              >
-                <Sparkles className="size-4" />
-                Generate from Selection
-              </Button>
+              <HelpTooltip content="Send selected note text to the AI generator to draft a component.">
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  onClick={handleGenerateFromSelection}
+                  className="gap-2"
+                >
+                  <Sparkles className="size-4" />
+                  Generate from Selection
+                </Button>
+              </HelpTooltip>
             )}
           </div>
         </CardHeader>
@@ -1048,13 +1937,15 @@ function NotesTabWithGeneration({
                 Add
               </Button>
               {newNote.trim() && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => generationModal.openWithNotes(newNote)}
-                >
-                  <Sparkles className="size-4" />
-                </Button>
+                  <HelpTooltip content="Draft a component directly from this note without saving it first.">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => generationModal.openWithNotes(newNote)}
+                    >
+                      <Sparkles className="size-4" />
+                    </Button>
+                  </HelpTooltip>
               )}
             </div>
           </div>
@@ -1094,15 +1985,17 @@ function NotesTabWithGeneration({
                     <p className="text-xs text-muted-foreground">
                       {new Date(note.created_at).toLocaleString()}
                     </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs h-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleGenerateFromNote(note.content)}
-                    >
-                      <Sparkles className="size-3 mr-1" />
-                      Generate
-                    </Button>
+                    <HelpTooltip content="Turn this note into a starter component with the AI generator.">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs h-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleGenerateFromNote(note.content)}
+                      >
+                        <Sparkles className="size-3 mr-1" />
+                        Generate
+                      </Button>
+                    </HelpTooltip>
                   </div>
                 </div>
               ))}

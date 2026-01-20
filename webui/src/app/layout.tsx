@@ -5,6 +5,8 @@ import { Providers } from "@/components/providers";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Header } from "@/components/layout/header";
+import { HelpPanel } from "@/components/help/help-panel";
+import { NotesPanel } from "@/components/learning/notes-panel";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-sans",
@@ -41,9 +43,13 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset>
               <Header />
-              <main className="flex-1 overflow-auto p-6">
-                {children}
-              </main>
+              <div className="relative flex-1">
+                <main className="h-full overflow-auto p-6 pr-6 md:pr-8">
+                  {children}
+                </main>
+                <HelpPanel />
+                <NotesPanel />
+              </div>
             </SidebarInset>
           </SidebarProvider>
         </Providers>

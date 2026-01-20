@@ -1,6 +1,0 @@
-#!C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\py11_venv\Scripts\python.exe
-import sys
-from agentic_assistants.cli import cli
-
-if __name__ == '__main__':
-    sys.exit(cli())

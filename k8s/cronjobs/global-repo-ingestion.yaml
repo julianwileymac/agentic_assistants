@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: global-repo-ingestion
+  namespace: agentic
+  labels:
+    app: global-repo-ingestion
+    app.kubernetes.io/component: scheduler
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: global-repo-ingestion
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: global-repo-ingestion
+              image: agentic-assistants:latest
+              imagePullPolicy: IfNotPresent
+              command:
+                - python
+                - -m
+                - agentic_assistants.pipelines.run_repo_ingestion
+                - --config
+                - /app/examples/global-knowledgebase-starter/config.yaml
+              envFrom:
+                - configMapRef:
+                    name: agentic-config
+              env:
+                - name: REDIS_URL
+                  value: "redis://redis:6379"
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "500m"

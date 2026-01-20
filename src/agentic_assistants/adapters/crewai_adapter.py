@@ -55,10 +55,13 @@ class CrewAIAdapter(BaseAdapter):
         default_model: Default LLM model for agents
     """
 
+    framework_name = "crewai"
+
     def __init__(
         self,
         config: Optional[AgenticConfig] = None,
         default_model: Optional[str] = None,
+        **kwargs,
     ):
         """
         Initialize the CrewAI adapter.
@@ -66,8 +69,9 @@ class CrewAIAdapter(BaseAdapter):
         Args:
             config: Configuration instance
             default_model: Default model for agents (uses config default if None)
+            **kwargs: Additional arguments passed to BaseAdapter
         """
-        super().__init__(config, name="CrewAI")
+        super().__init__(config, name="CrewAI", **kwargs)
         self.default_model = default_model or self.config.ollama.default_model
 
     def run(self, crew: Any, inputs: Optional[dict] = None, **kwargs) -> Any:

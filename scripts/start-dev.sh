@@ -193,24 +193,24 @@ function start_python_backend() {
             return 1
         fi
         
-        # Check if backend is responding (try multiple methods)
+        # Check if backend is ready using lightweight /ready endpoint
         # Method 1: curl
         if command -v curl &> /dev/null; then
-            if curl -s --connect-timeout 2 http://localhost:8080/health > /dev/null 2>&1; then
+            if curl -s --connect-timeout 2 http://localhost:8080/ready > /dev/null 2>&1; then
                 echo ""
                 write_success "Backend is ready"
                 return 0
             fi
         # Method 2: wget
         elif command -v wget &> /dev/null; then
-            if wget -q --timeout=2 --spider http://localhost:8080/health 2>/dev/null; then
+            if wget -q --timeout=2 --spider http://localhost:8080/ready 2>/dev/null; then
                 echo ""
                 write_success "Backend is ready"
                 return 0
             fi
         # Method 3: Python (works on all platforms)
         else
-            if python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)" 2>/dev/null; then
+            if python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/ready', timeout=2)" 2>/dev/null; then
                 echo ""
                 write_success "Backend is ready"
                 return 0

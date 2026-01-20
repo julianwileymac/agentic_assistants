@@ -15,14 +15,21 @@ import {
   Layers,
   Container,
   ArrowRight,
+  AlertTriangle,
+  Info,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Lightbulb,
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
-import { useClusterInfo, useKubernetesStatus } from "@/lib/api";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useClusterInfo, useKubernetesStatus, useKubernetesDiagnostics } from "@/lib/api";
+import { KubernetesComponentWizard } from "@/components/kubernetes-component-wizard";
 
 function StatusIndicator({ status }: { status: string }) {
   if (status === "Ready") {
@@ -44,8 +51,17 @@ function parseMemory(memStr: string): number {
 export default function KubernetesPage() {
   const { data: cluster, isLoading, mutate } = useClusterInfo();
   const { data: status } = useKubernetesStatus();
+  const { data: diagnostics, mutate: mutateDiagnostics } = useKubernetesDiagnostics();
+  const [showDiagnostics, setShowDiagnostics] = React.useState(false);
 
   const isConnected = cluster?.is_connected ?? false;
+  const hasWarnings = status?.warnings && status.warnings.length > 0;
+  const hasCapabilities = status?.capabilities && Object.keys(status.capabilities).length > 0;
+
+  const handleRefresh = () => {
+    mutate();
+    mutateDiagnostics();
+  };
 
   return (
     <div className="space-y-6">
@@ -58,37 +74,168 @@ export default function KubernetesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant={isConnected ? "default" : "destructive"}>
-            {isConnected ? "Connected" : "Disconnected"}
+          <Badge variant={isConnected ? (hasWarnings ? "secondary" : "default") : "destructive"}>
+            {isConnected ? (hasWarnings ? "Partial" : "Connected") : "Disconnected"}
           </Badge>
-          <Button variant="outline" onClick={() => mutate()}>
+          <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className="size-4 mr-2" />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Connection Status */}
+      {/* Connection Status - Enhanced */}
       {!isConnected && !isLoading && (
         <Card className="border-destructive bg-destructive/5">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <XCircle className="size-8 text-destructive" />
-              <div>
-                <h3 className="font-semibold">Cluster Not Connected</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure your Kubernetes connection in Settings to enable cluster management.
-                </p>
-                <Link href="/settings">
-                  <Button variant="link" className="px-0 mt-2">
-                    Go to Settings <ArrowRight className="size-4 ml-1" />
-                  </Button>
-                </Link>
+            <div className="flex items-start gap-4">
+              <XCircle className="size-8 text-destructive shrink-0" />
+              <div className="flex-1 space-y-4">
+                <div>
+                  <h3 className="font-semibold">Cluster Not Connected</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {status?.error || diagnostics?.error || "Could not connect to the Kubernetes cluster."}
+                  </p>
+                </div>
+
+                {/* Suggestions */}
+                {(status?.suggestions || diagnostics?.suggestions) && (status?.suggestions?.length || diagnostics?.suggestions?.length) > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Lightbulb className="size-4 text-yellow-500" />
+                      Suggestions
+                    </div>
+                    <ul className="text-sm text-muted-foreground space-y-1 ml-6">
+                      {(status?.suggestions || diagnostics?.suggestions || []).map((suggestion, i) => (
+                        <li key={i} className="list-disc">{suggestion}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Diagnostics Details (Collapsible) */}
+                <Collapsible open={showDiagnostics} onOpenChange={setShowDiagnostics}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      {showDiagnostics ? <ChevronDown className="size-4 mr-1" /> : <ChevronRight className="size-4 mr-1" />}
+                      {showDiagnostics ? "Hide" : "Show"} Diagnostics
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3">
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-3 text-sm">
+                      {/* Connection Method */}
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Connection Method:</span>
+                        <span className="font-mono">{diagnostics?.connection_method || "none"}</span>
+                      </div>
+                      
+                      {/* Selected Kubeconfig */}
+                      {diagnostics?.selected_kubeconfig && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Kubeconfig:</span>
+                          <span className="font-mono text-xs truncate max-w-[200px]" title={diagnostics.selected_kubeconfig}>
+                            {diagnostics.selected_kubeconfig}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Candidates Tried */}
+                      {diagnostics?.candidates_tried && diagnostics.candidates_tried.length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-muted-foreground">Candidates Tried:</span>
+                          <div className="space-y-1 ml-2">
+                            {diagnostics.candidates_tried.map((candidate, i) => (
+                              <div key={i} className="flex items-start gap-2 text-xs">
+                                <XCircle className="size-3 text-destructive shrink-0 mt-0.5" />
+                                <div>
+                                  <span className="font-mono">{candidate.path}</span>
+                                  <span className="text-muted-foreground ml-2">({candidate.source})</span>
+                                  {candidate.error && (
+                                    <p className="text-destructive/80">{candidate.error}</p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Library Available */}
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Kubernetes Library:</span>
+                        <Badge variant={diagnostics?.kubernetes_library_available ? "default" : "destructive"} className="text-xs">
+                          {diagnostics?.kubernetes_library_available ? "Available" : "Not Installed"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                <div className="flex items-center gap-2">
+                  <Link href="/settings">
+                    <Button variant="outline" size="sm">
+                      Go to Settings <ArrowRight className="size-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Partial Connection Warning */}
+      {isConnected && hasWarnings && (
+        <Card className="border-yellow-500 bg-yellow-500/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <AlertTriangle className="size-6 text-yellow-500 shrink-0" />
+              <div className="space-y-2">
+                <h3 className="font-semibold">Partial Connection</h3>
+                <p className="text-sm text-muted-foreground">
+                  Connected to the cluster, but some operations may be limited.
+                </p>
+                {status?.warnings && (
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {status.warnings.map((warning, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <AlertCircle className="size-3 text-yellow-500 shrink-0 mt-1" />
+                        {warning}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {hasCapabilities && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {Object.entries(status?.capabilities || {}).map(([cap, available]) => (
+                      <Badge key={cap} variant={available ? "default" : "secondary"} className="text-xs">
+                        {available ? <CheckCircle className="size-3 mr-1" /> : <XCircle className="size-3 mr-1" />}
+                        {cap.replace(/_/g, " ")}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Manual Components (Always visible) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Server className="size-5" />
+            Service Components
+          </CardTitle>
+          <CardDescription>
+            Configure individual service endpoints. These work independently of cluster connection.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <KubernetesComponentWizard />
+        </CardContent>
+      </Card>
 
       {/* Cluster Overview */}
       {isLoading ? (

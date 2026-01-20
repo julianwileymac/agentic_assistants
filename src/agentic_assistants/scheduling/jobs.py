@@ -356,3 +356,61 @@ class FeatureMaterializationJob(Job):
                 job_id=self.job_id,
                 errors=[str(e)],
             )
+
+
+class RepoIngestionJob(Job):
+    """Job for ingesting Git repositories into the global knowledge base."""
+
+    def __init__(
+        self,
+        config_path: str,
+        repo_name: Optional[str] = None,
+        respect_manual_override: bool = True,
+        force_reindex: bool = False,
+        job_id: Optional[str] = None,
+    ):
+        name = f"Repo Ingestion: {repo_name}" if repo_name else "Repo Ingestion: all"
+        super().__init__(job_id, name)
+        self.config_path = config_path
+        self.repo_name = repo_name
+        self.respect_manual_override = respect_manual_override
+        self.force_reindex = force_reindex
+
+    def execute(self) -> JobResult:
+        from agentic_assistants.data.catalog import DataCatalog
+        from agentic_assistants.pipelines.runners.sequential import SequentialRunner
+        from agentic_assistants.pipelines.templates import create_repo_ingestion_pipeline
+
+        overrides = {
+            "respect_manual_override": self.respect_manual_override,
+            "force_reindex": self.force_reindex,
+            "only_repos": [self.repo_name] if self.repo_name else None,
+        }
+
+        try:
+            pipeline = create_repo_ingestion_pipeline(
+                config_path=self.config_path,
+                overrides=overrides,
+            )
+            runner = SequentialRunner()
+            catalog = DataCatalog()
+            run_result = runner.run(pipeline, catalog)
+            summary = run_result.outputs.get("summary_result", {})
+
+            return JobResult(
+                success=run_result.success,
+                job_id=self.job_id,
+                items_processed=summary.get("ingested_count", 0),
+                errors=run_result.errors,
+                metadata={
+                    "summary_path": summary.get("summary_path"),
+                    "repo_count": summary.get("repo_count"),
+                },
+            )
+
+        except Exception as exc:
+            return JobResult(
+                success=False,
+                job_id=self.job_id,
+                errors=[str(exc)],
+            )

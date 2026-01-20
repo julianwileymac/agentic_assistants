@@ -22,31 +22,40 @@ Example:
     >>> scheduler.start()
 """
 
-from agentic_assistants.scheduling.scheduler import Scheduler
+from agentic_assistants.scheduling.scheduler import Scheduler, get_scheduler
 from agentic_assistants.scheduling.jobs import (
     Job,
     RSSMonitorJob,
     WebsiteMonitorJob,
     DataSyncJob,
     FeatureMaterializationJob,
+    RepoIngestionJob,
 )
 from agentic_assistants.scheduling.triggers import (
     IntervalTrigger,
     CronTrigger,
     DateTrigger,
 )
+from agentic_assistants.scheduling.repo_ingestion import (
+    register_repo_ingestion_jobs,
+    parse_cron_expression,
+)
 
 __all__ = [
     # Core
     "Scheduler",
+    "get_scheduler",
     # Jobs
     "Job",
     "RSSMonitorJob",
     "WebsiteMonitorJob",
     "DataSyncJob",
     "FeatureMaterializationJob",
+    "RepoIngestionJob",
     # Triggers
     "IntervalTrigger",
     "CronTrigger",
     "DateTrigger",
+    "register_repo_ingestion_jobs",
+    "parse_cron_expression",
 ]

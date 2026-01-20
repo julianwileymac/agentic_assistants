@@ -259,6 +259,16 @@ def register_pipeline(
     get_pipeline_registry().register(name, pipeline)
 
 
+def register_global_repo_ingestion(config_path: Optional[str] = None) -> None:
+    """Register the global repository ingestion pipeline."""
+    from agentic_assistants.pipelines.templates import create_repo_ingestion_pipeline
+
+    def factory():
+        return create_repo_ingestion_pipeline(config_path=config_path)
+
+    get_pipeline_registry().register("global_repo_ingestion", factory, overwrite=False)
+
+
 def find_pipelines() -> Dict[str, Pipeline]:
     """
     Get all registered pipelines as a dictionary.
