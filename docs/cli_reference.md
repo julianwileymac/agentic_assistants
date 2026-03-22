@@ -223,6 +223,34 @@ Show status of all services.
 agentic services status
 ```
 
+## Template Commands
+
+Browse and instantiate packaged starter templates.
+
+### `agentic templates list`
+
+```bash
+agentic templates list [--category CATEGORY] [--json]
+```
+
+### `agentic templates show`
+
+```bash
+agentic templates show TEMPLATE_ID [--json]
+```
+
+### `agentic init`
+
+```bash
+agentic init TEMPLATE_ID [--output PATH] [--name NAME] [--force]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--output, -o` | Parent output directory (default: current directory) |
+| `--name, -n` | Generated project folder name |
+| `--force` | Allow writing into non-empty target directory |
+
 ## Session Commands
 
 Manage local sessions (stored under `AGENTIC_DATA_DIR/sessions/`).

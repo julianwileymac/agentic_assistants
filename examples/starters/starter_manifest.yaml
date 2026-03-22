@@ -1,0 +1,62 @@
+version: 1
+starters:
+  - id: global-knowledgebase-starter
+    name: Global Knowledgebase Starter
+    description: Seed project for global repository ingestion and shared knowledge.
+    config_path: examples/global-knowledgebase-starter/config.yaml
+    flow_name: Global Repo Ingestion
+    pipeline: global_repo_ingestion
+    pipeline_template: repo_ingestion
+    tags: [starter, knowledgebase, global, ingestion]
+
+  - id: repo-intel-hub
+    name: Repo Intel Hub
+    description: Multi-repository intelligence hub with scheduled ingestion.
+    config_path: examples/starters/repo-intel-hub/config.yaml
+    flow_name: Repo Intel Hub Ingestion
+    pipeline: repo_intel_hub_ingestion
+    pipeline_template: repo_ingestion
+    tags: [starter, ingestion, repo, intelligence]
+
+  - id: local-rag-studio
+    name: Local RAG Studio
+    description: Local document retrieval and generation playground.
+    config_path: examples/starters/local-rag-studio/config.yaml
+    tags: [starter, rag, local]
+
+  - id: multilevel-storage-kb
+    name: Multi-Level Storage KB
+    description: Layered persistence with artifacts, vectors, and SQLite usage tracking.
+    config_path: examples/starters/multilevel-storage-kb/config.yaml
+    tags: [starter, storage, multilevel]
+
+  - id: document-augmentation-lab
+    name: Document Augmentation Lab
+    description: Experimentation space for metadata, keyword, and summary augmentation.
+    config_path: examples/starters/document-augmentation-lab/config.yaml
+    tags: [starter, augmentation, rag]
+
+  - id: llm-document-augmentation-studio
+    name: LLM Document Augmentation Studio
+    description: LLM-driven summary and QA-pair augmentation project.
+    config_path: examples/starters/llm-document-augmentation-studio/config.yaml
+    tags: [starter, augmentation, llm]
+
+  - id: persistent-memory-assistant
+    name: Persistent Memory Assistant
+    description: Assistant memory persistence starter using mem0.
+    config_path: examples/starters/persistent-memory-assistant/config.yaml
+    tags: [starter, memory, mem0]
+
+  - id: hybrid-cache-rag-assistant
+    name: Hybrid Cache RAG Assistant
+    description: RAG assistant with L1/L2 hybrid caching.
+    config_path: examples/starters/hybrid-cache-rag-assistant/config.yaml
+    tags: [starter, cache, rag]
+
+  - id: rag-eval-playground
+    name: RAG Eval Playground
+    description: Retrieval and answer quality evaluation starter.
+    config_path: examples/starters/rag-eval-playground/config.yaml
+    tags: [starter, evaluation, rag]
+

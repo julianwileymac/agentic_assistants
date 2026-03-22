@@ -1,0 +1,15 @@
+project:
+  id: local-rag-studio
+  name: Local RAG Studio
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+  embedding_model: nomic-embed-text
+rag:
+  collection: local_rag_studio
+  top_k: 5
+ingestion:
+  chunk_size: 1024
+  chunk_overlap: 128
+  augmenters: [metadata, keywords, summary]
+

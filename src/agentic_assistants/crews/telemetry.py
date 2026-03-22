@@ -22,6 +22,8 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Callable, Optional
 
+from opentelemetry.trace import SpanKind
+
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.core.telemetry import TelemetryManager, get_tracer, get_meter
 from agentic_assistants.utils.logging import get_logger
@@ -151,7 +153,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, str(value) if not isinstance(value, (int, float, bool)) else value)
             
@@ -206,7 +208,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, value)
             
@@ -261,7 +263,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, value)
             
@@ -319,7 +321,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, value)
             
@@ -380,7 +382,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.CLIENT) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, str(value) if isinstance(value, (list, dict)) else value)
             
@@ -425,7 +427,7 @@ class CrewTelemetry:
         
         start_time = time.time()
         
-        with self.tracer.start_as_current_span(span_name) as span:
+        with self.tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
             for key, value in span_attrs.items():
                 span.set_attribute(key, value)
             

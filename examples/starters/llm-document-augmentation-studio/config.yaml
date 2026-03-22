@@ -1,0 +1,13 @@
+project:
+  id: llm-document-augmentation-studio
+  name: LLM Document Augmentation Studio
+llm:
+  provider: ollama
+  model: llama3.2
+ingestion:
+  chunk_size: 1024
+  chunk_overlap: 128
+  collection: llm_augmented_docs
+  augmenters: [metadata, summary, qa]
+  llm_enabled: true
+

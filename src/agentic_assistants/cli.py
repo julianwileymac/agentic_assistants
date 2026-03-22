@@ -1011,6 +1011,225 @@ def context_summary():
 
 
 # =============================================================================
+# TEMPLATE COMMANDS
+# =============================================================================
+
+
+@cli.group("templates")
+def templates():
+    """Browse available project templates."""
+    pass
+
+
+@templates.command("list")
+@click.option("--category", "-c", default=None, help="Filter by template category")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def templates_list(category: Optional[str], as_json: bool):
+    """List available templates."""
+    from agentic_assistants.templates import list_templates
+
+    items = list_templates(category=category)
+    if not items:
+        console.print("[yellow]No templates found.[/yellow]")
+        return
+
+    if as_json:
+        import json
+
+        payload = [
+            {
+                "id": t.template_id,
+                "name": t.name,
+                "category": t.category,
+                "level": t.level,
+                "description": t.description,
+                "tags": t.tags,
+                "run_hint": t.run_hint,
+            }
+            for t in items
+        ]
+        click.echo(json.dumps(payload, indent=2))
+        return
+
+    table = Table(title="Template Catalog")
+    table.add_column("ID", style="cyan")
+    table.add_column("Name", style="green")
+    table.add_column("Category", style="magenta")
+    table.add_column("Level", style="yellow")
+    table.add_column("Tags", style="dim")
+    for t in items:
+        table.add_row(
+            t.template_id,
+            t.name,
+            t.category,
+            t.level,
+            ", ".join(t.tags),
+        )
+    console.print(table)
+
+
+@templates.command("show")
+@click.argument("template_id")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def templates_show(template_id: str, as_json: bool):
+    """Show template details."""
+    from agentic_assistants.templates import get_template
+
+    template = get_template(template_id)
+    if template is None:
+        console.print(f"[red]✗[/red] Unknown template: {template_id}")
+        raise SystemExit(1)
+
+    if as_json:
+        import json
+
+        click.echo(
+            json.dumps(
+                {
+                    "id": template.template_id,
+                    "name": template.name,
+                    "category": template.category,
+                    "level": template.level,
+                    "description": template.description,
+                    "tags": template.tags,
+                    "run_hint": template.run_hint,
+                    "asset_dir": template.asset_dir,
+                },
+                indent=2,
+            )
+        )
+        return
+
+    details = (
+        f"[bold]{template.name}[/bold]\n"
+        f"\nID: {template.template_id}"
+        f"\nCategory: {template.category}"
+        f"\nLevel: {template.level}"
+        f"\nTags: {', '.join(template.tags) if template.tags else '-'}"
+        f"\n\n{template.description}"
+    )
+    if template.run_hint:
+        details += f"\n\nRun hint: [cyan]{template.run_hint}[/cyan]"
+    console.print(Panel(details, title="Template"))
+
+
+@cli.command("init")
+@click.argument("template_id")
+@click.option("--output", "-o", default=".", type=click.Path(), help="Output directory")
+@click.option("--name", "-n", default=None, help="Project folder name")
+@click.option("--force", is_flag=True, help="Allow writing to non-empty output")
+def init_template(template_id: str, output: str, name: Optional[str], force: bool):
+    """Instantiate a template into your workspace."""
+    from pathlib import Path
+
+    from agentic_assistants.templates import get_template, scaffold_template
+
+    try:
+        output_dir = Path(output).expanduser().resolve()
+        created_path = scaffold_template(
+            template_id=template_id,
+            output_dir=output_dir,
+            project_name=name,
+            force=force,
+        )
+    except FileExistsError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise SystemExit(1)
+    except FileNotFoundError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise SystemExit(1)
+    except ValueError as exc:
+        console.print(f"[red]✗[/red] {exc}")
+        raise SystemExit(1)
+
+    template = get_template(template_id)
+    console.print(f"[green]✓[/green] Template created at: {created_path}")
+    if template and template.run_hint:
+        console.print(f"[dim]Next:[/dim] cd {created_path} && {template.run_hint}")
+
+
+# =============================================================================
+# TRACES COMMANDS
+# =============================================================================
+
+
+@cli.group("traces")
+def traces():
+    """Manage OpenTelemetry trace files (export, import, sync)."""
+    pass
+
+
+@traces.command("status")
+def traces_status():
+    """Show pending trace files and store location."""
+    from agentic_assistants.observability.trace_store import TraceStore
+
+    config = AgenticConfig()
+    store = TraceStore(config.telemetry.file_export_path)
+    files = store.pending_files()
+
+    table = Table(title="Trace Store Status")
+    table.add_column("Property", style="cyan")
+    table.add_column("Value")
+
+    table.add_row("Store directory", str(store.store_dir.resolve()))
+    table.add_row("Pending files", str(len(files)))
+    if files:
+        table.add_row("Oldest file", files[0].name)
+        table.add_row("Newest file", files[-1].name)
+
+    console.print(table)
+
+
+@traces.command("export")
+@click.option("--output", "-o", required=True, type=click.Path(), help="Destination directory")
+def traces_export(output: str):
+    """Copy pending trace files to a backup directory."""
+    from agentic_assistants.observability.trace_store import TraceStore
+
+    config = AgenticConfig()
+    store = TraceStore(config.telemetry.file_export_path)
+    count = store.export_to_file(output)
+    console.print(f"[green]Exported {count} trace file(s) to {output}[/green]")
+
+
+@traces.command("import")
+@click.option("--input", "-i", "input_dir", required=True, type=click.Path(exists=True), help="Source directory")
+@click.option("--endpoint", "-e", required=True, help="OTLP HTTP endpoint (e.g. http://localhost:4318)")
+@click.option("--delete", is_flag=True, help="Delete files after successful import")
+def traces_import(input_dir: str, endpoint: str, delete: bool):
+    """Import trace files into an OTLP collector."""
+    from agentic_assistants.observability.trace_store import TraceStore
+
+    store = TraceStore()
+    count = store.import_from_file(input_dir, endpoint, delete_on_success=delete)
+    console.print(f"[green]Imported {count} trace file(s) to {endpoint}[/green]")
+
+
+@traces.command("sync")
+@click.option("--endpoint", "-e", default=None, help="OTLP HTTP endpoint (auto-detects if omitted)")
+def traces_sync(endpoint: Optional[str]):
+    """Sync pending file traces to a live OTLP collector."""
+    from agentic_assistants.observability.trace_store import TraceStore
+
+    config = AgenticConfig()
+    store = TraceStore(config.telemetry.file_export_path)
+
+    if not endpoint:
+        endpoint = config.telemetry.exporter_otlp_endpoint.replace(":4317", ":4318")
+        console.print(f"[dim]Auto-detected endpoint: {endpoint}[/dim]")
+
+    pending = store.pending_count()
+    if pending == 0:
+        console.print("[yellow]No pending trace files to sync.[/yellow]")
+        return
+
+    console.print(f"Syncing {pending} trace file(s) to {endpoint} ...")
+    count = store.sync_to_collector(endpoint)
+    console.print(f"[green]Successfully synced {count} / {pending} trace file(s).[/green]")
+
+
+# =============================================================================
 # MAIN ENTRY POINT
 # =============================================================================
 

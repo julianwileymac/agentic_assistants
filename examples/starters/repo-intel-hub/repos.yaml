@@ -1,0 +1,10 @@
+repos:
+  - name: agentic-assistants
+    url: https://github.com/AI-Engineer-Solutions/agentic_assistants.git
+    branch: main
+    tags: ["framework"]
+    context: "Core framework reference"
+    schedule: "0 */12 * * *"
+    manual_override: false
+    enabled: true
+

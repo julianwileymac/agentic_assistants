@@ -1,0 +1,10 @@
+project:
+  id: persistent-memory-assistant
+  name: Persistent Memory Assistant
+memory:
+  backend: mem0
+  embedding_model: nomic-embed-text
+  storage_path: ./data/memory
+assistant:
+  model: llama3.2
+

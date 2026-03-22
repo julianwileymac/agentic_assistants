@@ -24,6 +24,11 @@ resources:
   # Dagster
   - dagster/dagster-deployment.yaml
 
+  # OpenTelemetry Observability
+  - otel/otel-collector-configmap.yaml
+  - otel/otel-collector-deployment.yaml
+  - otel/jaeger-deployment.yaml
+
   # CronJobs
   - cronjobs/data-sync-cronjob.yaml
   - cronjobs/global-repo-ingestion.yaml

@@ -21,9 +21,12 @@ Example:
 """
 
 import functools
+import socket
 import time
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Any, Callable, Optional
+from urllib.parse import urlparse
 
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.utils.logging import get_logger
@@ -65,14 +68,60 @@ class TelemetryManager:
         global _telemetry_manager
         _telemetry_manager = self
 
+    @staticmethod
+    def _endpoint_reachable(endpoint: str, timeout: float = 1.0) -> bool:
+        """Check if an OTLP gRPC endpoint is reachable via TCP."""
+        parsed = urlparse(endpoint if "://" in endpoint else f"http://{endpoint}")
+        host = parsed.hostname or "localhost"
+        port = parsed.port or 4317
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                return True
+        except OSError:
+            return False
+
+    def _resolve_span_exporter(self, resource):
+        """
+        Resolve the best available span exporter using a tiered strategy:
+          1. Kubernetes OTLP collector (if K8s enabled)
+          2. Configured / local OTLP collector (Docker or standalone)
+          3. File-based OTLP JSON exporter (offline fallback)
+
+        Returns:
+            Tuple of (exporter, description_string)
+        """
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+        candidates: list[tuple[str, str]] = []
+
+        if getattr(self.config, "kubernetes", None) and self.config.kubernetes.enabled:
+            candidates.append(("http://otel-collector:4317", "K8s OTLP collector"))
+
+        configured = self.config.telemetry.exporter_otlp_endpoint
+        candidates.append((configured, f"configured endpoint ({configured})"))
+
+        for endpoint, label in candidates:
+            if self._endpoint_reachable(endpoint):
+                exporter = OTLPSpanExporter(endpoint=endpoint, insecure=True)
+                return exporter, label
+
+        if self.config.telemetry.fallback_to_file:
+            from agentic_assistants.observability.trace_store import FileSpanExporter
+            export_dir = Path(self.config.telemetry.file_export_path)
+            export_dir.mkdir(parents=True, exist_ok=True)
+            exporter = FileSpanExporter(export_dir)
+            return exporter, f"file exporter ({export_dir})"
+
+        return None, "none"
+
     def initialize(self) -> None:
         """
-        Initialize OpenTelemetry SDK with configured exporters.
+        Initialize OpenTelemetry SDK with the best available exporter.
         
-        This sets up:
-        - Trace provider with OTLP exporter
-        - Meter provider for metrics
-        - Log record processor for log correlation
+        Uses a tiered backend strategy:
+        1. Kubernetes OTLP collector (when K8s is enabled and reachable)
+        2. Local / Docker OTLP collector (configured endpoint)
+        3. File-based OTLP JSON exporter (offline fallback)
         """
         if self._initialized or not self.enabled:
             return
@@ -83,11 +132,8 @@ class TelemetryManager:
             from opentelemetry.sdk.trace.export import BatchSpanProcessor
             from opentelemetry.sdk.metrics import MeterProvider
             from opentelemetry.sdk.resources import Resource
-            from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-            from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
             from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 
-            # Create resource with service information
             resource = Resource.create(
                 {
                     "service.name": self.service_name,
@@ -96,33 +142,39 @@ class TelemetryManager:
                 }
             )
 
-            # Set up trace provider
             trace_provider = TracerProvider(resource=resource)
-            otlp_exporter = OTLPSpanExporter(
-                endpoint=self.config.telemetry.exporter_otlp_endpoint,
-                insecure=True,
-            )
-            trace_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+            span_exporter, exporter_label = self._resolve_span_exporter(resource)
+            if span_exporter is None:
+                logger.warning("No OTLP endpoint reachable and file fallback disabled. Telemetry disabled.")
+                self.enabled = False
+                return
+
+            trace_provider.add_span_processor(BatchSpanProcessor(span_exporter))
             trace.set_tracer_provider(trace_provider)
 
-            # Set up meter provider
-            metric_reader = PeriodicExportingMetricReader(
-                OTLPMetricExporter(
-                    endpoint=self.config.telemetry.exporter_otlp_endpoint,
-                    insecure=True,
-                ),
-                export_interval_millis=60000,
-            )
-            meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+            # Metrics: best-effort OTLP, silently skip if unreachable
+            try:
+                from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+                metric_endpoint = self.config.telemetry.exporter_otlp_endpoint
+                if self._endpoint_reachable(metric_endpoint):
+                    metric_reader = PeriodicExportingMetricReader(
+                        OTLPMetricExporter(endpoint=metric_endpoint, insecure=True),
+                        export_interval_millis=60000,
+                    )
+                    meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+                else:
+                    meter_provider = MeterProvider(resource=resource)
+            except Exception:
+                meter_provider = MeterProvider(resource=resource)
             metrics.set_meter_provider(meter_provider)
 
-            # Store references
             self._tracer = trace.get_tracer(self.service_name)
             self._meter = metrics.get_meter(self.service_name)
 
             self._initialized = True
             logger.info(
-                f"OpenTelemetry initialized - endpoint: {self.config.telemetry.exporter_otlp_endpoint}, "
+                f"OpenTelemetry initialized - exporter: {exporter_label}, "
                 f"service: {self.service_name}"
             )
 
@@ -189,7 +241,8 @@ class TelemetryManager:
         Args:
             name: Span name
             attributes: Optional attributes to set on the span
-            kind: Span kind (CLIENT, SERVER, INTERNAL, etc.)
+            kind: Span kind (CLIENT, SERVER, INTERNAL, etc.).
+                  Defaults to SpanKind.INTERNAL when None.
         
         Yields:
             The span instance
@@ -203,8 +256,11 @@ class TelemetryManager:
             yield _NoOpSpan()
             return
 
+        from opentelemetry.trace import SpanKind
+        resolved_kind = kind if kind is not None else SpanKind.INTERNAL
+
         tracer = self.get_tracer()
-        with tracer.start_as_current_span(name, kind=kind) as span:
+        with tracer.start_as_current_span(name, kind=resolved_kind) as span:
             if attributes:
                 for key, value in attributes.items():
                     span.set_attribute(key, value)

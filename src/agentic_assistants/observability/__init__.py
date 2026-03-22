@@ -40,6 +40,10 @@ from agentic_assistants.observability.models import (
 )
 from agentic_assistants.observability.usage_tracker import UsageTracker
 from agentic_assistants.observability.meta_analyzer import MetaAnalyzer
+from agentic_assistants.observability.trace_store import (
+    FileSpanExporter,
+    TraceStore,
+)
 
 __all__ = [
     # Models
@@ -57,4 +61,7 @@ __all__ = [
     "UsageTracker",
     # Analyzer
     "MetaAnalyzer",
+    # Trace storage
+    "FileSpanExporter",
+    "TraceStore",
 ]

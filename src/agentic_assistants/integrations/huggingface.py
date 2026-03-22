@@ -1087,11 +1087,14 @@ class HuggingFaceHubIntegration:
         library: Optional[str] = None,
         language: Optional[str] = None,
         sort: str = "downloads",
-        direction: int = -1,
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
         """
         Search models on HuggingFace Hub with advanced filters.
+
+        The ``task``, ``library``, and ``language`` filters are applied
+        client-side for compatibility with huggingface_hub v1.0+ which
+        removed those keyword arguments from ``HfApi.list_models()``.
 
         Args:
             query: Search query
@@ -1100,7 +1103,6 @@ class HuggingFaceHubIntegration:
             library: Filter by library (pytorch, tensorflow, etc.)
             language: Filter by language
             sort: Sort field (downloads, likes, created_at, etc.)
-            direction: Sort direction (-1 descending, 1 ascending)
             limit: Maximum results
 
         Returns:
@@ -1114,25 +1116,28 @@ class HuggingFaceHubIntegration:
 
             api = HfApi(token=self.token)
 
-            filter_kwargs: Dict[str, Any] = {}
-            if task:
-                filter_kwargs["task"] = task
-            if library:
-                filter_kwargs["library"] = library
-            if language:
-                filter_kwargs["language"] = language
+            needs_filtering = bool(task or library or language)
+            fetch_limit = limit * 3 if needs_filtering else limit
 
             models = api.list_models(
                 search=query,
                 author=author,
                 sort=sort,
-                direction=direction,
-                limit=limit,
-                **filter_kwargs,
+                limit=fetch_limit,
             )
 
-            return [
-                {
+            results: List[Dict[str, Any]] = []
+            for m in models:
+                if task and getattr(m, "pipeline_tag", None) != task:
+                    continue
+                if library and library not in (getattr(m, "tags", None) or []):
+                    lib_name = getattr(m, "library_name", None)
+                    if lib_name != library:
+                        continue
+                if language and language not in (getattr(m, "tags", None) or []):
+                    continue
+
+                results.append({
                     "id": m.id,
                     "author": m.author,
                     "downloads": m.downloads,
@@ -1142,9 +1147,11 @@ class HuggingFaceHubIntegration:
                     "library_name": getattr(m, "library_name", None),
                     "created_at": str(m.created_at) if getattr(m, "created_at", None) else None,
                     "last_modified": str(m.last_modified) if getattr(m, "last_modified", None) else None,
-                }
-                for m in models
-            ]
+                })
+                if len(results) >= limit:
+                    break
+
+            return results
         except Exception as e:
             logger.error(f"Failed to search models: {e}")
             return []
@@ -1209,6 +1216,61 @@ class HuggingFaceHubIntegration:
             }
         except Exception as e:
             logger.error(f"Failed to get space info: {e}")
+            return None
+
+    # =========================================================================
+    # Single-File Download
+    # =========================================================================
+
+    def download_file(
+        self,
+        repo_id: str,
+        filename: str,
+        repo_type: str = "model",
+        revision: Optional[str] = None,
+        local_dir: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Download a single file from a HuggingFace Hub repository.
+
+        Unlike ``pull_model`` which fetches full snapshots, this retrieves one
+        file (e.g. a README, config, or paper PDF).
+
+        Args:
+            repo_id: HuggingFace repo ID (e.g. "nvidia/Llama-3.1-Nemotron-Nano-8B-v1")
+            filename: Path of the file inside the repo (e.g. "config.json")
+            repo_type: Repository type -- "model", "dataset", or "space"
+            revision: Specific revision/branch (default: main)
+            local_dir: Directory to save the file into (defaults to cache dir)
+
+        Returns:
+            Absolute local path to the downloaded file, or None on failure
+        """
+        if not self._hub_available:
+            logger.warning("HuggingFace Hub not available for file download")
+            return None
+
+        try:
+            from huggingface_hub import hf_hub_download
+
+            local_dir = local_dir or str(
+                self.local_cache_dir / "files" / repo_id.replace("/", "_")
+            )
+
+            path = hf_hub_download(
+                repo_id=repo_id,
+                filename=filename,
+                repo_type=repo_type if repo_type != "model" else None,
+                revision=revision,
+                local_dir=local_dir,
+                token=self.token,
+            )
+
+            logger.info(f"Downloaded {filename} from {repo_id} to {path}")
+            return path
+
+        except Exception as e:
+            logger.error(f"Failed to download file {filename} from {repo_id}: {e}")
             return None
 
     # =========================================================================

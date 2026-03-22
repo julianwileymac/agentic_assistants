@@ -1,0 +1,12 @@
+project:
+  id: hybrid-cache-rag-assistant
+  name: Hybrid Cache RAG Assistant
+cache:
+  backend: hybrid
+  l1_max_size: 256
+  l1_ttl_seconds: 300
+  l2_backend: redis
+  redis_url: redis://localhost:6379
+rag:
+  collection: cached_rag
+

@@ -1,0 +1,218 @@
+version: 1
+templates:
+  - id: quickstart-chat-agent
+    name: Quickstart Chat Agent
+    category: agents
+    level: starter
+    description: Minimal local Ollama chat agent with configuration scaffold.
+    tags: [ollama, local, chat, starter]
+    asset_dir: quickstart-chat-agent
+    run_hint: python app.py
+
+  - id: multi-agent-research-crew
+    name: Multi-Agent Research Crew
+    category: agents
+    level: intermediate
+    description: Crew-style local research workflow with planner, researcher, and writer roles.
+    tags: [agents, crew, research]
+    asset_dir: multi-agent-research-crew
+    run_hint: python workflow.py
+
+  - id: langgraph-router-workflow
+    name: LangGraph Router Workflow
+    category: agents
+    level: intermediate
+    description: LangGraph state router for tool selection and response generation.
+    tags: [langgraph, routing, workflow]
+    asset_dir: langgraph-router-workflow
+    run_hint: python workflow.py
+
+  - id: codebase-copilot-assistant
+    name: Codebase Copilot Assistant
+    category: agents
+    level: intermediate
+    description: Local coding assistant scaffold with vector search and memory hooks.
+    tags: [coding, assistant, vectordb, memory]
+    asset_dir: codebase-copilot-assistant
+    run_hint: python app.py
+
+  - id: document-chat-rag
+    name: Document Chat RAG
+    category: rag
+    level: starter
+    description: Ingest local documents and query with retrieval-augmented generation.
+    tags: [rag, documents, retrieval]
+    asset_dir: document-chat-rag
+    run_hint: python rag_app.py
+
+  - id: repo-ingestion-rag
+    name: Repo Ingestion RAG
+    category: rag
+    level: intermediate
+    description: Repository ingestion and indexing pipeline with local vector storage.
+    tags: [rag, repository, ingestion]
+    asset_dir: repo-ingestion-rag
+    run_hint: python run_pipeline.py
+
+  - id: web-ingestion-rag
+    name: Web Ingestion RAG
+    category: rag
+    level: intermediate
+    description: Fetch and ingest website content, then serve local semantic search.
+    tags: [rag, web, ingestion]
+    asset_dir: web-ingestion-rag
+    run_hint: python run_pipeline.py
+
+  - id: dataset-ingestion-rag
+    name: Dataset Ingestion RAG
+    category: rag
+    level: intermediate
+    description: Structured dataset ingestion for row-level retrieval and RAG.
+    tags: [rag, datasets, ingestion]
+    asset_dir: dataset-ingestion-rag
+    run_hint: python run_pipeline.py
+
+  - id: rss-monitoring-rag
+    name: RSS Monitoring RAG
+    category: rag
+    level: intermediate
+    description: Continuously ingest RSS feeds into a local RAG collection.
+    tags: [rag, rss, monitoring]
+    asset_dir: rss-monitoring-rag
+    run_hint: python run_pipeline.py
+
+  - id: scoped-vector-rag
+    name: Scoped Vector RAG
+    category: storage
+    level: intermediate
+    description: Demonstrates global/project/experiment scope-aware vector retrieval.
+    tags: [storage, scoped, vectordb]
+    asset_dir: scoped-vector-rag
+    run_hint: python demo.py
+
+  - id: multilevel-storage-kb
+    name: Multi-Level Storage KB
+    category: storage
+    level: advanced
+    description: Pattern for file artifacts + scoped vectors + SQLite usage tracking.
+    tags: [storage, sqlite, vectors, artifacts]
+    asset_dir: multilevel-storage-kb
+    run_hint: python app.py
+
+  - id: hybrid-cache-rag
+    name: Hybrid Cache RAG
+    category: storage
+    level: advanced
+    description: L1 local and L2 Redis cache integration for retrieval pipelines.
+    tags: [cache, hybrid, redis, rag]
+    asset_dir: hybrid-cache-rag
+    run_hint: python app.py
+
+  - id: persistent-memory-assistant
+    name: Persistent Memory Assistant
+    category: storage
+    level: intermediate
+    description: mem0-backed assistant memory with semantic recall patterns.
+    tags: [memory, mem0, assistant]
+    asset_dir: persistent-memory-assistant
+    run_hint: python app.py
+
+  - id: sqlite-usage-analytics
+    name: SQLite Usage Analytics
+    category: storage
+    level: starter
+    description: UsageTracker-focused project showing durable event analytics in SQLite.
+    tags: [sqlite, analytics, observability]
+    asset_dir: sqlite-usage-analytics
+    run_hint: python app.py
+
+  - id: trace-store-sync
+    name: Trace Store Sync
+    category: observability
+    level: starter
+    description: Offline trace export/import and OTLP sync workflow template.
+    tags: [otel, tracing, trace-store]
+    asset_dir: trace-store-sync
+    run_hint: python app.py
+
+  - id: metadata-augmentation-pipeline
+    name: Metadata Augmentation Pipeline
+    category: augmentation
+    level: starter
+    description: Add rich metadata fields to chunks during ingestion.
+    tags: [augmentation, metadata]
+    asset_dir: metadata-augmentation-pipeline
+    run_hint: python run_pipeline.py
+
+  - id: keyword-summary-augmentation
+    name: Keyword + Summary Augmentation
+    category: augmentation
+    level: starter
+    description: Attach keyword and summary augmenters to improve retrieval context.
+    tags: [augmentation, keywords, summary]
+    asset_dir: keyword-summary-augmentation
+    run_hint: python run_pipeline.py
+
+  - id: entity-enrichment-pipeline
+    name: Entity Enrichment Pipeline
+    category: augmentation
+    level: intermediate
+    description: Extract entities for richer chunk metadata and filtering.
+    tags: [augmentation, entities]
+    asset_dir: entity-enrichment-pipeline
+    run_hint: python run_pipeline.py
+
+  - id: qa-pair-augmentation
+    name: QA Pair Augmentation
+    category: augmentation
+    level: intermediate
+    description: Generate question metadata to expand retrieval entry points.
+    tags: [augmentation, qa, llm]
+    asset_dir: qa-pair-augmentation
+    run_hint: python run_pipeline.py
+
+  - id: llm-document-augmentation
+    name: LLM Document Augmentation
+    category: augmentation
+    level: advanced
+    description: Use LLM-enabled augmenters for abstractive summaries and query variants.
+    tags: [augmentation, llm, document]
+    asset_dir: llm-document-augmentation
+    run_hint: python run_pipeline.py
+
+  - id: lancedb-vs-chroma-benchmark
+    name: LanceDB vs Chroma Benchmark
+    category: evaluation
+    level: advanced
+    description: Local benchmark harness for retrieval quality and latency across backends.
+    tags: [benchmark, lancedb, chroma]
+    asset_dir: lancedb-vs-chroma-benchmark
+    run_hint: python benchmark.py
+
+  - id: rag-evaluation-playground
+    name: RAG Evaluation Playground
+    category: evaluation
+    level: advanced
+    description: Evaluate retrieval and answer quality with repeatable scenarios.
+    tags: [evaluation, rag, testing]
+    asset_dir: rag-evaluation-playground
+    run_hint: python evaluate.py
+
+  - id: local-rag-api-service
+    name: Local RAG API Service
+    category: rag
+    level: advanced
+    description: API-first local RAG service scaffold with ingestion and query endpoints.
+    tags: [rag, api, service]
+    asset_dir: local-rag-api-service
+    run_hint: python app.py
+
+  - id: offline-agent-workspace
+    name: Offline Agent Workspace
+    category: agents
+    level: starter
+    description: Offline-first agent workspace with local persistence and traces.
+    tags: [offline, local, agent]
+    asset_dir: offline-agent-workspace
+    run_hint: python app.py
+

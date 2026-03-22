@@ -24,6 +24,10 @@ Agentic Assistants is designed for:
 - [Pipelines](pipelines.md) - Kedro-inspired pipelines and runners
 - [Knowledge Bases](knowledge_bases.md) - Vector/RAG/Hybrid knowledge base APIs
 - [Infrastructure](infrastructure.md) - Docker, k8s, MinIO/Redis/Feast integrations
+- [Observability & Tracing](observability.md) - OpenTelemetry tracing, metrics, and trace export/import
+- [Cookbook](cookbook/index.md) - 30+ recipe pages for local-first RAG/storage/augmentation
+- [Notebook Curriculum](../notebooks/README.md) - guided notebook progression including advanced local-first track
+- [Learning Path](learning_path.md) - opinionated beginner to advanced progression
 
 ## Getting Started
 
@@ -100,8 +104,11 @@ agentic_assistants/
 │   ├── kubernetes/             # Kubernetes + storage integrations
 │   └── utils/                  # Utilities (logging)
 ├── examples/                   # Example scripts
+│   └── starters/               # Runnable local-first starter projects
 ├── notebooks/                  # Jupyter notebooks
 ├── docs/                       # Documentation
+│   └── cookbook/               # Recipe-first snippets and implementation guides
+├── src/agentic_assistants/templates/  # Packaged template catalog + scaffolding assets
 ├── webui/                      # Next.js control panel UI
 ├── k8s/                        # Kubernetes manifests (kustomize)
 ├── docker/                     # Dockerfiles and OTEL collector config

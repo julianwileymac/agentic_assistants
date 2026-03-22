@@ -1,0 +1,14 @@
+project:
+  id: rag-eval-playground
+  name: RAG Eval Playground
+rag:
+  collection: rag_eval
+  top_k: 5
+evaluation:
+  queries:
+    - "Where is CLI implemented?"
+    - "How do traces sync?"
+  expected_sources:
+    - src/agentic_assistants/cli.py
+    - src/agentic_assistants/observability/trace_store.py
+

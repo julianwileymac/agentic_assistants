@@ -1,0 +1,14 @@
+project:
+  id: multilevel-storage-kb
+  name: Multi-Level Storage KB
+storage:
+  artifacts_dir: ./data/artifacts
+  usage_db_path: ./data/usage.db
+  traces_dir: ./data/traces
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+  default_scope: project
+  enable_scope_inheritance: true
+  enable_cross_scope_search: true
+

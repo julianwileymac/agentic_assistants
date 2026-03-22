@@ -321,6 +321,14 @@ agentic run examples/langgraph_workflow.py
 
 ## Usage
 
+### Templates, Cookbook, and Starters
+
+- Template catalog: `agentic templates list`
+- Scaffold projects: `agentic init <template-id> --output . --name my-project`
+- Cookbook recipes: [`docs/cookbook/index.md`](docs/cookbook/index.md)
+- Starter projects: [`examples/starters`](examples/starters)
+- Notebook curriculum: [`notebooks/README.md`](notebooks/README.md)
+
 ### CLI
 
 ```bash
@@ -342,6 +350,11 @@ agentic run script.py --experiment-name "my-exp"
 # Configuration
 agentic config show               # View current settings
 agentic services status           # Check all services
+
+# Templates
+agentic templates list            # Browse packaged templates
+agentic templates show scoped-vector-rag
+agentic init quickstart-chat-agent --name my-assistant
 
 # Indexing & search
 agentic index ./src --collection my-project
@@ -434,10 +447,8 @@ deployment = manager.deploy(
 
 Interactive notebooks for learning:
 
-1. **01_getting_started.ipynb** - Setup verification and basics
-2. **02_crewai_basics.ipynb** - Multi-agent teams with CrewAI
-3. **03_langgraph_basics.ipynb** - Stateful workflows with LangGraph
-4. **04_mlflow_experiments.ipynb** - Experiment tracking and comparison
+1. **Core Track (`01`-`13`)** - Framework fundamentals and integrations
+2. **Advanced Local-First Track (`14`-`25`)** - Multi-level storage, augmentation, and end-to-end local RAG
 
 ```bash
 # Launch Jupyter
@@ -555,6 +566,9 @@ See [Configuration Guide](docs/configuration.md) for all options.
 - [RL/RLHF Tuning Guide](docs/rl_tuning.md)
 - [Model Serving Guide](docs/model_serving.md)
 - [Data Observability](docs/data_observability.md)
+- [Cookbook](docs/cookbook/index.md)
+- [Notebook Curriculum](notebooks/README.md)
+- [Learning Path](docs/learning_path.md)
 
 ---
 

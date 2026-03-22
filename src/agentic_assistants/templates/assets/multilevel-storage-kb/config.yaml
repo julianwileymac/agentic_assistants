@@ -1,0 +1,13 @@
+project:
+  id: "{{template_id}}"
+  name: "{{project_name}}"
+storage:
+  artifacts_dir: ./data/artifacts
+  usage_db_path: ./data/usage.db
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+  default_scope: project
+  enable_scope_inheritance: true
+  enable_cross_scope_search: true
+

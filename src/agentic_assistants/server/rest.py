@@ -291,13 +291,20 @@ def create_rest_app(
                 "AGENTIC_REPO_INGESTION_CONFIG",
                 "examples/global-knowledgebase-starter/config.yaml",
             )
+            starter_manifest = os.environ.get(
+                "AGENTIC_STARTER_MANIFEST",
+                "examples/starters/starter_manifest.yaml",
+            )
 
             # Try to register built-in pipelines (may fail if crewai/chromadb deps are broken)
             # Note: chromadb raises ValueError (not ImportError) when onnxruntime fails
             try:
                 t0 = time.time()
                 from agentic_assistants.pipelines.bootstrap import register_builtin_pipelines
-                register_builtin_pipelines(config_path=config_path)
+                register_builtin_pipelines(
+                    config_path=config_path,
+                    starter_manifest=starter_manifest,
+                )
                 logger.info("Registered pipelines in %.2fs", time.time() - t0)
             except (ImportError, ValueError, OSError) as exc:
                 logger.warning("Pipeline registration skipped (dependency issue): %s", exc)
@@ -308,7 +315,10 @@ def create_rest_app(
             try:
                 t0 = time.time()
                 from agentic_assistants.server.bootstrap import seed_starter_assets
-                seed_starter_assets(config_path=config_path)
+                seed_starter_assets(
+                    config_path=config_path,
+                    starter_manifest=starter_manifest,
+                )
                 logger.info("Seeded starter assets in %.2fs", time.time() - t0)
             except (ImportError, ValueError, OSError) as exc:
                 logger.warning("Starter asset seeding skipped (dependency issue): %s", exc)

@@ -1,0 +1,13 @@
+project:
+  id: document-augmentation-lab
+  name: Document Augmentation Lab
+ingestion:
+  chunk_size: 900
+  chunk_overlap: 120
+  collection: augmentation_lab
+  augmenters: [metadata, keywords, summary, entities]
+  llm_enabled: false
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+

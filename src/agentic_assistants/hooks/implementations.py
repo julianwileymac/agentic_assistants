@@ -373,22 +373,18 @@ class TelemetryHook:
         self._spans: Dict[str, Any] = {}
     
     def _init_otel(self):
-        """Initialize OpenTelemetry resources."""
+        """Initialize OpenTelemetry resources using the global TelemetryManager."""
         if self._tracer is not None:
             return
         
         try:
-            from opentelemetry import trace, metrics
-            from opentelemetry.sdk.trace import TracerProvider
-            from opentelemetry.sdk.metrics import MeterProvider
+            from agentic_assistants.core.telemetry import get_tracer, get_meter
             
             if self.enable_tracing:
-                trace.set_tracer_provider(TracerProvider())
-                self._tracer = trace.get_tracer(self.service_name)
+                self._tracer = get_tracer(self.service_name)
             
             if self.enable_metrics:
-                metrics.set_meter_provider(MeterProvider())
-                self._meter = metrics.get_meter(self.service_name)
+                self._meter = get_meter(self.service_name)
         except ImportError:
             logger.debug("OpenTelemetry not installed")
     
@@ -403,8 +399,10 @@ class TelemetryHook:
         self._init_otel()
         
         if self._tracer:
+            from opentelemetry.trace import SpanKind
             span = self._tracer.start_span(
                 "pipeline_run",
+                kind=SpanKind.INTERNAL,
                 attributes={
                     "pipeline.node_count": len(pipeline.nodes),
                     "run_id": run_id or "unknown",
@@ -432,11 +430,14 @@ class TelemetryHook:
     ) -> None:
         """Start a node span."""
         if self._tracer:
+            from opentelemetry import trace
+            from opentelemetry.trace import SpanKind
             parent = self._spans.get("pipeline")
             context = trace.set_span_in_context(parent) if parent else None
             
             span = self._tracer.start_span(
                 f"node_{node.name}",
+                kind=SpanKind.INTERNAL,
                 context=context,
                 attributes={
                     "node.name": node.name,

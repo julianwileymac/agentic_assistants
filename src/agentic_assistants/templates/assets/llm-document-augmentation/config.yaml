@@ -1,0 +1,13 @@
+project:
+  id: "{{template_id}}"
+  name: "{{project_name}}"
+rag:
+  collection: llm_augmented_docs
+  chunk_size: 1024
+  chunk_overlap: 128
+  llm_enabled: true
+  augmenters: [metadata, summary, qa]
+llm:
+  provider: ollama
+  model: llama3.2
+

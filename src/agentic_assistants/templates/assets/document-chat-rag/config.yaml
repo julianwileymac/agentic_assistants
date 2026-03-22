@@ -1,0 +1,13 @@
+project:
+  id: "{{template_id}}"
+  name: "{{project_name}}"
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+  embedding_model: nomic-embed-text
+rag:
+  collection: docs
+  chunk_size: 1024
+  chunk_overlap: 128
+  augmenters: [metadata, keywords, summary]
+

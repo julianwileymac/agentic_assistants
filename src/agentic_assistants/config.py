@@ -178,6 +178,18 @@ class TelemetrySettings(BaseSettings):
         default="agentic-assistants",
         description="Service name for tracing",
     )
+    fallback_to_file: bool = Field(
+        default=True,
+        description="Fall back to file-based OTLP JSON export when no collector is reachable",
+    )
+    file_export_path: str = Field(
+        default="data/traces",
+        description="Directory for file-based trace export (OTLP JSON)",
+    )
+    file_export_format: str = Field(
+        default="otlp_json",
+        description="Export format for file-based traces (otlp_json)",
+    )
 
 
 class EmbeddingSettings(BaseSettings):

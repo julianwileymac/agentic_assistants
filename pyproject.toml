@@ -6,6 +6,11 @@ authors = ["Julian Wiley"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "agentic_assistants", from = "src"}]
+include = [
+  {path = "src/agentic_assistants/templates/catalog.yaml", format = ["sdist", "wheel"]},
+  {path = "src/agentic_assistants/templates/assets/**/*", format = ["sdist", "wheel"]},
+  {path = "examples/starters/starter_manifest.yaml", format = ["sdist", "wheel"]},
+]
 
 [tool.poetry.scripts]
 agentic = "agentic_assistants.cli:cli"
@@ -97,7 +102,7 @@ safetensors = {version = "^0.4", optional = true}
 tokenizers = {version = ">=0.19", optional = true}
 
 # HuggingFace
-huggingface-hub = "^0.33"
+huggingface-hub = ">=0.33"
 transformers = {version = "^4.40", optional = true}
 
 # RL (optional)
@@ -167,6 +172,12 @@ openai = {version = "^1.30", optional = true}
 anthropic = {version = "^0.52", optional = true}
 cohere = {version = "^5.0", optional = true}
 
+# Accelerated Fine-Tuning (optional)
+unsloth = {version = ">=2024.8", optional = true}
+
+# Deep Agents (optional)
+deepagents = {version = "^0.1", optional = true}
+
 [tool.poetry.extras]
 pytorch = ["torch", "torchvision", "torchaudio"]
 training = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers"]
@@ -181,7 +192,7 @@ cloud = ["boto3"]
 documents = ["pypdf", "python-docx"]
 llm-providers = ["openai", "anthropic", "cohere"]
 coding-assistant = ["mem0ai", "redis", "sentence-transformers", "pypdf", "python-docx", "gitpython"]
-assistant = ["pyautogen", "agno", "llama-cpp-python", "mem0ai", "sentence-transformers"]
+assistant = ["pyautogen", "agno", "llama-cpp-python", "mem0ai", "sentence-transformers", "deepagents"]
 orchestration = ["prefect", "prefect-kubernetes", "prefect-docker", "dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker"]
 dagster = ["dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker"]
 datahub = ["acryl-datahub", "pyiceberg", "dbt-core", "dbt-postgres"]
@@ -189,8 +200,9 @@ iceberg = ["pyiceberg"]
 dbt = ["dbt-core", "dbt-postgres"]
 scraping = ["firecrawl-py", "composio-core"]
 notebooks = ["papermill", "nbconvert"]
-nemotron = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "huggingface-hub"]
-all = ["torch", "torchvision", "torchaudio", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy", "paramiko", "gitpython", "mem0ai", "sentence-transformers", "boto3", "pypdf", "python-docx", "openai", "anthropic", "cohere", "pyautogen", "agno", "llama-cpp-python", "prefect", "prefect-kubernetes", "prefect-docker", "dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker", "psycopg", "asyncpg", "alembic", "supabase", "firecrawl-py", "composio-core", "papermill", "nbconvert", "acryl-datahub", "pyiceberg", "dbt-core", "dbt-postgres"]
+fine-tuning = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "unsloth"]
+nemotron = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "huggingface-hub", "unsloth"]
+all = ["torch", "torchvision", "torchaudio", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy", "paramiko", "gitpython", "mem0ai", "sentence-transformers", "boto3", "pypdf", "python-docx", "openai", "anthropic", "cohere", "pyautogen", "agno", "llama-cpp-python", "prefect", "prefect-kubernetes", "prefect-docker", "dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker", "psycopg", "asyncpg", "alembic", "supabase", "firecrawl-py", "composio-core", "papermill", "nbconvert", "acryl-datahub", "pyiceberg", "dbt-core", "dbt-postgres", "unsloth", "deepagents"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

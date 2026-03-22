@@ -1,0 +1,23 @@
+collection: repo_intel_hub
+repos_manifest: examples/starters/repo-intel-hub/repos.yaml
+cache_dir: ./data/repo_cache
+vectordb:
+  backend: lancedb
+  path: ./data/vectors
+  embedding_model: nomic-embed-text
+  embedding_dimension: 768
+ingestion:
+  chunk_size: 1200
+  chunk_overlap: 200
+  chunking_strategy: code_aware
+  include_hidden: false
+  force_reindex: false
+  respect_manual_override: true
+  summary_output: examples/starters/repo-intel-hub/summaries
+  augment_strategy: none
+  tags: [repo, intelligence]
+  context: "Repo intelligence hub ingestion"
+scheduling:
+  default_cron: "0 */12 * * *"
+  timezone: UTC
+
