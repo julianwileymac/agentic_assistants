@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CodeEditor } from "@/components/code-editor";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 function LoadingFallback() {
   return (
@@ -316,12 +318,13 @@ function NewFlowForm() {
                 </TabsList>
                 
                 <TabsContent value="yaml" className="mt-4">
-                  <Textarea
-                    className="font-mono text-sm min-h-[400px]"
+                  <CodeEditor
                     value={formData.flow_yaml}
-                    onChange={(e) =>
-                      setFormData({ ...formData, flow_yaml: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, flow_yaml: value })
                     }
+                    language="yaml"
+                    height={420}
                   />
                 </TabsContent>
                 
@@ -357,6 +360,12 @@ function NewFlowForm() {
           </Button>
         </div>
       </form>
+
+      <TestingSection
+        resourceType="flow"
+        resourceName="New Flow"
+        defaultCode={`# Prototype flow test\nresult = {\n    \"status\": \"ready\",\n    \"notes\": \"Use this to validate your flow design\",\n}\n`}
+      />
     </div>
   );
 }

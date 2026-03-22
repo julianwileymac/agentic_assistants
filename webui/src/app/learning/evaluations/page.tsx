@@ -49,6 +49,7 @@ import {
   useLearningTopics,
 } from "@/lib/api";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 const gradeColors: Record<string, string> = {
   A: "bg-green-100 text-green-700",
@@ -551,6 +552,12 @@ export default function EvaluationsPage() {
         onOpenChange={setAnswerDialogOpen}
         evaluation={selectedEvaluation}
         onSubmit={handleSubmit}
+      />
+
+      <TestingSection
+        resourceType="evaluation"
+        resourceName="Evaluation"
+        defaultCode={`# Evaluation test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate evaluation workflows\",\n}\n`}
       />
     </div>
   );

@@ -26,6 +26,8 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
+from agentic_assistants.config import AgenticConfig
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.pipelines.nodes.base import BaseFlowNode, NodeConfig
 from agentic_assistants.utils.logging import get_logger
 
@@ -58,7 +60,12 @@ class LLMJudgeConfig(NodeConfig):
     # Name for the RL metric
     metric_name: str = "response_quality"
     
-    # Model host
+    # Provider configuration
+    provider: str = "ollama"
+    endpoint: Optional[str] = None
+    api_key_env: Optional[str] = None
+
+    # Legacy field retained as alias for endpoint
     host: str = "http://localhost:11434"
 
 
@@ -75,7 +82,12 @@ class FaithfulnessConfig(NodeConfig):
     # Whether to emit RL metric
     emit_rl_metric: bool = True
     
-    # Host URL
+    # Provider configuration
+    provider: str = "ollama"
+    endpoint: Optional[str] = None
+    api_key_env: Optional[str] = None
+
+    # Legacy field retained as alias for endpoint
     host: str = "http://localhost:11434"
 
 
@@ -92,7 +104,12 @@ class RelevanceConfig(NodeConfig):
     # Whether to emit RL metric
     emit_rl_metric: bool = True
     
-    # Host URL
+    # Provider configuration
+    provider: str = "ollama"
+    endpoint: Optional[str] = None
+    api_key_env: Optional[str] = None
+
+    # Legacy field retained as alias for endpoint
     host: str = "http://localhost:11434"
 
 
@@ -151,13 +168,13 @@ Finally, provide an overall assessment."""
             return {"scores": {}, "overall_score": 0, "feedback": "No response to evaluate"}
         
         try:
-            from langchain_ollama import ChatOllama
-            from langchain_core.messages import HumanMessage, SystemMessage
-            
-            llm = ChatOllama(
+            runtime_config = AgenticConfig()
+            llm = LLMProvider.from_config(
+                runtime_config,
+                provider=self.config.provider,
                 model=self.config.model,
-                base_url=self.config.host,
-                temperature=0.1,  # Low temperature for consistent evaluation
+                endpoint=self.config.endpoint or self.config.host,
+                api_key_env=self.config.api_key_env,
             )
             
             # Build evaluation prompt
@@ -175,12 +192,14 @@ Finally, provide an overall assessment."""
                 max_score=self.config.score_range[1],
             )
             
-            messages = [
-                SystemMessage(content="You are an objective evaluator. Be fair and consistent in your assessments."),
-                HumanMessage(content=prompt),
-            ]
-            
-            eval_response = llm.invoke(messages)
+            eval_response = llm.chat(
+                messages=[
+                    {"role": "system", "content": "You are an objective evaluator. Be fair and consistent in your assessments."},
+                    {"role": "user", "content": prompt},
+                ],
+                model=self.config.model,
+                temperature=0.1,
+            )
             eval_text = eval_response.content
             
             # Parse scores from response
@@ -300,13 +319,13 @@ class FaithfulnessNode(BaseFlowNode):
             return {"score": 0.5, "passed": False, "claims": [], "warning": "No context provided"}
         
         try:
-            from langchain_ollama import ChatOllama
-            from langchain_core.messages import HumanMessage, SystemMessage
-            
-            llm = ChatOllama(
+            runtime_config = AgenticConfig()
+            llm = LLMProvider.from_config(
+                runtime_config,
+                provider=self.config.provider,
                 model=self.config.model,
-                base_url=self.config.host,
-                temperature=0.1,
+                endpoint=self.config.endpoint or self.config.host,
+                api_key_env=self.config.api_key_env,
             )
             
             prompt = f"""Evaluate whether the following response is faithful to the provided context.
@@ -329,12 +348,14 @@ CLAIMS:
 
 FAITHFULNESS SCORE: [0.0-1.0]"""
 
-            messages = [
-                SystemMessage(content="You are a fact-checker. Be strict and objective."),
-                HumanMessage(content=prompt),
-            ]
-            
-            eval_response = llm.invoke(messages)
+            eval_response = llm.chat(
+                messages=[
+                    {"role": "system", "content": "You are a fact-checker. Be strict and objective."},
+                    {"role": "user", "content": prompt},
+                ],
+                model=self.config.model,
+                temperature=0.1,
+            )
             eval_text = eval_response.content
             
             # Parse score
@@ -393,13 +414,13 @@ class RelevanceNode(BaseFlowNode):
             return {"score": 0, "passed": False}
         
         try:
-            from langchain_ollama import ChatOllama
-            from langchain_core.messages import HumanMessage, SystemMessage
-            
-            llm = ChatOllama(
+            runtime_config = AgenticConfig()
+            llm = LLMProvider.from_config(
+                runtime_config,
+                provider=self.config.provider,
                 model=self.config.model,
-                base_url=self.config.host,
-                temperature=0.1,
+                endpoint=self.config.endpoint or self.config.host,
+                api_key_env=self.config.api_key_env,
             )
             
             prompt = f"""Evaluate how relevant the following response is to the query.
@@ -414,12 +435,14 @@ Rate relevance from 0.0 (completely irrelevant) to 1.0 (perfectly relevant).
 RELEVANCE SCORE: [0.0-1.0]
 EXPLANATION: [brief explanation]"""
 
-            messages = [
-                SystemMessage(content="You evaluate response relevance objectively."),
-                HumanMessage(content=prompt),
-            ]
-            
-            eval_response = llm.invoke(messages)
+            eval_response = llm.chat(
+                messages=[
+                    {"role": "system", "content": "You evaluate response relevance objectively."},
+                    {"role": "user", "content": prompt},
+                ],
+                model=self.config.model,
+                temperature=0.1,
+            )
             eval_text = eval_response.content
             
             # Parse score

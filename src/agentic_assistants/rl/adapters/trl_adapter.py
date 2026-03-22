@@ -14,7 +14,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from agentic_assistants.rl.adapters.base import BaseRLAdapter, RLTrainingResult
-from agentic_assistants.rl.config import RLConfig, RLMethod, DPOConfig, PPOConfig
+from agentic_assistants.rl.config import (
+    RLConfig, RLMethod, DPOConfig, PPOConfig, ORPOConfig, KTOConfig, SFTConfig,
+)
 from agentic_assistants.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -48,6 +50,7 @@ class TRLAdapter(BaseRLAdapter):
             RLMethod.RLHF,
             RLMethod.ORPO,
             RLMethod.KTO,
+            RLMethod.SFT,
         ]
     
     def _detect_version(self) -> str:
@@ -527,6 +530,554 @@ class TRLAdapter(BaseRLAdapter):
         
         return correct / total if total > 0 else 0.0
     
+    async def train_orpo(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        Train using ORPO (Odds Ratio Preference Optimization).
+
+        ORPO combines SFT and preference alignment in a single step without
+        needing a reference model, making it more memory-efficient than DPO.
+        """
+        if not self.is_available():
+            return RLTrainingResult(
+                success=False,
+                error="TRL not installed. Install with: pip install trl",
+            )
+
+        errors = self.validate_config(config)
+        if errors:
+            return RLTrainingResult(
+                success=False,
+                error=f"Configuration errors: {', '.join(errors)}",
+            )
+
+        start_time = time.time()
+
+        try:
+            from trl import ORPOTrainer, ORPOConfig as TRLORPOConfig
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from datasets import load_dataset
+            import torch
+
+            orpo_config = config.orpo_config or ORPOConfig()
+            output_dir = config.output_dir or f"./data/rl/outputs/orpo-{int(time.time())}"
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Starting ORPO training for {config.base_model}")
+
+            tokenizer = AutoTokenizer.from_pretrained(config.base_model)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            model = AutoModelForCausalLM.from_pretrained(
+                config.base_model,
+                torch_dtype=torch.bfloat16 if config.bf16 else torch.float32,
+                device_map="auto",
+            )
+
+            dataset_path = f"./data/training/datasets/{config.preference_dataset_id}.json"
+            if Path(dataset_path).exists():
+                train_dataset = load_dataset("json", data_files=dataset_path, split="train")
+            else:
+                train_dataset = load_dataset(config.preference_dataset_id, split="train")
+
+            if orpo_config.use_lora:
+                try:
+                    from peft import LoraConfig, get_peft_model
+                    peft_config = LoraConfig(
+                        r=orpo_config.lora_r,
+                        lora_alpha=orpo_config.lora_alpha,
+                        lora_dropout=orpo_config.lora_dropout,
+                        target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+                        task_type="CAUSAL_LM",
+                    )
+                    model = get_peft_model(model, peft_config)
+                except ImportError:
+                    logger.warning("PEFT not available, training without LoRA")
+
+            training_args = TRLORPOConfig(
+                output_dir=output_dir,
+                beta=orpo_config.beta,
+                learning_rate=orpo_config.learning_rate,
+                per_device_train_batch_size=orpo_config.batch_size,
+                gradient_accumulation_steps=orpo_config.gradient_accumulation_steps,
+                num_train_epochs=orpo_config.num_train_epochs,
+                lr_scheduler_type=orpo_config.lr_scheduler_type,
+                warmup_ratio=orpo_config.warmup_ratio,
+                max_grad_norm=orpo_config.max_grad_norm,
+                bf16=config.bf16,
+                gradient_checkpointing=config.gradient_checkpointing,
+                logging_steps=10,
+                save_steps=100,
+                max_length=orpo_config.max_length,
+                max_prompt_length=orpo_config.max_prompt_length,
+                report_to=config.report_to,
+            )
+
+            trainer = ORPOTrainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+            )
+
+            logger.info("Starting ORPO training...")
+            train_result = trainer.train()
+
+            trainer.save_model(output_dir)
+            tokenizer.save_pretrained(output_dir)
+
+            metrics = {
+                "train_loss": train_result.training_loss,
+                "train_runtime": train_result.metrics.get("train_runtime", 0),
+                "train_samples_per_second": train_result.metrics.get("train_samples_per_second", 0),
+            }
+
+            if metrics_callback:
+                metrics_callback(metrics)
+
+            return RLTrainingResult(
+                success=True,
+                model_path=output_dir,
+                method=RLMethod.ORPO,
+                metrics=metrics,
+                total_steps=train_result.global_step,
+                training_time_seconds=time.time() - start_time,
+            )
+
+        except Exception as e:
+            logger.exception(f"ORPO training failed: {e}")
+            return RLTrainingResult(
+                success=False,
+                error=str(e),
+                method=RLMethod.ORPO,
+                training_time_seconds=time.time() - start_time,
+            )
+
+    async def train_kto(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        Train using KTO (Kahneman-Tversky Optimization).
+
+        KTO works with binary feedback (thumbs up/down) rather than
+        paired preferences, making it suitable for simpler feedback data.
+        """
+        if not self.is_available():
+            return RLTrainingResult(
+                success=False,
+                error="TRL not installed. Install with: pip install trl",
+            )
+
+        errors = self.validate_config(config)
+        if errors:
+            return RLTrainingResult(
+                success=False,
+                error=f"Configuration errors: {', '.join(errors)}",
+            )
+
+        start_time = time.time()
+
+        try:
+            from trl import KTOTrainer, KTOConfig as TRLKTOConfig
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from datasets import load_dataset
+            import torch
+
+            kto_config = config.kto_config or KTOConfig()
+            output_dir = config.output_dir or f"./data/rl/outputs/kto-{int(time.time())}"
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Starting KTO training for {config.base_model}")
+
+            tokenizer = AutoTokenizer.from_pretrained(config.base_model)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            model = AutoModelForCausalLM.from_pretrained(
+                config.base_model,
+                torch_dtype=torch.bfloat16 if config.bf16 else torch.float32,
+                device_map="auto",
+            )
+
+            dataset_path = f"./data/training/datasets/{config.preference_dataset_id}.json"
+            if Path(dataset_path).exists():
+                train_dataset = load_dataset("json", data_files=dataset_path, split="train")
+            else:
+                train_dataset = load_dataset(config.preference_dataset_id, split="train")
+
+            if kto_config.use_lora:
+                try:
+                    from peft import LoraConfig, get_peft_model
+                    peft_config = LoraConfig(
+                        r=kto_config.lora_r,
+                        lora_alpha=kto_config.lora_alpha,
+                        lora_dropout=kto_config.lora_dropout,
+                        target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+                        task_type="CAUSAL_LM",
+                    )
+                    model = get_peft_model(model, peft_config)
+                except ImportError:
+                    logger.warning("PEFT not available, training without LoRA")
+
+            training_args = TRLKTOConfig(
+                output_dir=output_dir,
+                beta=kto_config.beta,
+                desirable_weight=kto_config.desirable_weight,
+                undesirable_weight=kto_config.undesirable_weight,
+                learning_rate=kto_config.learning_rate,
+                per_device_train_batch_size=kto_config.batch_size,
+                gradient_accumulation_steps=kto_config.gradient_accumulation_steps,
+                num_train_epochs=kto_config.num_train_epochs,
+                lr_scheduler_type=kto_config.lr_scheduler_type,
+                warmup_ratio=kto_config.warmup_ratio,
+                max_grad_norm=kto_config.max_grad_norm,
+                bf16=config.bf16,
+                gradient_checkpointing=config.gradient_checkpointing,
+                logging_steps=10,
+                save_steps=100,
+                max_length=kto_config.max_length,
+                max_prompt_length=kto_config.max_prompt_length,
+                report_to=config.report_to,
+            )
+
+            trainer = KTOTrainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+            )
+
+            logger.info("Starting KTO training...")
+            train_result = trainer.train()
+
+            trainer.save_model(output_dir)
+            tokenizer.save_pretrained(output_dir)
+
+            metrics = {
+                "train_loss": train_result.training_loss,
+                "train_runtime": train_result.metrics.get("train_runtime", 0),
+                "train_samples_per_second": train_result.metrics.get("train_samples_per_second", 0),
+            }
+
+            if metrics_callback:
+                metrics_callback(metrics)
+
+            return RLTrainingResult(
+                success=True,
+                model_path=output_dir,
+                method=RLMethod.KTO,
+                metrics=metrics,
+                total_steps=train_result.global_step,
+                training_time_seconds=time.time() - start_time,
+            )
+
+        except Exception as e:
+            logger.exception(f"KTO training failed: {e}")
+            return RLTrainingResult(
+                success=False,
+                error=str(e),
+                method=RLMethod.KTO,
+                training_time_seconds=time.time() - start_time,
+            )
+
+    async def train_sft(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        Supervised Fine-Tuning using TRL's SFTTrainer.
+
+        SFT is typically the first step before preference-based RL methods.
+        """
+        if not self.is_available():
+            return RLTrainingResult(
+                success=False,
+                error="TRL not installed. Install with: pip install trl",
+            )
+
+        start_time = time.time()
+
+        try:
+            from trl import SFTTrainer, SFTConfig as TRLSFTConfig
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from datasets import load_dataset
+            import torch
+
+            sft_config = config.sft_config or SFTConfig()
+            output_dir = config.output_dir or f"./data/rl/outputs/sft-{int(time.time())}"
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Starting SFT training for {config.base_model}")
+
+            tokenizer = AutoTokenizer.from_pretrained(config.base_model)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            model = AutoModelForCausalLM.from_pretrained(
+                config.base_model,
+                torch_dtype=torch.bfloat16 if config.bf16 else torch.float32,
+                device_map="auto",
+            )
+
+            dataset_id = config.preference_dataset_id or config.prompt_dataset_id
+            if not dataset_id:
+                return RLTrainingResult(
+                    success=False,
+                    error="A dataset ID is required for SFT",
+                    method=RLMethod.SFT,
+                )
+
+            dataset_path = f"./data/training/datasets/{dataset_id}.json"
+            if Path(dataset_path).exists():
+                train_dataset = load_dataset("json", data_files=dataset_path, split="train")
+            else:
+                train_dataset = load_dataset(dataset_id, split="train")
+
+            peft_config = None
+            if sft_config.use_lora:
+                try:
+                    from peft import LoraConfig
+                    peft_config = LoraConfig(
+                        r=sft_config.lora_r,
+                        lora_alpha=sft_config.lora_alpha,
+                        lora_dropout=sft_config.lora_dropout,
+                        target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+                        task_type="CAUSAL_LM",
+                    )
+                except ImportError:
+                    logger.warning("PEFT not available, training without LoRA")
+
+            training_args = TRLSFTConfig(
+                output_dir=output_dir,
+                learning_rate=sft_config.learning_rate,
+                per_device_train_batch_size=sft_config.batch_size,
+                gradient_accumulation_steps=sft_config.gradient_accumulation_steps,
+                num_train_epochs=sft_config.num_train_epochs,
+                lr_scheduler_type=sft_config.lr_scheduler_type,
+                warmup_ratio=sft_config.warmup_ratio,
+                weight_decay=sft_config.weight_decay,
+                max_grad_norm=sft_config.max_grad_norm,
+                bf16=config.bf16,
+                gradient_checkpointing=config.gradient_checkpointing,
+                logging_steps=10,
+                save_steps=100,
+                max_seq_length=sft_config.max_seq_length,
+                packing=sft_config.packing,
+                dataset_text_field=sft_config.dataset_text_field,
+                report_to=config.report_to,
+            )
+
+            trainer = SFTTrainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config,
+            )
+
+            logger.info("Starting SFT training...")
+            train_result = trainer.train()
+
+            trainer.save_model(output_dir)
+            tokenizer.save_pretrained(output_dir)
+
+            metrics = {
+                "train_loss": train_result.training_loss,
+                "train_runtime": train_result.metrics.get("train_runtime", 0),
+                "train_samples_per_second": train_result.metrics.get("train_samples_per_second", 0),
+            }
+
+            if metrics_callback:
+                metrics_callback(metrics)
+
+            return RLTrainingResult(
+                success=True,
+                model_path=output_dir,
+                method=RLMethod.SFT,
+                metrics=metrics,
+                total_steps=train_result.global_step,
+                training_time_seconds=time.time() - start_time,
+            )
+
+        except Exception as e:
+            logger.exception(f"SFT training failed: {e}")
+            return RLTrainingResult(
+                success=False,
+                error=str(e),
+                method=RLMethod.SFT,
+                training_time_seconds=time.time() - start_time,
+            )
+
+    async def train_sft_nemotron(
+        self,
+        config: RLConfig,
+        chat_template: Optional[str] = None,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        SFT fine-tuning with nemotron-specific defaults.
+
+        Applies the nemotron chat template and token handling automatically.
+        Uses QLoRA with target modules suited to the Nemotron-Nano architecture.
+        """
+        if not self.is_available():
+            return RLTrainingResult(
+                success=False,
+                error="TRL not installed. Install with: pip install trl",
+            )
+
+        start_time = time.time()
+
+        try:
+            from trl import SFTTrainer, SFTConfig as TRLSFTConfig
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+            from datasets import load_dataset
+            import torch
+
+            sft_config = config.sft_config or SFTConfig()
+            output_dir = config.output_dir or f"./data/rl/outputs/nemotron-sft-{int(time.time())}"
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Starting Nemotron SFT for {config.base_model}")
+
+            tokenizer = AutoTokenizer.from_pretrained(
+                config.base_model, trust_remote_code=True,
+            )
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+            if chat_template:
+                tokenizer.chat_template = chat_template
+
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+            )
+
+            model = AutoModelForCausalLM.from_pretrained(
+                config.base_model,
+                quantization_config=bnb_config,
+                device_map="auto",
+                trust_remote_code=True,
+            )
+
+            dataset_id = config.preference_dataset_id or config.prompt_dataset_id
+            if not dataset_id:
+                return RLTrainingResult(
+                    success=False,
+                    error="A dataset ID is required for Nemotron SFT",
+                    method=RLMethod.SFT,
+                )
+
+            dataset_path = f"./data/training/datasets/{dataset_id}.json"
+            if Path(dataset_path).exists():
+                train_dataset = load_dataset("json", data_files=dataset_path, split="train")
+            else:
+                train_dataset = load_dataset(dataset_id, split="train")
+
+            nemotron_target_modules = [
+                "q_proj", "k_proj", "v_proj", "o_proj",
+                "gate_proj", "up_proj", "down_proj",
+            ]
+
+            peft_config = None
+            try:
+                from peft import LoraConfig
+                peft_config = LoraConfig(
+                    r=64,
+                    lora_alpha=128,
+                    lora_dropout=0.05,
+                    target_modules=nemotron_target_modules,
+                    task_type="CAUSAL_LM",
+                )
+            except ImportError:
+                logger.warning("PEFT not available, training without LoRA")
+
+            training_args = TRLSFTConfig(
+                output_dir=output_dir,
+                learning_rate=sft_config.learning_rate or 2e-4,
+                per_device_train_batch_size=sft_config.batch_size or 4,
+                gradient_accumulation_steps=sft_config.gradient_accumulation_steps or 8,
+                num_train_epochs=sft_config.num_train_epochs or 3,
+                lr_scheduler_type="cosine",
+                warmup_ratio=0.03,
+                weight_decay=0.01,
+                bf16=True,
+                gradient_checkpointing=True,
+                logging_steps=10,
+                save_steps=100,
+                max_seq_length=sft_config.max_seq_length or 4096,
+                packing=True,
+                report_to=config.report_to,
+            )
+
+            trainer = SFTTrainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config,
+            )
+
+            logger.info("Starting Nemotron SFT training...")
+            train_result = trainer.train()
+
+            trainer.save_model(output_dir)
+            tokenizer.save_pretrained(output_dir)
+
+            metrics = {
+                "train_loss": train_result.training_loss,
+                "train_runtime": train_result.metrics.get("train_runtime", 0),
+                "train_samples_per_second": train_result.metrics.get(
+                    "train_samples_per_second", 0
+                ),
+            }
+
+            if metrics_callback:
+                metrics_callback(metrics)
+
+            return RLTrainingResult(
+                success=True,
+                model_path=output_dir,
+                method=RLMethod.SFT,
+                metrics=metrics,
+                total_steps=train_result.global_step,
+                training_time_seconds=time.time() - start_time,
+            )
+
+        except Exception as e:
+            logger.exception(f"Nemotron SFT failed: {e}")
+            return RLTrainingResult(
+                success=False,
+                error=str(e),
+                method=RLMethod.SFT,
+                training_time_seconds=time.time() - start_time,
+            )
+
+    async def train_coding_reward_model(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        Train a reward model specialised for coding quality.
+
+        Uses the same pipeline as train_reward_model but applies
+        a coding-oriented evaluation during accuracy estimation.
+        """
+        result = await self.train_reward_model(config, metrics_callback)
+        if result.success:
+            result.metrics["specialization"] = "coding"
+        return result
+
     def get_capabilities(self) -> Dict[str, Any]:
         """Get TRL adapter capabilities."""
         return {
@@ -540,6 +1091,9 @@ class TRLAdapter(BaseRLAdapter):
                 "reward_modeling": True,
                 "orpo": True,
                 "kto": True,
+                "sft": True,
+                "sft_nemotron": True,
+                "coding_reward_model": True,
                 "distributed_training": True,
                 "lora_support": True,
             },

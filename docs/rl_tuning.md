@@ -1,4 +1,4 @@
-﻿# RL/RLHF Tuning Guide
+# RL/RLHF Tuning Guide
 
 This guide covers reinforcement learning methods for aligning LLMs with human preferences.
 
@@ -344,6 +344,141 @@ curl -X POST http://localhost:8080/api/v1/rl/experiments \
     }
   }'
 ```
+
+## ORPO Training
+
+ORPO (Odds Ratio Preference Optimization) combines SFT and alignment in a single step, eliminating the need for a reference model and reducing memory usage.
+
+```python
+from agentic_assistants.rl import RLConfig, RLMethod
+from agentic_assistants.rl.config import ORPOConfig
+
+config = RLConfig(
+    base_model="meta-llama/Llama-3.2-1B",
+    output_name="my-orpo-model",
+    method=RLMethod.ORPO,
+    preference_dataset_id=dataset.id,
+    orpo_config=ORPOConfig(
+        beta=0.1,
+        learning_rate=8e-6,
+        batch_size=4,
+        num_train_epochs=1,
+        use_lora=True,
+    ),
+)
+
+adapter = TRLAdapter()
+result = await adapter.train_orpo(config)
+```
+
+### When to use ORPO
+
+- You want a simpler pipeline (no separate SFT step)
+- Memory is limited (no reference model needed)
+- You have preference pairs similar to DPO format
+
+## KTO Training
+
+KTO (Kahneman-Tversky Optimization) works with binary feedback (thumbs up/down) rather than paired preferences.
+
+```python
+from agentic_assistants.rl.config import KTOConfig
+
+config = RLConfig(
+    base_model="./outputs/my-sft-model",
+    output_name="my-kto-model",
+    method=RLMethod.KTO,
+    preference_dataset_id=dataset.id,
+    kto_config=KTOConfig(
+        beta=0.1,
+        desirable_weight=1.0,
+        undesirable_weight=1.0,
+        learning_rate=5e-7,
+        batch_size=4,
+    ),
+)
+
+result = await adapter.train_kto(config)
+```
+
+### KTO Data Format
+
+KTO expects a dataset with `prompt`, `completion`, and `label` fields where label is a boolean:
+
+```json
+[
+  {"prompt": "What is ML?", "completion": "Machine learning is ...", "label": true},
+  {"prompt": "What is ML?", "completion": "I don't know.", "label": false}
+]
+```
+
+## SFT (Supervised Fine-Tuning)
+
+SFT is the recommended first step before any RL method. Use TRL's SFTTrainer via the unified adapter:
+
+```python
+from agentic_assistants.rl.config import SFTConfig
+
+config = RLConfig(
+    base_model="meta-llama/Llama-3.2-1B",
+    output_name="my-sft-model",
+    method=RLMethod.SFT,
+    preference_dataset_id="my-instruct-dataset",
+    sft_config=SFTConfig(
+        learning_rate=2e-5,
+        num_train_epochs=3,
+        max_seq_length=2048,
+        packing=False,
+        use_lora=True,
+    ),
+)
+
+result = await adapter.train_sft(config)
+```
+
+## Distributed Training with Ray
+
+For multi-GPU and cluster training, use the Ray RLlib adapter:
+
+```python
+from agentic_assistants.rl.adapters.ray_adapter import RayRLlibAdapter
+
+ray_adapter = RayRLlibAdapter(
+    num_workers=4,
+    num_gpus=2.0,
+    ray_address="auto",  # Connect to existing Ray cluster
+)
+
+# Check cluster resources
+cluster_info = ray_adapter.get_cluster_info()
+print(f"Available GPUs: {cluster_info['cluster_resources']['gpu']}")
+
+# Run distributed PPO
+result = await ray_adapter.train_ppo(config, reward_model_path="./reward-model")
+
+# DPO/ORPO/KTO are delegated to TRL but benefit from Ray's data distribution
+result = await ray_adapter.run_experiment(config)
+```
+
+### Ray Cluster Setup
+
+1. **Local**: Ray auto-initializes with available resources
+2. **Existing cluster**: Pass `ray_address="ray://head-node:10001"`
+3. **Kubernetes**: Use KubeRay operator for managed clusters
+
+## Adapter Capabilities Comparison
+
+| Feature | TRL | Ray RLlib |
+|---------|-----|-----------|
+| DPO | Native | Via TRL |
+| PPO | Native | Native + distributed |
+| ORPO | Native | Via TRL |
+| KTO | Native | Via TRL |
+| SFT | Native | Via TRL |
+| Reward Model | Native | Via TRL |
+| Multi-GPU | Via accelerate | Native |
+| Cluster | No | Yes |
+| LoRA support | Yes | Via TRL |
 
 ## Troubleshooting
 

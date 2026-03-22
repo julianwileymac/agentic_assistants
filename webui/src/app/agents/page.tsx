@@ -20,6 +20,7 @@ import {
 import { useAgents } from "@/lib/api";
 import type { Agent } from "@/lib/types";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 const statusColors: Record<string, string> = {
   deployed: "bg-green-500/10 text-green-500 border-green-500/20",
@@ -311,6 +312,12 @@ export default function AgentsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <TestingSection
+        resourceType="agent"
+        resourceName="Agent"
+        defaultCode={`# Example agent test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate agent configuration here\",\n}\n`}
+      />
     </div>
   );
 }

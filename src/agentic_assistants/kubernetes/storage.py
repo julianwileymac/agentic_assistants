@@ -115,6 +115,15 @@ class MinIOStorage:
             self._initialized = True
             return False
 
+    def reset(self) -> None:
+        """Reset initialization state so the next operation re-creates the client.
+
+        Call this after configuration changes or to recover from transient
+        connection failures.
+        """
+        self._client = None
+        self._initialized = False
+
     @property
     def is_available(self) -> bool:
         """Check if MinIO client is available."""
@@ -504,6 +513,10 @@ class MinIOStorage:
         """
         Test the MinIO connection.
         
+        Unlike list_buckets() this intentionally lets exceptions propagate
+        so callers can distinguish "connected with 0 buckets" from
+        "connection failed."
+        
         Returns:
             Dict with connection status and details
         """
@@ -513,7 +526,6 @@ class MinIOStorage:
                 "error": "minio library not installed",
             }
         
-        # Skip enabled check if overrides are provided (for testing)
         if not self.config.minio.enabled and not self._has_overrides:
             return {
                 "connected": False,
@@ -528,19 +540,21 @@ class MinIOStorage:
                     "error": "Failed to initialize client",
                 }
             
-            # Try to list buckets
-            buckets = await self.list_buckets()
+            # Call the raw SDK method so connection errors are NOT silently
+            # swallowed (list_buckets() catches exceptions and returns []).
+            raw_buckets = self._client.list_buckets()
+            bucket_names = [b.name for b in raw_buckets]
             
-            # Use override endpoint if provided, otherwise use config
             endpoint = self._endpoint_override or self.config.minio.external_endpoint or self.config.minio.endpoint
             
             return {
                 "connected": True,
                 "endpoint": endpoint,
-                "buckets": buckets,
+                "buckets": bucket_names,
             }
             
         except Exception as e:
+            self.reset()
             return {
                 "connected": False,
                 "error": str(e),

@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/code-editor";
+import { TestingSection } from "@/components/testing/testing-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +53,7 @@ const COMPONENT_CATEGORIES = [
   { value: "pattern", label: "Pattern", description: "Agentic patterns" },
   { value: "utility", label: "Utility", description: "Utility functions" },
   { value: "template", label: "Template", description: "Project templates" },
+  { value: "snippet", label: "Snippet", description: "Reusable code snippets" },
   { value: "datasource_handler", label: "Data Source Handler", description: "Data source handlers" },
   { value: "embedding_model", label: "Embedding Model", description: "Embedding configurations" },
   { value: "prompt_template", label: "Prompt Template", description: "Reusable prompts" },
@@ -76,6 +79,7 @@ const categoryColors: Record<string, string> = {
   pattern: "bg-orange-500/10 text-orange-500",
   utility: "bg-gray-500/10 text-gray-500",
   template: "bg-pink-500/10 text-pink-500",
+  snippet: "bg-slate-500/10 text-slate-500",
   datasource_handler: "bg-cyan-500/10 text-cyan-500",
   embedding_model: "bg-indigo-500/10 text-indigo-500",
   prompt_template: "bg-yellow-500/10 text-yellow-600",
@@ -418,12 +422,11 @@ export default function ComponentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Textarea
-                    id="code"
-                    rows={20}
-                    className="font-mono text-sm"
+                  <CodeEditor
                     value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, code: value })}
+                    language={formData.language || "python"}
+                    height={360}
                   />
                 </CardContent>
               </Card>
@@ -437,12 +440,11 @@ export default function ComponentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Textarea
-                    id="usage_example"
-                    rows={10}
-                    className="font-mono text-sm"
+                  <CodeEditor
                     value={formData.usage_example}
-                    onChange={(e) => setFormData({ ...formData, usage_example: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, usage_example: value })}
+                    language={formData.language || "python"}
+                    height={220}
                   />
                 </CardContent>
               </Card>
@@ -539,6 +541,14 @@ export default function ComponentDetailPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <TestingSection
+        resourceType="component"
+        resourceId={component.id}
+        resourceName={component.name}
+        defaultLanguage={component.language || "python"}
+        defaultCode={component.code}
+      />
     </div>
   );
 }

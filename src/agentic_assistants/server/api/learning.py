@@ -249,7 +249,7 @@ def _get_db_connection():
     from agentic_assistants.config import AgenticConfig
     
     config = AgenticConfig()
-    db_path = config.workspace_path / "data" / "agentic.db"
+    db_path = config.data_dir / "agentic.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)
     
     conn = sqlite3.connect(str(db_path))
@@ -1058,7 +1058,7 @@ async def import_paper(
             from agentic_assistants.config import AgenticConfig
             config = AgenticConfig()
             
-            artifacts_dir = config.workspace_path / "data" / "learning_artifacts"
+            artifacts_dir = config.data_dir / "learning_artifacts"
             artifacts_dir.mkdir(parents=True, exist_ok=True)
             
             original_filename = file.filename

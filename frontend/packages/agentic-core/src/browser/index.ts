@@ -10,4 +10,6 @@ export * from './agentic-configuration';
 export * from './agentic-commands';
 export * from './agentic-menu';
 export * from './agentic-status-bar';
+export * from './testing-widget';
+export * from './testing-view-contribution';
 

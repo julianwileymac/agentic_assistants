@@ -46,6 +46,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/code-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -78,6 +79,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useFlow, useUpdateFlow, useValidateFlow, useRunFlow } from "@/lib/api";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 // Import flow editor components
 import { FlowCanvas } from "@/components/flow-editor/FlowCanvas";
@@ -444,7 +446,8 @@ function FlowEditorInner() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="space-y-6">
+      <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
         <div className="flex items-center justify-between px-4 py-3">
@@ -725,15 +728,23 @@ function FlowEditorInner() {
               <Label htmlFor="yaml" className="mb-2 block">
                 Flow Definition (YAML)
               </Label>
-              <Textarea
-                id="yaml"
-                className="font-mono text-sm h-[calc(100vh-200px)]"
+              <CodeEditor
                 value={formData.flow_yaml}
-                onChange={(e) => setFormData({ ...formData, flow_yaml: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, flow_yaml: value })}
+                language="yaml"
+                height="calc(100vh - 200px)"
               />
             </div>
           </div>
         )}
+      </div>
+      <div className="px-4 pb-6">
+        <TestingSection
+          resourceType="flow"
+          resourceId={flow.id}
+          resourceName={flow.name}
+          defaultCode={`# Validate flow outputs\nresult = {\n    \"flow_id\": \"${flow.id}\",\n    \"status\": \"ok\",\n}\n`}
+        />
       </div>
     </div>
   );

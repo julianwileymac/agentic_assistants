@@ -30,7 +30,7 @@ Example:
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 import yaml
 from pydantic import Field
@@ -58,6 +58,73 @@ class OllamaSettings(BaseSettings):
     timeout: int = Field(
         default=120,
         description="Request timeout in seconds",
+    )
+
+
+class LLMSettings(BaseSettings):
+    """Configuration for generic chat inference providers."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="LLM_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    provider: str = Field(
+        default="ollama",
+        description="Active chat provider (ollama, huggingface_local, openai_compatible)",
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="Default chat model for the active provider",
+    )
+    timeout: int = Field(
+        default=120,
+        description="Default request timeout in seconds",
+    )
+
+    # Ollama settings
+    ollama_host: Optional[str] = Field(
+        default=None,
+        description="Optional Ollama host override for chat inference",
+    )
+
+    # OpenAI-compatible settings
+    openai_base_url: str = Field(
+        default="http://localhost:8000/v1",
+        description="Base URL for OpenAI-compatible endpoints (vLLM, TGI, etc.)",
+    )
+    openai_api_key_env: str = Field(
+        default="OPENAI_API_KEY",
+        description="Environment variable name that stores the OpenAI-compatible API key",
+    )
+
+    # Hugging Face local settings
+    hf_execution_mode: str = Field(
+        default="hybrid",
+        description="Hugging Face execution mode (local, remote, hybrid)",
+    )
+    hf_local_model: Optional[str] = Field(
+        default=None,
+        description="Default Hugging Face model ID for local inference",
+    )
+    hf_device_map: str = Field(
+        default="auto",
+        description="Transformers device_map for local Hugging Face inference",
+    )
+    hf_torch_dtype: Optional[str] = Field(
+        default=None,
+        description="Optional torch dtype for local Hugging Face inference",
+    )
+    hf_trust_remote_code: bool = Field(
+        default=False,
+        description="Trust remote model code when loading Hugging Face models",
+    )
+
+    fallback_provider: Optional[str] = Field(
+        default=None,
+        description="Optional fallback provider when the primary provider fails",
     )
 
 
@@ -573,6 +640,58 @@ class MinIOSettings(BaseSettings):
     )
 
 
+class JupyterSettings(BaseSettings):
+    """Configuration for the managed Jupyter notebook server."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="JUPYTER_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=True,
+        description="Enable managed notebook server (auto-starts with backend)",
+    )
+    port: int = Field(
+        default=8888,
+        description="Notebook server port",
+    )
+    host: str = Field(
+        default="127.0.0.1",
+        description="Notebook server bind address",
+    )
+    token: str = Field(
+        default="",
+        description="Notebook auth token (empty = no auth for local dev)",
+    )
+    notebook_dir: str = Field(
+        default="./notebooks",
+        description="Root directory served by the notebook server",
+    )
+    base_url: str = Field(
+        default="/",
+        description="Base URL path for the notebook server",
+    )
+    external_url: Optional[str] = Field(
+        default=None,
+        description="External JupyterHub URL; when set, disables local managed server",
+    )
+    kernel_name: str = Field(
+        default="agentic",
+        description="Name of the IPython kernel registered for the framework environment",
+    )
+    startup_timeout: int = Field(
+        default=30,
+        description="Seconds to wait for notebook server readiness",
+    )
+    log_to_stdout: bool = Field(
+        default=True,
+        description="Pipe notebook server logs through structured logger to stdout",
+    )
+
+
 class PostgreSQLSettings(BaseSettings):
     """Configuration for PostgreSQL database persistence."""
 
@@ -612,12 +731,109 @@ class PostgreSQLSettings(BaseSettings):
         description="Full PostgreSQL connection string (overrides individual settings)",
     )
     
+    # Connection pool settings
+    pool_size: int = Field(
+        default=5,
+        description="Connection pool size",
+    )
+    max_overflow: int = Field(
+        default=10,
+        description="Maximum overflow connections",
+    )
+    pool_timeout: int = Field(
+        default=30,
+        description="Pool connection timeout in seconds",
+    )
+    
     @property
     def dsn(self) -> str:
         """Get PostgreSQL connection DSN."""
         if self.connection_string:
             return self.connection_string
         return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
+    
+    @property
+    def async_dsn(self) -> str:
+        """Get PostgreSQL async connection DSN."""
+        if self.connection_string:
+            return self.connection_string.replace("postgresql://", "postgresql+asyncpg://")
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
+
+
+class SupabaseSettings(BaseSettings):
+    """Configuration for Supabase integration."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="SUPABASE_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable Supabase integration",
+    )
+    url: Optional[str] = Field(
+        default=None,
+        description="Supabase project URL",
+    )
+    key: Optional[str] = Field(
+        default=None,
+        description="Supabase anon/service key",
+    )
+    service_key: Optional[str] = Field(
+        default=None,
+        description="Supabase service role key (for admin operations)",
+    )
+    jwt_secret: Optional[str] = Field(
+        default=None,
+        description="JWT secret for token verification",
+    )
+    db_url: Optional[str] = Field(
+        default=None,
+        description="Direct database URL (alternative to Supabase client)",
+    )
+    realtime_enabled: bool = Field(
+        default=True,
+        description="Enable realtime subscriptions",
+    )
+    auto_refresh_token: bool = Field(
+        default=True,
+        description="Automatically refresh auth tokens",
+    )
+
+
+class DatabaseSettings(BaseSettings):
+    """Configuration for database layer with hybrid support."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="DATABASE_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    type: str = Field(
+        default="sqlite",
+        description="Database type (sqlite, postgres, supabase)",
+    )
+    auto_migrate: bool = Field(
+        default=True,
+        description="Automatically run migrations on startup",
+    )
+    backup_enabled: bool = Field(
+        default=True,
+        description="Enable automatic database backups",
+    )
+    backup_interval_hours: int = Field(
+        default=24,
+        description="Backup interval in hours",
+    )
+    backup_retention_days: int = Field(
+        default=7,
+        description="Days to retain backups",
+    )
 
 
 class RedisSettings(BaseSettings):
@@ -720,6 +936,198 @@ class RedisSettings(BaseSettings):
         return f"redis://{self.host}:{self.port}/{self.db}"
 
 
+class HuggingFaceSettings(BaseSettings):
+    """Configuration for HuggingFace Hub and library integration."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="HF_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    token: Optional[str] = Field(
+        default=None,
+        description="HuggingFace API token (also reads HUGGINGFACE_TOKEN)",
+    )
+    cache_dir: Path = Field(
+        default=Path("./data/models/hf_cache"),
+        description="Local cache directory for HuggingFace downloads",
+    )
+    datasets_cache_dir: Path = Field(
+        default=Path("./data/datasets/hf_cache"),
+        description="Local cache directory for HuggingFace datasets",
+    )
+    default_org: Optional[str] = Field(
+        default=None,
+        description="Default HuggingFace organization for push operations",
+    )
+    hub_url: str = Field(
+        default="https://huggingface.co",
+        description="HuggingFace Hub URL",
+    )
+    offline_mode: bool = Field(
+        default=False,
+        description="Run in offline mode (no Hub requests)",
+    )
+    papers_enabled: bool = Field(
+        default=True,
+        description="Enable paper search/retrieval from HuggingFace",
+    )
+    default_revision: str = Field(
+        default="main",
+        description="Default revision/branch for model downloads",
+    )
+
+
+class NemotronSettings(BaseSettings):
+    """Configuration for Nemotron model integration."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="NEMOTRON_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    default_model: str = Field(
+        default="nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+        description="Default Nemotron model ID",
+    )
+    cache_dir: Path = Field(
+        default=Path("./data/models/nemotron"),
+        description="Local cache directory for Nemotron model weights",
+    )
+    serving_backend: str = Field(
+        default="ollama",
+        description="Preferred serving backend: ollama, vllm, tgi",
+    )
+    serving_url: Optional[str] = Field(
+        default=None,
+        description="URL of the running Nemotron serving endpoint",
+    )
+    quantization: str = Field(
+        default="none",
+        description="Default quantization: none, int8, int4, gptq, awq",
+    )
+    trust_remote_code: bool = Field(
+        default=True,
+        description="Trust remote code when loading models",
+    )
+
+
+class DataHubSettings(BaseSettings):
+    """Configuration for DataHub data catalog integration."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="DATAHUB_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable DataHub catalog integration",
+    )
+    gms_url: str = Field(
+        default="http://localhost:8080",
+        description="DataHub GMS REST API endpoint",
+    )
+    frontend_url: str = Field(
+        default="http://datahub.local",
+        description="DataHub frontend UI URL (for external links)",
+    )
+    token: Optional[str] = Field(
+        default=None,
+        description="DataHub personal access token for API authentication",
+    )
+    iceberg_enabled: bool = Field(
+        default=True,
+        description="Enable Iceberg catalog features via DataHub GMS",
+    )
+
+
+class IcebergSettings(BaseSettings):
+    """Configuration for Apache Iceberg catalog backed by MinIO."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="ICEBERG_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    catalog_uri: str = Field(
+        default="http://localhost:8080/iceberg",
+        description="Iceberg REST catalog endpoint (DataHub GMS /iceberg)",
+    )
+    warehouse: str = Field(
+        default="s3://iceberg-warehouse/",
+        description="Default warehouse location in S3/MinIO",
+    )
+    s3_endpoint: str = Field(
+        default="http://localhost:9000",
+        description="S3-compatible endpoint (MinIO)",
+    )
+    s3_access_key: str = Field(
+        default="minioadmin",
+        description="S3 access key",
+    )
+    s3_secret_key: str = Field(
+        default="minioadmin123",
+        description="S3 secret key",
+    )
+
+
+class DbtSettings(BaseSettings):
+    """Configuration for dbt-core data transformations."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="DBT_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable dbt integration",
+    )
+    project_dir: str = Field(
+        default="",
+        description="Path to the dbt project directory",
+    )
+    profiles_dir: str = Field(
+        default="",
+        description="Path to the dbt profiles directory",
+    )
+    target: str = Field(
+        default="dev",
+        description="dbt target profile to use",
+    )
+    postgres_host: str = Field(
+        default="localhost",
+        description="PostgreSQL host for dbt connections",
+    )
+    postgres_port: int = Field(
+        default=5432,
+        description="PostgreSQL port for dbt connections",
+    )
+    postgres_database: str = Field(
+        default="agentic",
+        description="PostgreSQL database for dbt",
+    )
+    postgres_user: str = Field(
+        default="postgres",
+        description="PostgreSQL user for dbt",
+    )
+    postgres_password: str = Field(
+        default="",
+        description="PostgreSQL password for dbt",
+    )
+
+
 class FrameworkAssistantSettings(BaseSettings):
     """Configuration for the built-in Framework Assistant Agent."""
 
@@ -741,6 +1149,22 @@ class FrameworkAssistantSettings(BaseSettings):
     model: str = Field(
         default="llama3.2",
         description="LLM model for the assistant",
+    )
+    provider: str = Field(
+        default="ollama",
+        description="Assistant LLM provider (ollama, huggingface_local, openai_compatible)",
+    )
+    endpoint: Optional[str] = Field(
+        default=None,
+        description="Optional assistant endpoint override for remote inference providers",
+    )
+    openai_api_key_env: str = Field(
+        default="OPENAI_API_KEY",
+        description="API key environment variable for OpenAI-compatible assistant requests",
+    )
+    hf_execution_mode: str = Field(
+        default="hybrid",
+        description="Assistant Hugging Face execution mode (local, remote, hybrid)",
     )
     enable_coding_helper: bool = Field(
         default=True,
@@ -818,6 +1242,74 @@ class GitConfig(BaseSettings):
     branch: str = Field(default="main", description="Default branch")
     auto_sync: bool = Field(default=False, description="Automatically sync with remote")
     ssh_key_ref: Optional[str] = Field(default=None, description="Reference to SSH key in secrets store")
+
+
+class TestingSettings(BaseSettings):
+    """Configuration for the testing / execution sandbox subsystem."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="TESTING_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(
+        default=True,
+        description="Enable testing features",
+    )
+    sandbox_default: bool = Field(
+        default=False,
+        description="Run tests in a sandboxed environment by default",
+    )
+    tracking_default: bool = Field(
+        default=True,
+        description="Enable MLFlow tracking for test runs by default",
+    )
+    agent_eval_default: bool = Field(
+        default=False,
+        description="Enable agent-based evaluation by default",
+    )
+    rl_metrics_default: bool = Field(
+        default=False,
+        description="Enable RL metrics collection by default",
+    )
+    eval_provider: Optional[str] = Field(
+        default=None,
+        description="Default provider for LLM-based evaluation (falls back to global LLM provider)",
+    )
+    eval_model: Optional[str] = Field(
+        default=None,
+        description="Default model for LLM-based evaluation (falls back to global LLM model)",
+    )
+    eval_endpoint: Optional[str] = Field(
+        default=None,
+        description="Optional endpoint override for evaluation provider",
+    )
+    eval_hf_execution_mode: str = Field(
+        default="hybrid",
+        description="Hugging Face execution mode used by evaluation (local, remote, hybrid)",
+    )
+    timeout_seconds: Optional[int] = Field(
+        default=300,
+        description="Default timeout in seconds for test execution",
+    )
+    allowed_imports: List[str] = Field(
+        default=[
+            "math", "json", "datetime", "collections", "itertools",
+            "functools", "operator", "string", "re", "textwrap",
+            "typing", "dataclasses", "enum", "pathlib", "os",
+        ],
+        description="Modules allowed in sandboxed code execution",
+    )
+    max_output_chars: Optional[int] = Field(
+        default=10000,
+        description="Maximum characters to capture from test output",
+    )
+    dataset_sample_size: int = Field(
+        default=100,
+        description="Default number of dataset samples to load for tests",
+    )
 
 
 class ProjectSettings(BaseSettings):
@@ -1180,6 +1672,7 @@ class AgenticConfig(BaseSettings):
 
     # Sub-configurations (populated lazily)
     _ollama: Optional[OllamaSettings] = None
+    _llm: Optional[LLMSettings] = None
     _mlflow: Optional[MLFlowSettings] = None
     _telemetry: Optional[TelemetrySettings] = None
     _vectordb: Optional[VectorDBSettings] = None
@@ -1190,6 +1683,7 @@ class AgenticConfig(BaseSettings):
     _indexing: Optional[IndexingSettings] = None
     _kubernetes: Optional[KubernetesSettings] = None
     _minio: Optional[MinIOSettings] = None
+    _jupyter: Optional[JupyterSettings] = None
     _postgresql: Optional[PostgreSQLSettings] = None
     _redis: Optional[RedisSettings] = None
     _user: Optional[UserConfig] = None
@@ -1197,6 +1691,12 @@ class AgenticConfig(BaseSettings):
     _global: Optional[GlobalConfig] = None
     _project: Optional[ProjectSettings] = None
     _assistant: Optional[FrameworkAssistantSettings] = None
+    _testing: Optional[TestingSettings] = None
+    _huggingface: Optional[HuggingFaceSettings] = None
+    _nemotron: Optional[NemotronSettings] = None
+    _datahub: Optional[DataHubSettings] = None
+    _iceberg: Optional[IcebergSettings] = None
+    _dbt: Optional[DbtSettings] = None
 
     @property
     def ollama(self) -> OllamaSettings:
@@ -1204,6 +1704,13 @@ class AgenticConfig(BaseSettings):
         if self._ollama is None:
             self._ollama = OllamaSettings()
         return self._ollama
+
+    @property
+    def llm(self) -> LLMSettings:
+        """Get generic LLM provider configuration."""
+        if self._llm is None:
+            self._llm = LLMSettings()
+        return self._llm
 
     @property
     def mlflow(self) -> MLFlowSettings:
@@ -1262,6 +1769,48 @@ class AgenticConfig(BaseSettings):
         return self._indexing
 
     @property
+    def testing(self) -> TestingSettings:
+        """Get testing configuration."""
+        if self._testing is None:
+            self._testing = TestingSettings()
+        return self._testing
+
+    @property
+    def huggingface(self) -> HuggingFaceSettings:
+        """Get HuggingFace configuration."""
+        if self._huggingface is None:
+            self._huggingface = HuggingFaceSettings()
+        return self._huggingface
+
+    @property
+    def nemotron(self) -> NemotronSettings:
+        """Get Nemotron model configuration."""
+        if self._nemotron is None:
+            self._nemotron = NemotronSettings()
+        return self._nemotron
+
+    @property
+    def datahub(self) -> DataHubSettings:
+        """Get DataHub catalog configuration."""
+        if self._datahub is None:
+            self._datahub = DataHubSettings()
+        return self._datahub
+
+    @property
+    def iceberg(self) -> IcebergSettings:
+        """Get Iceberg catalog configuration."""
+        if self._iceberg is None:
+            self._iceberg = IcebergSettings()
+        return self._iceberg
+
+    @property
+    def dbt(self) -> DbtSettings:
+        """Get dbt transformation configuration."""
+        if self._dbt is None:
+            self._dbt = DbtSettings()
+        return self._dbt
+
+    @property
     def kubernetes(self) -> KubernetesSettings:
         """Get Kubernetes configuration."""
         if self._kubernetes is None:
@@ -1276,11 +1825,32 @@ class AgenticConfig(BaseSettings):
         return self._minio
 
     @property
+    def jupyter(self) -> JupyterSettings:
+        """Get Jupyter notebook server configuration."""
+        if self._jupyter is None:
+            self._jupyter = JupyterSettings()
+        return self._jupyter
+
+    @property
     def postgresql(self) -> PostgreSQLSettings:
         """Get PostgreSQL database configuration."""
         if self._postgresql is None:
             self._postgresql = PostgreSQLSettings()
         return self._postgresql
+
+    @property
+    def supabase(self) -> SupabaseSettings:
+        """Get Supabase configuration."""
+        if self._supabase is None:
+            self._supabase = SupabaseSettings()
+        return self._supabase
+
+    @property
+    def database(self) -> DatabaseSettings:
+        """Get database layer configuration."""
+        if self._database is None:
+            self._database = DatabaseSettings()
+        return self._database
 
     @property
     def redis(self) -> RedisSettings:
@@ -1449,7 +2019,26 @@ class AgenticConfig(BaseSettings):
                 "experiment_name": self.mlflow.experiment_name,
                 "artifact_location": self.mlflow.artifact_location,
             },
-            "framework_model": self.framework_model or self.ollama.default_model,
+            "llm": {
+                "provider": self.llm.provider,
+                "model": self.llm.model,
+                "timeout": self.llm.timeout,
+                "ollama_host": self.llm.ollama_host,
+                "openai_base_url": self.llm.openai_base_url,
+                "openai_api_key_env": self.llm.openai_api_key_env,
+                "hf_execution_mode": self.llm.hf_execution_mode,
+                "hf_local_model": self.llm.hf_local_model,
+                "hf_device_map": self.llm.hf_device_map,
+                "hf_torch_dtype": self.llm.hf_torch_dtype,
+                "hf_trust_remote_code": self.llm.hf_trust_remote_code,
+                "fallback_provider": self.llm.fallback_provider,
+            },
+            "framework_model": (
+                self.framework_model
+                or self.assistant.model
+                or self.llm.model
+                or self.ollama.default_model
+            ),
             "telemetry": {
                 "endpoint": self.telemetry.exporter_otlp_endpoint,
                 "service_name": self.telemetry.service_name,
@@ -1549,6 +2138,10 @@ class AgenticConfig(BaseSettings):
                 "enabled": self.assistant.enabled,
                 "default_framework": self.assistant.default_framework,
                 "model": self.assistant.model,
+                "provider": self.assistant.provider,
+                "endpoint": self.assistant.endpoint,
+                "openai_api_key_env": self.assistant.openai_api_key_env,
+                "hf_execution_mode": self.assistant.hf_execution_mode,
                 "enable_coding_helper": self.assistant.enable_coding_helper,
                 "enable_framework_guide": self.assistant.enable_framework_guide,
                 "enable_meta_analysis": self.assistant.enable_meta_analysis,
@@ -1560,6 +2153,30 @@ class AgenticConfig(BaseSettings):
                 "usage_db_path": str(self.assistant.usage_db_path),
                 "meta_analysis_interval_hours": self.assistant.meta_analysis_interval_hours,
                 "max_context_messages": self.assistant.max_context_messages,
+            },
+            "testing": {
+                "enabled": self.testing.enabled,
+                "sandbox_default": self.testing.sandbox_default,
+                "tracking_default": self.testing.tracking_default,
+                "agent_eval_default": self.testing.agent_eval_default,
+                "rl_metrics_default": self.testing.rl_metrics_default,
+                "eval_provider": self.testing.eval_provider,
+                "eval_model": self.testing.eval_model,
+                "eval_endpoint": self.testing.eval_endpoint,
+                "eval_hf_execution_mode": self.testing.eval_hf_execution_mode,
+                "timeout_seconds": self.testing.timeout_seconds,
+                "dataset_sample_size": self.testing.dataset_sample_size,
+                "max_output_chars": self.testing.max_output_chars,
+            },
+            "huggingface": {
+                "cache_dir": str(self.huggingface.cache_dir),
+                "datasets_cache_dir": str(self.huggingface.datasets_cache_dir),
+                "default_org": self.huggingface.default_org,
+                "hub_url": self.huggingface.hub_url,
+                "offline_mode": self.huggingface.offline_mode,
+                "papers_enabled": self.huggingface.papers_enabled,
+                "default_revision": self.huggingface.default_revision,
+                "token_set": self.huggingface.token is not None,
             },
         }
     

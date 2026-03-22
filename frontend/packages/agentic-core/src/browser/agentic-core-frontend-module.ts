@@ -6,7 +6,7 @@
  */
 
 import { ContainerModule } from '@theia/core/shared/inversify';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { FrontendApplicationContribution, WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common';
 import { AgenticBackendService, AgenticBackendServiceSymbol } from './agentic-backend-service';
 import { AgenticWebSocketClient, AgenticWebSocketClientSymbol } from './agentic-websocket-client';
@@ -14,6 +14,8 @@ import { AgenticConfigurationContribution } from './agentic-configuration';
 import { AgenticCommandContribution } from './agentic-commands';
 import { AgenticMenuContribution } from './agentic-menu';
 import { AgenticStatusBarContribution } from './agentic-status-bar';
+import { TestingWidget, TESTING_WIDGET_ID } from './testing-widget';
+import { TestingViewContribution } from './testing-view-contribution';
 
 export default new ContainerModule(bind => {
     // Backend service for REST API communication
@@ -39,5 +41,16 @@ export default new ContainerModule(bind => {
     // Status bar contribution
     bind(AgenticStatusBarContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(AgenticStatusBarContribution);
+
+    // Testing widget
+    bind(TestingWidget).toSelf();
+    bind(WidgetFactory).toDynamicValue(ctx => ({
+        id: TESTING_WIDGET_ID,
+        createWidget: () => ctx.container.get(TestingWidget)
+    })).inSingletonScope();
+
+    // Testing view contribution
+    bindViewContribution(bind, TestingViewContribution);
+    bind(FrontendApplicationContribution).toService(TestingViewContribution);
 });
 

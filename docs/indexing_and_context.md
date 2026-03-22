@@ -49,3 +49,5 @@ agentic context show --task understand
 agentic context show --task add_cli_command --copy
 ```
 
+## Assistant context togglesThe Control Panel assistant UI can optionally inject:- **Code context packs** from `.index/context` (task-based via `ContextLoader`)
+- **Project docs excerpts** from `docs/`These toggles are sent as `include_code_context`, `include_project_docs`, and `context_task` in `/api/v1/assistant/chat`.

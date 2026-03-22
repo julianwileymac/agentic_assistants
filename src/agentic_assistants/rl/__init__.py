@@ -31,6 +31,9 @@ from agentic_assistants.rl.config import (
     DPOConfig,
     PPOConfig,
     RewardConfig,
+    ORPOConfig,
+    KTOConfig,
+    SFTConfig,
     RLMethod,
 )
 from agentic_assistants.rl.experiments import (
@@ -46,6 +49,9 @@ __all__ = [
     "DPOConfig",
     "PPOConfig",
     "RewardConfig",
+    "ORPOConfig",
+    "KTOConfig",
+    "SFTConfig",
     "RLMethod",
     # Experiments
     "RLExperiment",

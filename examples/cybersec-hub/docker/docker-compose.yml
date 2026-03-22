@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  # Cybersecurity Hub Main Service
+  cybersec-hub:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: cybersec-hub
+    ports:
+      - "8081:8080"  # API
+      - "3002:3000"  # Dashboard
+    volumes:
+      - ./data:/app/data
+      - ./tools:/app/tools
+      - ./network/vpn-configs:/app/network/vpn-configs
+      - /var/run/docker.sock:/var/run/docker.sock  # For containerized tools
+    environment:
+      - CYBERSEC_MODE=full
+      - ENABLE_RED_TEAM=true
+      - ENABLE_BLUE_TEAM=true
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5000}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      - redis
+      - mlflow
+    networks:
+      - cybersec-network
+      - agentic-network
+    cap_add:
+      - NET_ADMIN  # For network operations
+      - SYS_PTRACE  # For forensics tools
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/cybersec/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # VPN Gateway for International Testing
+  vpn-gateway:
+    image: dperson/openvpn-client:latest
+    container_name: cybersec-vpn
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ../network/vpn-configs:/vpn:ro
+    environment:
+      - FIREWALL=true
+      - ROUTE=192.168.0.0/16
+      - VPN_LOG_LEVEL=3
+    networks:
+      - cybersec-network
+    restart: unless-stopped
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: cybersec-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - cybersec-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # MLFlow for experiment tracking
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: cybersec-mlflow
+    ports:
+      - "5001:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow.db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    networks:
+      - cybersec-network
+    restart: unless-stopped
+
+  # Test Target: DVWA (Damn Vulnerable Web Application)
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: cybersec-dvwa
+    ports:
+      - "8082:80"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dvwa
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+    networks:
+      - cybersec-network
+    restart: unless-stopped
+    profiles:
+      - testing
+
+  # Test Target: WebGoat
+  webgoat:
+    image: webgoat/webgoat:latest
+    container_name: cybersec-webgoat
+    ports:
+      - "8083:8080"
+      - "9090:9090"
+    environment:
+      - WEBGOAT_HOST=0.0.0.0
+      - WEBWOLF_HOST=0.0.0.0
+    networks:
+      - cybersec-network
+    restart: unless-stopped
+    profiles:
+      - testing
+
+  # Metasploitable2 (for advanced testing)
+  # Note: This requires building from Dockerfile
+  # metasploitable:
+  #   image: tleemcjr/metasploitable2:latest
+  #   container_name: cybersec-metasploitable
+  #   ports:
+  #     - "8084:80"
+  #     - "2222:22"
+  #   networks:
+  #     - cybersec-network
+  #   restart: unless-stopped
+  #   profiles:
+  #     - testing
+
+networks:
+  cybersec-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+  
+  agentic-network:
+    external: true
+
+volumes:
+  redis-data:
+  mlflow-data:
+  cybersec-data:
+  tools-data:

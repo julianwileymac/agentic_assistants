@@ -20,6 +20,7 @@ import {
 import { useComponents } from "@/lib/api";
 import type { Component } from "@/lib/types";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 const categoryColors: Record<string, string> = {
   tool: "bg-blue-500/10 text-blue-500",
@@ -28,6 +29,7 @@ const categoryColors: Record<string, string> = {
   pattern: "bg-orange-500/10 text-orange-500",
   utility: "bg-gray-500/10 text-gray-500",
   template: "bg-pink-500/10 text-pink-500",
+  snippet: "bg-slate-500/10 text-slate-500",
 };
 
 const categoryIcons: Record<string, string> = {
@@ -37,6 +39,7 @@ const categoryIcons: Record<string, string> = {
   pattern: "🧩",
   utility: "⚙️",
   template: "📄",
+  snippet: "✂️",
 };
 
 function ComponentCard({ component, onDelete }: { component: Component; onDelete: () => void }) {
@@ -182,6 +185,7 @@ export default function LibraryPage() {
             <TabsTrigger value="pattern">Patterns</TabsTrigger>
             <TabsTrigger value="utility">Utilities</TabsTrigger>
             <TabsTrigger value="template">Templates</TabsTrigger>
+            <TabsTrigger value="snippet">Snippets</TabsTrigger>
           </TabsList>
           
           <div className="relative w-64">
@@ -246,6 +250,12 @@ export default function LibraryPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <TestingSection
+        resourceType="component"
+        resourceName="Component Library"
+        defaultCode={`# Component library test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate component metadata and usage\",\n}\n`}
+      />
     </div>
   );
 }

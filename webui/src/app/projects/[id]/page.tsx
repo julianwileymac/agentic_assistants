@@ -103,6 +103,7 @@ import {
   type GitConfig,
 } from "@/lib/api";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 export default function ProjectDetailPage() {
   const router = useRouter();
@@ -487,6 +488,15 @@ export default function ProjectDetailPage() {
           <ProjectGitTab projectId={projectId} />
         </TabsContent>
       </Tabs>
+
+      {project && (
+        <TestingSection
+          resourceType="project"
+          resourceId={project.id}
+          resourceName={project.name}
+          defaultCode={`# Validate project resources\nresult = {\n    \"project_id\": \"${project.id}\",\n    \"status\": \"ok\",\n}\n`}
+        />
+      )}
     </div>
   );
 }

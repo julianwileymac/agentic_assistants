@@ -15,6 +15,8 @@ import {
   Link as LinkIcon,
   CheckCircle,
   XCircle,
+  Settings2,
+  Loader2,
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +56,7 @@ import {
   useCreateBucket,
   useDeleteObject,
   useGetPresignedUrl,
+  useTestMinioConnection,
 } from "@/lib/api";
 
 function formatBytes(bytes: number): string {
@@ -70,7 +73,7 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function StoragePage() {
-  const { data: status, isLoading: statusLoading } = useStorageStatus();
+  const { data: status, isLoading: statusLoading, mutate: mutateStatus } = useStorageStatus();
   const { data: bucketsData, isLoading: bucketsLoading, mutate: mutateBuckets } = useStorageBuckets();
 
   const [selectedBucket, setSelectedBucket] = React.useState<string | null>(null);
@@ -86,8 +89,64 @@ export default function StoragePage() {
   const { trigger: createBucket, isMutating: isCreating } = useCreateBucket();
   const { trigger: deleteObject, isMutating: isDeleting } = useDeleteObject();
   const { trigger: getPresignedUrl } = useGetPresignedUrl();
+  const { trigger: testConnection, isMutating: isTesting } = useTestMinioConnection();
+
+  const [cfgEndpoint, setCfgEndpoint] = React.useState("");
+  const [cfgAccessKey, setCfgAccessKey] = React.useState("");
+  const [cfgSecretKey, setCfgSecretKey] = React.useState("");
+  const [cfgSecure, setCfgSecure] = React.useState(false);
+  const [showConfig, setShowConfig] = React.useState(false);
 
   const isConnected = status?.connected ?? false;
+  const [testResult, setTestResult] = React.useState<{
+    connected: boolean;
+    endpoint?: string;
+    buckets?: string[];
+    error?: string;
+  } | null>(null);
+
+  const handleTestConnection = async () => {
+    setTestResult(null);
+    try {
+      const result = await testConnection({
+        endpoint: cfgEndpoint || undefined,
+        access_key: cfgAccessKey || undefined,
+        secret_key: cfgSecretKey || undefined,
+        secure: cfgSecure,
+      });
+      setTestResult(result);
+      if (result.connected) {
+        toast.success(`Connected! Found ${result.buckets?.length ?? 0} bucket(s)`);
+      } else {
+        toast.error(result.error || "Connection failed");
+      }
+    } catch {
+      toast.error("Connection test failed");
+    }
+  };
+
+  const handleApplyConnection = async () => {
+    try {
+      const result = await testConnection({
+        endpoint: cfgEndpoint || undefined,
+        access_key: cfgAccessKey || undefined,
+        secret_key: cfgSecretKey || undefined,
+        secure: cfgSecure,
+        apply: true,
+      });
+      if (result.connected) {
+        toast.success("Connection applied");
+        setShowConfig(false);
+        setTestResult(null);
+        mutateStatus();
+        mutateBuckets();
+      } else {
+        toast.error(result.error || "Failed to apply connection");
+      }
+    } catch {
+      toast.error("Failed to apply connection");
+    }
+  };
 
   const handleCreateBucket = async () => {
     if (!newBucketName) return;
@@ -155,7 +214,11 @@ export default function StoragePage() {
           <Badge variant={isConnected ? "default" : "destructive"}>
             {isConnected ? "Connected" : "Disconnected"}
           </Badge>
-          <Button variant="outline" onClick={() => { mutateBuckets(); mutateObjects(); }}>
+          <Button variant="outline" onClick={() => setShowConfig(!showConfig)}>
+            <Settings2 className="size-4 mr-2" />
+            Configure
+          </Button>
+          <Button variant="outline" onClick={() => { mutateStatus(); mutateBuckets(); mutateObjects(); }}>
             <RefreshCw className="size-4 mr-2" />
             Refresh
           </Button>
@@ -175,6 +238,95 @@ export default function StoragePage() {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Connection Configuration */}
+      {showConfig && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Settings2 className="size-4" />
+              MinIO Connection
+            </CardTitle>
+            <CardDescription>
+              Test and apply a new MinIO endpoint configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Endpoint (host:port)</Label>
+                <Input
+                  placeholder="localhost:9000"
+                  value={cfgEndpoint}
+                  onChange={e => setCfgEndpoint(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Access Key</Label>
+                <Input
+                  placeholder="minioadmin"
+                  value={cfgAccessKey}
+                  onChange={e => setCfgAccessKey(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Secret Key</Label>
+                <Input
+                  type="password"
+                  placeholder="secret"
+                  value={cfgSecretKey}
+                  onChange={e => setCfgSecretKey(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end gap-2 pb-0.5">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={cfgSecure}
+                    onChange={e => setCfgSecure(e.target.checked)}
+                    className="rounded"
+                  />
+                  Use HTTPS
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
+                {isTesting ? <Loader2 className="size-4 mr-2 animate-spin" /> : <CheckCircle className="size-4 mr-2" />}
+                Test Connection
+              </Button>
+              {testResult?.connected && (
+                <Button onClick={handleApplyConnection} disabled={isTesting}>
+                  Apply &amp; Use This Connection
+                </Button>
+              )}
+              <Button variant="ghost" onClick={() => { setShowConfig(false); setTestResult(null); }}>
+                Cancel
+              </Button>
+            </div>
+            {testResult && (
+              <div className={`rounded-lg border p-3 text-sm ${testResult.connected ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950" : "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950"}`}>
+                {testResult.connected ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 font-medium text-green-700 dark:text-green-400">
+                      <CheckCircle className="size-4" />
+                      Connected to {testResult.endpoint}
+                    </div>
+                    <p className="text-green-600 dark:text-green-500">
+                      Found {testResult.buckets?.length ?? 0} bucket(s): {testResult.buckets?.join(", ") || "none"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                    <XCircle className="size-4" />
+                    {testResult.error}
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

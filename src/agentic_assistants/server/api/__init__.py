@@ -41,6 +41,8 @@ from agentic_assistants.server.api.learning import router as learning_router
 from agentic_assistants.server.api.evaluations import router as evaluations_router
 from agentic_assistants.server.api.framework_assistant import router as framework_assistant_router
 from agentic_assistants.server.api.ollama import router as ollama_router
+from agentic_assistants.server.api.testing import router as testing_router
+from agentic_assistants.server.api.huggingface import router as huggingface_router
 
 __all__ = [
     # Original routers
@@ -60,6 +62,7 @@ __all__ = [
     "generation_router",
     "docs_router",
     "assistant_router",
+    "testing_router",
     # Infrastructure routers
     "kubernetes_router",
     # Learning routers
@@ -68,4 +71,5 @@ __all__ = [
     # Framework Assistant routers
     "framework_assistant_router",
     "ollama_router",
+    "huggingface_router",
 ]

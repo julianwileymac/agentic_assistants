@@ -15,6 +15,8 @@ from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from agentic_assistants.core.models import ControlPanelStore
+from agentic_assistants.core.mlflow_tracker import MLFlowTracker
+from agentic_assistants.config import AgenticConfig
 from agentic_assistants.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -134,6 +136,8 @@ class FlowExecutionRequest(BaseModel):
     inputs: Dict[str, Any] = Field(default_factory=dict, description="Input values for the flow")
     run_name: Optional[str] = None
     async_mode: bool = Field(default=True, description="Run asynchronously")
+    tracking_enabled: Optional[bool] = None
+    rl_metrics_enabled: Optional[bool] = None
 
 
 class FlowExecutionResponse(BaseModel):
@@ -368,9 +372,25 @@ async def execute_flow(
     
     _flow_executions[execution_id] = execution
     
+    config = AgenticConfig()
+    tracking = request.tracking_enabled
+    if tracking is None:
+        tracking = config.testing.tracking_default
+    rl_metrics = request.rl_metrics_enabled
+    if rl_metrics is None:
+        rl_metrics = config.testing.rl_metrics_default
+
     if request.async_mode:
         # Start execution in background
-        background_tasks.add_task(_execute_flow_async, execution_id, flow, request.inputs)
+        background_tasks.add_task(
+            _execute_flow_async,
+            execution_id,
+            flow,
+            request.inputs,
+            tracking,
+            rl_metrics,
+            request.run_name,
+        )
         execution["status"] = "running"
     else:
         # Execute synchronously
@@ -382,10 +402,26 @@ async def execute_flow(
             execution["node_results"] = result.get("node_results", {})
             execution["metrics"] = result.get("metrics", {})
             execution["completed_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            if tracking:
+                _log_flow_run(
+                    flow_id=flow_id,
+                    run_name=request.run_name,
+                    metrics=execution["metrics"],
+                    status="success",
+                    rl_metrics=rl_metrics,
+                )
         except Exception as e:
             execution["status"] = "failed"
             execution["error"] = str(e)
             execution["completed_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            if tracking:
+                _log_flow_run(
+                    flow_id=flow_id,
+                    run_name=request.run_name,
+                    metrics={},
+                    status="failed",
+                    rl_metrics=rl_metrics,
+                )
     
     return FlowExecutionResponse(**execution)
 
@@ -854,7 +890,14 @@ async def _execute_node_flow(
     }
 
 
-def _execute_flow_async(execution_id: str, flow: Any, inputs: Dict[str, Any]) -> None:
+def _execute_flow_async(
+    execution_id: str,
+    flow: Any,
+    inputs: Dict[str, Any],
+    tracking: bool,
+    rl_metrics: bool,
+    run_name: Optional[str],
+) -> None:
     """Execute flow in background (sync wrapper)."""
     import asyncio
     
@@ -872,13 +915,53 @@ def _execute_flow_async(execution_id: str, flow: Any, inputs: Dict[str, Any]) ->
         execution["node_results"] = result.get("node_results", {})
         execution["metrics"] = result.get("metrics", {})
         execution["completed_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if tracking:
+            _log_flow_run(
+                flow_id=execution.get("flow_id", "unknown"),
+                run_name=run_name,
+                metrics=execution["metrics"],
+                status="success",
+                rl_metrics=rl_metrics,
+            )
         
     except Exception as e:
         logger.error(f"Flow execution failed: {e}")
         execution["status"] = "failed"
         execution["error"] = str(e)
         execution["completed_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if tracking:
+            _log_flow_run(
+                flow_id=execution.get("flow_id", "unknown"),
+                run_name=run_name,
+                metrics={},
+                status="failed",
+                rl_metrics=rl_metrics,
+            )
     
     finally:
         loop.close()
+
+
+def _log_flow_run(
+    flow_id: str,
+    run_name: Optional[str],
+    metrics: Dict[str, Any],
+    status: str,
+    rl_metrics: bool,
+) -> None:
+    """Log flow execution metrics to MLFlow when enabled."""
+    config = AgenticConfig()
+    tracker = MLFlowTracker(config)
+    if not config.mlflow_enabled:
+        return
+
+    tracker.enabled = True
+    with tracker.start_run(run_name=run_name or f"flow-{flow_id}"):
+        tracker.log_param("flow_id", flow_id)
+        tracker.log_param("status", status)
+        for name, value in metrics.items():
+            if isinstance(value, (int, float)):
+                tracker.log_metric(name, float(value))
+        if rl_metrics:
+            tracker.log_metric("rl/flow/success", 1.0 if status == "success" else 0.0)
 

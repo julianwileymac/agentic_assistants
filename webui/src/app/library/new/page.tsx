@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/code-editor";
+import { TestingSection } from "@/components/testing/testing-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -28,6 +30,7 @@ const COMPONENT_CATEGORIES = [
   { value: "pattern", label: "Pattern", description: "Agentic patterns (RAG, ReAct, etc.)", group: "Core" },
   { value: "utility", label: "Utility", description: "Utility functions", group: "Core" },
   { value: "template", label: "Template", description: "Project templates", group: "Core" },
+  { value: "snippet", label: "Snippet", description: "Reusable code snippets", group: "Core" },
   { value: "datasource_handler", label: "Data Source Handler", description: "Custom data source handlers", group: "Data" },
   { value: "embedding_model", label: "Embedding Model", description: "Embedding configurations", group: "AI" },
   { value: "prompt_template", label: "Prompt Template", description: "Reusable prompts", group: "AI" },
@@ -262,19 +265,11 @@ function NewComponentForm() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea
-                id="code"
-                placeholder={`"""Your component code here."""
-
-def my_function():
-    pass
-`}
-                rows={16}
-                className="font-mono text-sm"
+              <CodeEditor
                 value={formData.code}
-                onChange={(e) =>
-                  setFormData({ ...formData, code: e.target.value })
-                }
+                onChange={(value) => setFormData({ ...formData, code: value })}
+                language={formData.language || "python"}
+                height={320}
               />
             </CardContent>
           </Card>
@@ -288,20 +283,13 @@ def my_function():
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea
-                id="usage_example"
-                placeholder={`# Example usage
-from my_component import my_function
-
-result = my_function()
-print(result)
-`}
-                rows={8}
-                className="font-mono text-sm"
+              <CodeEditor
                 value={formData.usage_example}
-                onChange={(e) =>
-                  setFormData({ ...formData, usage_example: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, usage_example: value })
                 }
+                language={formData.language || "python"}
+                height={200}
               />
             </CardContent>
           </Card>
@@ -327,6 +315,13 @@ print(result)
           </Button>
         </div>
       </form>
+
+      <TestingSection
+        resourceType="component"
+        resourceName={formData.name || "New Component"}
+        defaultLanguage={formData.language || "python"}
+        defaultCode={formData.code}
+      />
     </div>
   );
 }

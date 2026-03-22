@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prefect-config
+  namespace: agentic
+data:
+  PREFECT_API_URL: "http://prefect-server:4200/api"
+  PREFECT_SERVER_API_HOST: "0.0.0.0"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-server
+  namespace: agentic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prefect-server
+  template:
+    metadata:
+      labels:
+        app: prefect-server
+    spec:
+      containers:
+      - name: prefect-server
+        image: prefecthq/prefect:2-latest
+        command: ["prefect", "server", "start", "--host", "0.0.0.0"]
+        ports:
+        - containerPort: 4200
+          name: api
+        env:
+        - name: PREFECT_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: prefect-config
+              key: PREFECT_API_URL
+        - name: PREFECT_SERVER_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: prefect-config
+              key: PREFECT_SERVER_API_HOST
+        - name: PREFECT_API_DATABASE_CONNECTION_URL
+          value: "postgresql+asyncpg://prefect:prefect123@postgres:5432/prefect"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: prefect-data
+          mountPath: /root/.prefect
+      volumes:
+      - name: prefect-data
+        persistentVolumeClaim:
+          claimName: prefect-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prefect-server
+  namespace: agentic
+spec:
+  selector:
+    app: prefect-server
+  ports:
+  - port: 4200
+    targetPort: 4200
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prefect-pvc
+  namespace: agentic
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-worker
+  namespace: agentic
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prefect-worker
+  template:
+    metadata:
+      labels:
+        app: prefect-worker
+    spec:
+      containers:
+      - name: prefect-worker
+        image: prefecthq/prefect:2-latest
+        command: ["prefect", "worker", "start", "--pool", "kubernetes-pool"]
+        env:
+        - name: PREFECT_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: prefect-config
+              key: PREFECT_API_URL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

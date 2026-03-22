@@ -1,0 +1,20 @@
+# Dagster Workspace Configuration
+# https://docs.dagster.io/concepts/code-locations/workspace-files
+#
+# Defines where Dagster should look for code locations (repositories).
+# Place this at $DAGSTER_HOME/workspace.yaml.
+
+load_from:
+  # Local development: load from Python module directly
+  - python_module:
+      module_name: agentic_assistants.orchestration.dagster_code
+      location_name: "agentic_code"
+
+  # Production: connect to gRPC code server
+  # Uncomment below and comment the python_module above when using
+  # the code server deployment (Docker/K8s).
+  #
+  # - grpc_server:
+  #     host: dagster-code
+  #     port: 4000
+  #     location_name: "agentic_code"

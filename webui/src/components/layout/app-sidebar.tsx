@@ -32,6 +32,13 @@ import {
   Sparkles,
   BarChart3,
   MessageSquare,
+  Zap,
+  Code2,
+  ListTodo,
+  Search,
+  Table2,
+  Workflow,
+  FileBox,
 } from "lucide-react";
 
 import {
@@ -80,6 +87,11 @@ const mainNavItems = [
     title: "Components",
     url: "/library",
     icon: Puzzle,
+  },
+  {
+    title: "Pipelines",
+    url: "/pipelines",
+    icon: Workflow,
   },
 ];
 
@@ -149,6 +161,11 @@ const modelItems = [
     icon: Cpu,
   },
   {
+    title: "HuggingFace",
+    url: "/huggingface",
+    icon: Layers,
+  },
+  {
     title: "Training",
     url: "/models/training",
     icon: Cpu,
@@ -186,6 +203,32 @@ const dataItems = [
     url: "/knowledge",
     icon: Book,
   },
+  {
+    title: "Document Stores",
+    url: "/document-stores",
+    icon: FileBox,
+  },
+];
+
+const catalogItems = [
+  {
+    title: "Data Catalog",
+    url: "/catalog",
+    icon: Search,
+  },
+  {
+    title: "Iceberg Tables",
+    url: "/iceberg",
+    icon: Table2,
+  },
+];
+
+const dbtItems = [
+  {
+    title: "dbt Models",
+    url: "/dbt",
+    icon: Code2,
+  },
 ];
 
 const resourceItems = [
@@ -198,6 +241,24 @@ const resourceItems = [
     title: "Settings",
     url: "/settings",
     icon: Settings,
+  },
+];
+
+const dagsterItems = [
+  {
+    title: "Dashboard",
+    url: "/dagster",
+    icon: Zap,
+  },
+  {
+    title: "Develop",
+    url: "/dagster/develop",
+    icon: Code2,
+  },
+  {
+    title: "Jobs",
+    url: "/dagster/jobs",
+    icon: ListTodo,
   },
 ];
 
@@ -438,6 +499,88 @@ export function AppSidebar() {
           </Collapsible>
         </SidebarGroup>
 
+        {/* Data Catalog */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Data Catalog
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {catalogItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.url)}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
+        {/* Orchestration: Dagster + dbt */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Orchestration
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {dagsterItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          item.url === "/dagster"
+                            ? pathname === "/dagster"
+                            : pathname.startsWith(item.url)
+                        }
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  {dbtItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.url)}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
         {/* Settings */}
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
@@ -525,6 +668,24 @@ export function AppSidebar() {
                     >
                       <ExternalLink className="size-4" />
                       <span>MLFlow UI</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => window.open('http://localhost:3100', '_blank')}
+                      tooltip="Open Dagster UI"
+                    >
+                      <ExternalLink className="size-4" />
+                      <span>Dagster UI</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => window.open('http://datahub.local', '_blank')}
+                      tooltip="Open DataHub UI"
+                    >
+                      <ExternalLink className="size-4" />
+                      <span>DataHub UI</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

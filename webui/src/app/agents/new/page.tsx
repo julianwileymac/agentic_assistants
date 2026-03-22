@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { TestingSection } from "@/components/testing/testing-section";
 
 function NewAgentForm() {
   const router = useRouter();
@@ -261,6 +262,12 @@ function NewAgentForm() {
           </Button>
         </div>
       </form>
+
+      <TestingSection
+        resourceType="agent"
+        resourceName={formData.name || "New Agent"}
+        defaultCode={`# Agent test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate agent configuration before deployment\",\n}\n`}
+      />
     </div>
   );
 }

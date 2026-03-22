@@ -194,6 +194,7 @@ class StorageTestRequest(BaseModel):
     access_key: Optional[str] = Field(default=None, description="MinIO access key")
     secret_key: Optional[str] = Field(default=None, description="MinIO secret key")
     secure: bool = Field(default=False, description="Use HTTPS")
+    apply: bool = Field(default=False, description="Apply this config as the live connection on success")
 
 
 class BucketListResponse(BaseModel):
@@ -493,13 +494,16 @@ async def get_storage_status():
 
 @router.post("/storage/test", response_model=StorageTestResponse)
 async def test_storage_connection(request: StorageTestRequest):
-    """Test MinIO storage connection with custom configuration."""
+    """Test MinIO storage connection with custom configuration.
+
+    If ``apply=true`` and the test succeeds, the tested config replaces
+    the live singleton so subsequent bucket/object calls use it.
+    """
+    global _storage
     from agentic_assistants.kubernetes.storage import MinIOStorage
     
-    # Create a test config with provided settings
     config = get_config()
     
-    # Override MinIO settings for this test
     test_storage = MinIOStorage(
         config=config,
         endpoint_override=request.endpoint,
@@ -509,7 +513,42 @@ async def test_storage_connection(request: StorageTestRequest):
     )
     
     result = await test_storage.test_connection()
+
+    if request.apply and result.get("connected"):
+        _storage = test_storage
+
     return StorageTestResponse(**result)
+
+
+@router.post("/storage/apply", response_model=StorageTestResponse)
+async def apply_storage_connection(request: StorageTestRequest):
+    """Test a MinIO config and, if it works, make it the live connection."""
+    global _storage
+    from agentic_assistants.kubernetes.storage import MinIOStorage
+
+    config = get_config()
+    new_storage = MinIOStorage(
+        config=config,
+        endpoint_override=request.endpoint,
+        access_key_override=request.access_key,
+        secret_key_override=request.secret_key,
+        secure_override=request.secure,
+    )
+
+    result = await new_storage.test_connection()
+    if not result.get("connected"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Connection test failed"))
+
+    _storage = new_storage
+    return StorageTestResponse(**result)
+
+
+@router.post("/storage/reset")
+async def reset_storage_connection():
+    """Reset the MinIO singleton so the next call re-reads configuration."""
+    global _storage
+    _storage = None
+    return {"status": "reset", "message": "Storage connection will be re-created from config on next use"}
 
 
 @router.get("/storage/buckets", response_model=BucketListResponse)

@@ -3,8 +3,6 @@
 import * as React from "react";
 import { 
   BarChart3, 
-  TrendingUp, 
-  TrendingDown,
   Activity,
   AlertCircle,
   CheckCircle,
@@ -31,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 interface FrameworkStats {
   framework: string;
@@ -81,41 +80,7 @@ export default function AnalyticsPage() {
   const [health, setHealth] = React.useState<HealthSummary | null>(null);
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
 
-  React.useEffect(() => {
-    fetchData();
-  }, [timeframe]);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch analytics
-      const analyticsRes = await fetch(`http://localhost:8080/api/v1/assistant/analytics?days=${timeframe}`);
-      if (analyticsRes.ok) {
-        setAnalytics(await analyticsRes.json());
-      }
-
-      // Fetch health summary
-      const healthRes = await fetch("http://localhost:8080/api/v1/assistant/health");
-      if (healthRes.ok) {
-        setHealth(await healthRes.json());
-      }
-
-      // Fetch suggestions
-      const suggestionsRes = await fetch("http://localhost:8080/api/v1/assistant/suggestions");
-      if (suggestionsRes.ok) {
-        const data = await suggestionsRes.json();
-        setSuggestions(data.suggestions || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch analytics:", error);
-      // Set mock data for demo
-      setMockData();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const setMockData = () => {
+  const setMockData = React.useCallback(() => {
     setAnalytics({
       periodStart: new Date(Date.now() - parseInt(timeframe) * 24 * 60 * 60 * 1000).toISOString(),
       periodEnd: new Date().toISOString(),
@@ -173,21 +138,42 @@ export default function AnalyticsPage() {
         estimatedImpact: "Could reduce errors by 10%",
       },
     ]);
-  };
+  }, [timeframe]);
+
+  const fetchData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [analyticsData, healthData, suggestionsData] = await Promise.all([
+        apiFetch<Analytics>(`/api/v1/assistant/analytics?days=${timeframe}`),
+        apiFetch<HealthSummary>("/api/v1/assistant/health"),
+        apiFetch<{ suggestions?: Suggestion[] }>("/api/v1/assistant/suggestions"),
+      ]);
+
+      setAnalytics(analyticsData);
+      setHealth(healthData);
+      setSuggestions(suggestionsData.suggestions || []);
+    } catch (error) {
+      console.error("Failed to fetch analytics:", error);
+      // Set mock data for demo
+      setMockData();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setMockData, timeframe]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const runAnalysis = async () => {
     try {
       toast.info("Running meta-analysis...");
-      const response = await fetch("http://localhost:8080/api/v1/assistant/analyze", {
+      await apiFetch("/api/v1/assistant/analyze", {
         method: "POST",
       });
-      if (response.ok) {
-        toast.success("Meta-analysis complete");
-        fetchData();
-      } else {
-        toast.error("Analysis failed");
-      }
-    } catch (error) {
+      toast.success("Meta-analysis complete");
+      fetchData();
+    } catch {
       toast.error("Analysis failed");
     }
   };

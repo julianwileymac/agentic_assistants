@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { useExperiments, getMlflowUrl, openMlflowExperiment } from "@/lib/api";
 import type { Experiment } from "@/lib/types";
+import { TestingSection } from "@/components/testing/testing-section";
 
 export default function ExperimentsPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -156,6 +157,12 @@ export default function ExperimentsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <TestingSection
+        resourceType="experiment"
+        resourceName="Experiment"
+        defaultCode={`# Experiment test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate tracking configuration\",\n}\n`}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/code-editor";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -258,27 +259,39 @@ export function NodePropertiesPanel({ node, onUpdate, onDelete }: NodeProperties
         );
 
       case "textarea":
-      case "code":
         return (
           <Textarea
             value={String(displayValue)}
             onChange={(e) => updateConfig(field.key, e.target.value)}
             placeholder={`Enter ${field.label.toLowerCase()}`}
-            rows={field.type === "code" ? 8 : 4}
-            className={field.type === "code" ? "font-mono text-xs" : ""}
+            rows={4}
           />
         );
 
-      case "json":
+      case "code":
         return (
-          <Textarea
-            value={typeof displayValue === "object" ? JSON.stringify(displayValue, null, 2) : String(displayValue)}
-            onChange={(e) => updateConfig(field.key, parseValue(e.target.value, "json"))}
-            placeholder="Enter JSON..."
-            rows={4}
-            className="font-mono text-xs"
+          <CodeEditor
+            value={String(displayValue)}
+            onChange={(value) => updateConfig(field.key, value)}
+            language="python"
+            height={220}
           />
         );
+
+      case "json": {
+        const jsonValue =
+          typeof displayValue === "object"
+            ? JSON.stringify(displayValue, null, 2)
+            : String(displayValue);
+        return (
+          <CodeEditor
+            value={jsonValue}
+            onChange={(value) => updateConfig(field.key, parseValue(value, "json"))}
+            language="json"
+            height={200}
+          />
+        );
+      }
 
       default:
         return null;

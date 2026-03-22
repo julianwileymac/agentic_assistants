@@ -1,0 +1,284 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Dagster Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Total Runs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(dagster_runs_total)",
+          "legendFormat": "Total"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 1},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Successful Runs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "dagster_runs_total{status=\"success\"}",
+          "legendFormat": "Success"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 1},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Failed Runs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "dagster_runs_total{status=\"failure\"}",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "blue", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 1},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Active Runs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "dagster_active_runs",
+          "legendFormat": "Active"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 1},
+      "id": 6,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Asset Materializations",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(dagster_asset_materializations_total)",
+          "legendFormat": "Total"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 1},
+      "id": 7,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Avg Run Duration",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "dagster_run_duration_seconds_sum / dagster_run_duration_seconds_count",
+          "legendFormat": "Avg"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
+      "id": 10,
+      "title": "Run Trends",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"unit": "short"}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "id": 11,
+      "options": {"tooltip": {"mode": "multi"}},
+      "title": "Runs by Status (over time)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "increase(dagster_runs_total{status=\"success\"}[5m])",
+          "legendFormat": "Success"
+        },
+        {
+          "expr": "increase(dagster_runs_total{status=\"failure\"}[5m])",
+          "legendFormat": "Failure"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"unit": "s"}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+      "id": 12,
+      "options": {"tooltip": {"mode": "multi"}},
+      "title": "Run Duration Trend",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(dagster_run_duration_seconds_sum[5m]) / rate(dagster_run_duration_seconds_count[5m])",
+          "legendFormat": "Avg Duration"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 20,
+      "title": "Op Performance",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"unit": "s"}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 15},
+      "id": 21,
+      "title": "Op Duration by Name",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(dagster_op_duration_seconds_sum[5m]) / rate(dagster_op_duration_seconds_count[5m])",
+          "legendFormat": "{{op}}"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"unit": "short"}
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 15},
+      "id": 22,
+      "title": "Asset Materializations by Asset",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "increase(dagster_asset_materializations_total[5m])",
+          "legendFormat": "{{asset}}"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 23},
+      "id": 30,
+      "title": "Error Monitoring",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 24},
+      "id": 31,
+      "options": {"tooltip": {"mode": "multi"}},
+      "title": "Error Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(dagster_runs_total{status=\"failure\"}[10m])",
+          "legendFormat": "Failure Rate (10m)"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["dagster", "orchestration", "agentic"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": false, "text": "Prometheus", "value": "Prometheus"},
+        "hide": 0,
+        "includeAll": false,
+        "name": "DS_PROMETHEUS",
+        "query": "prometheus",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "Dagster Orchestration",
+  "uid": "dagster-orchestration",
+  "version": 1
+}

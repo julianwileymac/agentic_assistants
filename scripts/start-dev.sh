@@ -121,22 +121,22 @@ function start_python_backend() {
         VENV_ACTIVATE_PATH="bin/activate"
     fi
     
-    # Check for virtual environment
-    if [ -d "py11_venv" ]; then
-        if [ -f "py11_venv/$VENV_ACTIVATE_PATH" ]; then
-            write_step "Using manual virtual environment"
-            source "py11_venv/$VENV_ACTIVATE_PATH"
-        else
-            write_warning "Virtual environment found but activation script missing"
-        fi
-    elif command -v poetry &> /dev/null; then
+    # Check for virtual environment (prefer Poetry's managed venv where
+    # packages are actually installed, fall back to manual venvs)
+    if command -v poetry &> /dev/null; then
         POETRY_VENV=$(poetry env info --path 2>/dev/null || echo "")
         if [ -n "$POETRY_VENV" ] && [ -d "$POETRY_VENV" ]; then
             write_step "Using Poetry virtual environment"
             if [ -f "$POETRY_VENV/$VENV_ACTIVATE_PATH" ]; then
                 source "$POETRY_VENV/$VENV_ACTIVATE_PATH"
             fi
+        elif [ -d "py11_venv" ] && [ -f "py11_venv/$VENV_ACTIVATE_PATH" ]; then
+            write_step "Using manual virtual environment (py11_venv)"
+            source "py11_venv/$VENV_ACTIVATE_PATH"
         fi
+    elif [ -d "py11_venv" ] && [ -f "py11_venv/$VENV_ACTIVATE_PATH" ]; then
+        write_step "Using manual virtual environment (py11_venv)"
+        source "py11_venv/$VENV_ACTIVATE_PATH"
     else
         write_step "No virtual environment found, using system Python"
     fi

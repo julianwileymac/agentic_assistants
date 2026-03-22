@@ -114,6 +114,9 @@ mlruns/
 mlartifacts/
 mlflow.log
 .mlflow.pid
+.jupyter.pid
+.backend.pid
+.webui.pid
 
 # Data directory
 data/
@@ -134,6 +137,12 @@ temp/
 secrets/
 *.pem
 *.key
+secrets.yaml
+credentials.json
+*.credentials
+
+# Local developer overrides
+conf/local/
 
 # Jupyter notebook outputs
 *.ipynb_checkpoints/

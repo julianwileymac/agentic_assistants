@@ -199,6 +199,16 @@ export class AgenticBackendService {
         return this.get('/artifacts', params);
     }
 
+    // === Testing API ===
+
+    async runTest(payload: unknown): Promise<ApiResponse<unknown>> {
+        return this.post('/testing/runs', payload);
+    }
+
+    async lintCode(payload: unknown): Promise<ApiResponse<unknown>> {
+        return this.post('/testing/lint', payload);
+    }
+
     async getArtifact(id: string): Promise<ApiResponse<unknown>> {
         return this.get(`/artifacts/${id}`);
     }

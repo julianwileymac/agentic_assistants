@@ -17,6 +17,7 @@ import {
   List,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TestingSection } from '@/components/testing/testing-section';
 
 // Types
 interface PipelineNode {
@@ -551,6 +552,13 @@ export default function PipelinesPage() {
           </div>
         </div>
       </main>
+      <div className="max-w-7xl mx-auto px-6 pb-10">
+        <TestingSection
+          resourceType="pipeline"
+          resourceName="Pipeline"
+          defaultCode={`# Pipeline test\nresult = {\n    "status": "ok",\n    "notes": "Validate pipeline execution",\n}\n`}
+        />
+      </div>
     </div>
   );
 }

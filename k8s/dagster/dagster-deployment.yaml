@@ -1,0 +1,319 @@
+---
+# Dagster ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dagster-config
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: config
+data:
+  DAGSTER_HOME: "/opt/dagster/dagster_home"
+  DAGSTER_PG_HOST: "postgres"
+  DAGSTER_PG_PORT: "5432"
+  DAGSTER_PG_DB: "dagster"
+  DAGSTER_PG_USERNAME: "postgres"
+  # workspace.yaml for gRPC code location
+  workspace.yaml: |
+    load_from:
+      - grpc_server:
+          host: dagster-code
+          port: 4000
+          location_name: "agentic_code"
+  # dagster.yaml instance config
+  dagster.yaml: |
+    storage:
+      postgres:
+        postgres_db:
+          hostname:
+            env: DAGSTER_PG_HOST
+          port:
+            env: DAGSTER_PG_PORT
+          username:
+            env: DAGSTER_PG_USERNAME
+          password:
+            env: DAGSTER_PG_PASSWORD
+          db_name:
+            env: DAGSTER_PG_DB
+    compute_logs:
+      module: dagster.core.storage.local_compute_log_manager
+      class: LocalComputeLogManager
+      config:
+        base_dir: /opt/dagster/dagster_home/compute_logs
+    local_artifact_storage:
+      module: dagster.core.storage.root
+      class: LocalArtifactStorage
+      config:
+        base_dir: /opt/dagster/dagster_home/artifacts
+    telemetry:
+      enabled: false
+
+---
+# Dagster PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dagster-pvc
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# Dagster Webserver Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-webserver
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-webserver
+  template:
+    metadata:
+      labels:
+        app: dagster-webserver
+        app.kubernetes.io/name: dagster
+        app.kubernetes.io/component: webserver
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      containers:
+        - name: webserver
+          image: agentic-assistants-dagster:latest
+          imagePullPolicy: IfNotPresent
+          command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/opt/dagster/dagster_home/workspace.yaml"]
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: dagster-config
+          env:
+            - name: DAGSTER_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+                  optional: true
+          volumeMounts:
+            - name: dagster-storage
+              mountPath: /opt/dagster/dagster_home
+            - name: dagster-instance-config
+              mountPath: /opt/dagster/dagster_home/dagster.yaml
+              subPath: dagster.yaml
+            - name: dagster-workspace-config
+              mountPath: /opt/dagster/dagster_home/workspace.yaml
+              subPath: workspace.yaml
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /server_info
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /server_info
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: dagster-storage
+          persistentVolumeClaim:
+            claimName: dagster-pvc
+        - name: dagster-instance-config
+          configMap:
+            name: dagster-config
+            items:
+              - key: dagster.yaml
+                path: dagster.yaml
+        - name: dagster-workspace-config
+          configMap:
+            name: dagster-config
+            items:
+              - key: workspace.yaml
+                path: workspace.yaml
+
+---
+# Dagster Daemon Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-daemon
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: daemon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-daemon
+  template:
+    metadata:
+      labels:
+        app: dagster-daemon
+        app.kubernetes.io/name: dagster
+        app.kubernetes.io/component: daemon
+    spec:
+      containers:
+        - name: daemon
+          image: agentic-assistants-dagster:latest
+          imagePullPolicy: IfNotPresent
+          command: ["dagster-daemon", "run"]
+          envFrom:
+            - configMapRef:
+                name: dagster-config
+          env:
+            - name: DAGSTER_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+                  optional: true
+          volumeMounts:
+            - name: dagster-storage
+              mountPath: /opt/dagster/dagster_home
+            - name: dagster-instance-config
+              mountPath: /opt/dagster/dagster_home/dagster.yaml
+              subPath: dagster.yaml
+            - name: dagster-workspace-config
+              mountPath: /opt/dagster/dagster_home/workspace.yaml
+              subPath: workspace.yaml
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: dagster-storage
+          persistentVolumeClaim:
+            claimName: dagster-pvc
+        - name: dagster-instance-config
+          configMap:
+            name: dagster-config
+            items:
+              - key: dagster.yaml
+                path: dagster.yaml
+        - name: dagster-workspace-config
+          configMap:
+            name: dagster-config
+            items:
+              - key: workspace.yaml
+                path: workspace.yaml
+
+---
+# Dagster User Code Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dagster-code
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: code-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dagster-code
+  template:
+    metadata:
+      labels:
+        app: dagster-code
+        app.kubernetes.io/name: dagster
+        app.kubernetes.io/component: code-server
+    spec:
+      containers:
+        - name: code-server
+          image: agentic-assistants-dagster:latest
+          imagePullPolicy: IfNotPresent
+          command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "agentic_assistants.orchestration.dagster_code"]
+          ports:
+            - containerPort: 4000
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: dagster-config
+          env:
+            - name: DAGSTER_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+                  optional: true
+            - name: DAGSTER_CURRENT_IMAGE
+              value: "agentic-assistants-dagster:latest"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          readinessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+---
+# Dagster Webserver Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: dagster-webserver
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: webserver
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: dagster-webserver
+
+---
+# Dagster Code Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: dagster-code
+  namespace: agentic
+  labels:
+    app.kubernetes.io/name: dagster
+    app.kubernetes.io/component: code-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4000
+      targetPort: 4000
+      protocol: TCP
+      name: grpc
+  selector:
+    app: dagster-code

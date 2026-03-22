@@ -39,6 +39,26 @@ services:
       - AGENTIC_LOG_LEVEL=INFO
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      # DataHub
+      - DATAHUB_ENABLED=${DATAHUB_ENABLED:-false}
+      - DATAHUB_GMS_URL=${DATAHUB_GMS_URL:-http://localhost:8080}
+      - DATAHUB_FRONTEND_URL=${DATAHUB_FRONTEND_URL:-http://datahub.local}
+      # Iceberg
+      - ICEBERG_CATALOG_URI=${ICEBERG_CATALOG_URI:-http://localhost:8080/iceberg}
+      - ICEBERG_WAREHOUSE=${ICEBERG_WAREHOUSE:-s3://iceberg-warehouse/}
+      - ICEBERG_S3_ENDPOINT=${ICEBERG_S3_ENDPOINT:-http://minio:9000}
+      - ICEBERG_S3_ACCESS_KEY=${ICEBERG_S3_ACCESS_KEY:-minioadmin}
+      - ICEBERG_S3_SECRET_KEY=${ICEBERG_S3_SECRET_KEY:-minioadmin123}
+      # dbt
+      - DBT_ENABLED=${DBT_ENABLED:-false}
+      - DBT_PROJECT_DIR=${DBT_PROJECT_DIR:-}
+      - DBT_PROFILES_DIR=${DBT_PROFILES_DIR:-}
+      - DBT_TARGET=${DBT_TARGET:-dev}
+      - DBT_POSTGRES_HOST=${DBT_POSTGRES_HOST:-postgres}
+      - DBT_POSTGRES_PORT=${DBT_POSTGRES_PORT:-5432}
+      - DBT_POSTGRES_DATABASE=${DBT_POSTGRES_DATABASE:-agentic}
+      - DBT_POSTGRES_USER=${DBT_POSTGRES_USER:-postgres}
+      - DBT_POSTGRES_PASSWORD=${DBT_POSTGRES_PASSWORD:-postgres123}
     depends_on:
       - mlflow
     healthcheck:
@@ -94,6 +114,99 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+  # ===========================================================================
+  # PostgreSQL Database (optional)
+  # ===========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentic-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=agentic
+      - POSTGRES_USER=agentic
+      - POSTGRES_PASSWORD=agentic123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - postgres
+
+  # ===========================================================================
+  # Prefect Server (optional orchestration)
+  # ===========================================================================
+  prefect-server:
+    image: prefecthq/prefect:2-latest
+    container_name: prefect-server
+    ports:
+      - "4200:4200"
+    environment:
+      - PREFECT_API_URL=http://0.0.0.0:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect123@postgres:5432/prefect
+    command: prefect server start --host 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - prefect_data:/root/.prefect
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    profiles:
+      - prefect
+
+  # ===========================================================================
+  # Prefect Worker (optional)
+  # ===========================================================================
+  prefect-worker:
+    image: prefecthq/prefect:2-latest
+    container_name: prefect-worker
+    environment:
+      - PREFECT_API_URL=http://prefect-server:4200/api
+    command: prefect worker start --pool default-pool
+    depends_on:
+      - prefect-server
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    profiles:
+      - prefect
+
+  # ===========================================================================
+  # Sync Agent (optional data synchronization)
+  # ===========================================================================
+  sync-agent:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: agentic-sync-agent
+    environment:
+      - AGENTIC_DATA_DIR=/app/data
+      - DATABASE_TYPE=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DATABASE=agentic
+      - POSTGRES_USER=agentic
+      - POSTGRES_PASSWORD=agentic123
+    command: python -m agentic_assistants.sync.agent
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    profiles:
+      - sync
+
   # ===========================================================================
   # MLFlow Tracking Server
   # ===========================================================================
@@ -209,6 +322,77 @@ services:
       - feast
     restart: unless-stopped
 
+  # ===========================================================================
+  # Dagster Orchestration
+  # ===========================================================================
+  dagster-webserver:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dagster
+    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+    ports:
+      - "3100:3000"
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_PG_HOST: postgres
+      DAGSTER_PG_PORT: "5432"
+      DAGSTER_PG_DB: dagster
+      DAGSTER_PG_USERNAME: postgres
+      DAGSTER_PG_PASSWORD: postgres
+    volumes:
+      - dagster_data:/opt/dagster/dagster_home
+    depends_on:
+      - postgres
+      - dagster-code
+    profiles:
+      - dagster
+    restart: unless-stopped
+
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dagster
+    command: ["dagster-daemon", "run"]
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_PG_HOST: postgres
+      DAGSTER_PG_PORT: "5432"
+      DAGSTER_PG_DB: dagster
+      DAGSTER_PG_USERNAME: postgres
+      DAGSTER_PG_PASSWORD: postgres
+    volumes:
+      - dagster_data:/opt/dagster/dagster_home
+    depends_on:
+      - postgres
+      - dagster-code
+    profiles:
+      - dagster
+    restart: unless-stopped
+
+  dagster-code:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dagster
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "agentic_assistants.orchestration.dagster_code"]
+    ports:
+      - "4000:4000"
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_PG_HOST: postgres
+      DAGSTER_PG_PORT: "5432"
+      DAGSTER_PG_DB: dagster
+      DAGSTER_PG_USERNAME: postgres
+      DAGSTER_PG_PASSWORD: postgres
+      DAGSTER_CURRENT_IMAGE: agentic-assistants-dagster:latest
+    volumes:
+      - dagster_data:/opt/dagster/dagster_home
+      - ./src:/app/src
+    depends_on:
+      - postgres
+    profiles:
+      - dagster
+    restart: unless-stopped
+
 volumes:
   mlflow-data:
     driver: local
@@ -217,6 +401,12 @@ volumes:
   redis-data:
     driver: local
   minio-data:
+    driver: local
+  postgres_data:
+    driver: local
+  prefect_data:
+    driver: local
+  dagster_data:
     driver: local
 
 networks:

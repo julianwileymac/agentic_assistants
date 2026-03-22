@@ -20,6 +20,7 @@ class RLMethod(str, Enum):
     REWARD_MODEL = "rm"     # Reward model training
     ORPO = "orpo"           # Odds Ratio Preference Optimization
     KTO = "kto"             # Kahneman-Tversky Optimization
+    SFT = "sft"             # Supervised Fine-Tuning (pre-RL step)
 
 
 class RewardConfig(BaseModel):
@@ -116,6 +117,100 @@ class DPOConfig(BaseModel):
         extra = "allow"
 
 
+class ORPOConfig(BaseModel):
+    """Configuration for ORPO (Odds Ratio Preference Optimization) training."""
+
+    # ORPO hyperparameters
+    beta: float = Field(default=0.1, description="ORPO beta parameter (odds ratio weight)")
+    learning_rate: float = Field(default=8e-6, description="Learning rate")
+    batch_size: int = Field(default=4, description="Batch size")
+    gradient_accumulation_steps: int = Field(default=4, description="Gradient accumulation")
+    num_train_epochs: int = Field(default=1, description="Number of epochs")
+
+    # Optimization
+    lr_scheduler_type: str = Field(default="cosine", description="LR scheduler")
+    warmup_ratio: float = Field(default=0.1, description="Warmup ratio")
+    max_grad_norm: float = Field(default=1.0, description="Max gradient norm")
+
+    # Sequence lengths
+    max_length: int = Field(default=1024, description="Max sequence length")
+    max_prompt_length: int = Field(default=512, description="Max prompt length")
+
+    # LoRA (optional)
+    use_lora: bool = Field(default=True, description="Use LoRA for training")
+    lora_r: int = Field(default=8, description="LoRA rank")
+    lora_alpha: int = Field(default=16, description="LoRA alpha")
+    lora_dropout: float = Field(default=0.05, description="LoRA dropout")
+
+    class Config:
+        extra = "allow"
+
+
+class KTOConfig(BaseModel):
+    """Configuration for KTO (Kahneman-Tversky Optimization) training."""
+
+    # KTO hyperparameters
+    beta: float = Field(default=0.1, description="KTO beta parameter")
+    desirable_weight: float = Field(default=1.0, description="Weight for desirable examples")
+    undesirable_weight: float = Field(default=1.0, description="Weight for undesirable examples")
+
+    # Training
+    learning_rate: float = Field(default=5e-7, description="Learning rate")
+    batch_size: int = Field(default=4, description="Batch size")
+    gradient_accumulation_steps: int = Field(default=4, description="Gradient accumulation")
+    num_train_epochs: int = Field(default=1, description="Number of epochs")
+
+    # Optimization
+    lr_scheduler_type: str = Field(default="cosine", description="LR scheduler")
+    warmup_ratio: float = Field(default=0.1, description="Warmup ratio")
+    max_grad_norm: float = Field(default=1.0, description="Max gradient norm")
+
+    # Sequence lengths
+    max_length: int = Field(default=1024, description="Max sequence length")
+    max_prompt_length: int = Field(default=512, description="Max prompt length")
+
+    # LoRA (optional)
+    use_lora: bool = Field(default=True, description="Use LoRA for training")
+    lora_r: int = Field(default=8, description="LoRA rank")
+    lora_alpha: int = Field(default=16, description="LoRA alpha")
+    lora_dropout: float = Field(default=0.05, description="LoRA dropout")
+
+    class Config:
+        extra = "allow"
+
+
+class SFTConfig(BaseModel):
+    """Configuration for Supervised Fine-Tuning (pre-RL step)."""
+
+    # Training
+    learning_rate: float = Field(default=2e-5, description="Learning rate")
+    batch_size: int = Field(default=4, description="Batch size")
+    gradient_accumulation_steps: int = Field(default=4, description="Gradient accumulation")
+    num_train_epochs: int = Field(default=3, description="Number of epochs")
+
+    # Optimization
+    lr_scheduler_type: str = Field(default="cosine", description="LR scheduler")
+    warmup_ratio: float = Field(default=0.03, description="Warmup ratio")
+    weight_decay: float = Field(default=0.001, description="Weight decay")
+    max_grad_norm: float = Field(default=1.0, description="Max gradient norm")
+
+    # Sequence lengths
+    max_seq_length: int = Field(default=2048, description="Max sequence length")
+    packing: bool = Field(default=False, description="Pack multiple samples into one sequence")
+
+    # Dataset format
+    dataset_text_field: str = Field(default="text", description="Field name for text in dataset")
+
+    # LoRA (optional)
+    use_lora: bool = Field(default=True, description="Use LoRA for training")
+    lora_r: int = Field(default=8, description="LoRA rank")
+    lora_alpha: int = Field(default=16, description="LoRA alpha")
+    lora_dropout: float = Field(default=0.05, description="LoRA dropout")
+
+    class Config:
+        extra = "allow"
+
+
 class RLHFConfig(BaseModel):
     """Configuration for full RLHF pipeline."""
     
@@ -164,6 +259,9 @@ class RLConfig(BaseModel):
     ppo_config: Optional[PPOConfig] = Field(None, description="PPO configuration")
     rlhf_config: Optional[RLHFConfig] = Field(None, description="Full RLHF configuration")
     reward_config: Optional[RewardConfig] = Field(None, description="Reward model configuration")
+    orpo_config: Optional[ORPOConfig] = Field(None, description="ORPO configuration")
+    kto_config: Optional[KTOConfig] = Field(None, description="KTO configuration")
+    sft_config: Optional[SFTConfig] = Field(None, description="SFT configuration")
     
     # Common training settings
     bf16: bool = Field(default=True, description="Use BF16")
@@ -190,6 +288,12 @@ class RLConfig(BaseModel):
             return self.rlhf_config or RLHFConfig()
         elif self.method == RLMethod.REWARD_MODEL:
             return self.reward_config or RewardConfig()
+        elif self.method == RLMethod.ORPO:
+            return self.orpo_config or ORPOConfig()
+        elif self.method == RLMethod.KTO:
+            return self.kto_config or KTOConfig()
+        elif self.method == RLMethod.SFT:
+            return self.sft_config or SFTConfig()
         else:
             return DPOConfig()
 

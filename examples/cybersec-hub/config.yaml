@@ -1,0 +1,476 @@
+# Cybersecurity Hub Configuration
+# This configuration file defines the settings for the cybersecurity hub
+
+project:
+  id: "cybersec-hub"
+  name: "Cybersecurity Hub"
+  description: "Local cybersecurity tooling, learning, and exploration hub"
+  version: "1.0.0"
+  authors:
+    - "Security Team"
+  tags:
+    - cybersecurity
+    - penetration-testing
+    - security-operations
+    - red-team
+    - blue-team
+
+# Paths configuration
+paths:
+  data_dir: "./data"
+  tools_dir: "./data/tools"
+  logs_dir: "./data/logs"
+  reports_dir: "./data/reports"
+  knowledge_dir: "./data/knowledge"
+  cache_dir: "./data/cache"
+
+# Cybersecurity-specific configuration
+cybersec:
+  # Operation mode: full, red-only, blue-only, learning
+  mode: "full"
+  
+  # Red team configuration (offensive security)
+  red_team:
+    enabled: true
+    # Safety: require manual confirmation for exploitation
+    auto_exploit: false
+    # Use stealth techniques when available
+    stealth_mode: true
+    # Maximum concurrent operations
+    max_concurrent_ops: 3
+    # Operation timeout in seconds
+    operation_timeout: 3600
+    # Allowed target networks (CIDR notation)
+    allowed_targets:
+      - "192.168.0.0/16"  # Private network
+      - "10.0.0.0/8"      # Private network
+      - "172.16.0.0/12"   # Private network
+    # Forbidden targets (e.g., production systems)
+    forbidden_targets: []
+    # Default scan intensity (1-5, 5 being most aggressive)
+    default_intensity: 3
+  
+  # Blue team configuration (defensive security)
+  blue_team:
+    enabled: true
+    # Monitoring interval in seconds
+    monitoring_interval: 60
+    # Alert threshold (0.0-1.0, anomaly score)
+    alert_threshold: 0.8
+    # Log sources to monitor
+    log_sources:
+      - "/var/log/auth.log"
+      - "/var/log/syslog"
+      - "/var/log/apache2/access.log"
+      - "/var/log/nginx/access.log"
+    # Enable automated response to threats
+    auto_response: false
+    # Response actions
+    response_actions:
+      - "log"
+      - "alert"
+      # - "block"  # Uncomment to enable automatic blocking
+  
+  # Tool management configuration
+  tools:
+    # Install tools automatically on startup
+    install_on_startup: false
+    # Automatically update tools
+    auto_update: true
+    # Run tools in containers for isolation
+    containerized_execution: true
+    # Docker registry for tool containers
+    container_registry: "docker.io"
+    # Tool execution timeout in seconds
+    execution_timeout: 1800
+    # Store tool outputs in knowledge base
+    store_outputs: true
+  
+  # Network configuration
+  network:
+    # Enable VPN integration
+    vpn_enabled: true
+    # Default VPN profile
+    default_vpn_profile: "us-east-1"
+    # Enable proxy support
+    proxy_enabled: true
+    # Proxy configuration
+    proxy:
+      http: null  # e.g., "http://proxy.example.com:8080"
+      https: null
+      socks: null  # e.g., "socks5://localhost:1080"
+    # Enable international resources and testing
+    international_mode: true
+    # DNS configuration
+    dns_servers:
+      - "8.8.8.8"
+      - "1.1.1.1"
+  
+  # Machine learning configuration
+  ml:
+    # Anomaly detection
+    anomaly_detection:
+      enabled: true
+      # Model: isolation-forest, autoencoder, one-class-svm
+      model: "isolation-forest"
+      # Training interval
+      training_interval: "daily"
+      # Minimum samples for training
+      min_training_samples: 1000
+      # Contamination factor (expected proportion of outliers)
+      contamination: 0.05
+    
+    # Vulnerability prediction
+    vulnerability_prediction:
+      enabled: true
+      # Model: random-forest, gradient-boosting, neural-network
+      model: "random-forest"
+      # Retrain model periodically
+      auto_retrain: true
+      # Minimum confidence threshold for predictions
+      confidence_threshold: 0.7
+    
+    # Security assistant (RAG-based)
+    assistant:
+      enabled: true
+      # LLM model for assistant
+      model: "llama3:8b"
+      # Temperature for generation
+      temperature: 0.3
+      # Maximum context length
+      max_context: 4096
+      # Number of retrieved documents for RAG
+      num_retrieved: 5
+  
+  # Reporting configuration
+  reporting:
+    # Automatically generate reports after operations
+    auto_generate: true
+    # Report formats
+    formats:
+      - "html"
+      - "pdf"
+      - "json"
+      - "markdown"
+    # Include screenshots in reports
+    include_screenshots: true
+    # Compliance frameworks to map findings
+    compliance_frameworks:
+      - "OWASP-Top-10"
+      - "MITRE-ATT&CK"
+      - "CWE"
+    # Severity levels
+    severity_levels:
+      - "critical"
+      - "high"
+      - "medium"
+      - "low"
+      - "info"
+
+# Vector database configuration
+vector_db:
+  backend: "lancedb"
+  path: "./data/knowledge/vectordb"
+  scope: "project"
+  embedding_model: "all-MiniLM-L6-v2"
+  dimension: 384
+  distance_metric: "cosine"
+  
+  # Collections for different data types
+  collections:
+    - name: "cybersec-tools"
+      description: "Security tool documentation and usage guides"
+      schema:
+        text: "string"
+        tool_name: "string"
+        category: "string"
+        metadata: "json"
+    
+    - name: "cybersec-exploits"
+      description: "Exploit techniques and mitigations"
+      schema:
+        text: "string"
+        technique_id: "string"
+        mitre_tactic: "string"
+        severity: "string"
+    
+    - name: "cybersec-logs"
+      description: "Security logs and events"
+      schema:
+        text: "string"
+        timestamp: "datetime"
+        source: "string"
+        severity: "string"
+    
+    - name: "cybersec-vulnerabilities"
+      description: "CVE and vulnerability data"
+      schema:
+        text: "string"
+        cve_id: "string"
+        cvss_score: "float"
+        affected_products: "json"
+    
+    - name: "cybersec-reports"
+      description: "Past security assessments and reports"
+      schema:
+        text: "string"
+        report_id: "string"
+        target: "string"
+        date: "datetime"
+
+# Agent configurations
+agents:
+  # Red Team Agent
+  red_team:
+    name: "Red Team Agent"
+    description: "Automated offensive security operations"
+    system_prompt: |
+      You are an expert penetration tester and red team operator.
+      Your role is to identify vulnerabilities and security weaknesses through ethical hacking.
+      Always operate within authorized scope and obtain permission before testing.
+      Provide detailed technical findings and remediation recommendations.
+      Use stealth techniques when requested to avoid detection.
+      Prioritize safety and never cause damage or disruption.
+    llm:
+      model: "llama3:8b"
+      temperature: 0.3
+      max_tokens: 2048
+    tools:
+      - nmap
+      - metasploit
+      - sqlmap
+      - burpsuite
+      - nikto
+      - dirb
+    memory:
+      enabled: true
+      type: "episodic"
+    cache:
+      enabled: true
+      ttl: 3600
+  
+  # Blue Team Agent
+  blue_team:
+    name: "Blue Team Agent"
+    description: "Security monitoring and incident response"
+    system_prompt: |
+      You are a security operations center (SOC) analyst and incident responder.
+      Your role is to monitor systems for threats, detect anomalies, and respond to incidents.
+      Analyze logs and events to identify suspicious activity.
+      Provide actionable recommendations for threat mitigation.
+      Prioritize business continuity and minimize false positives.
+      Follow incident response procedures and chain of custody.
+    llm:
+      model: "llama3:8b"
+      temperature: 0.2
+      max_tokens: 2048
+    tools:
+      - wireshark
+      - snort
+      - osquery
+      - volatility
+    memory:
+      enabled: true
+      type: "episodic"
+    cache:
+      enabled: true
+      ttl: 1800
+  
+  # Vulnerability Scanner Agent
+  vulnerability_scanner:
+    name: "Vulnerability Scanner"
+    description: "Automated vulnerability assessment and prioritization"
+    system_prompt: |
+      You are a vulnerability assessment specialist.
+      Your role is to scan systems for vulnerabilities, analyze findings, and prioritize remediation.
+      Correlate vulnerabilities with threat intelligence and exploit availability.
+      Provide risk scores and actionable remediation guidance.
+      Consider business context when prioritizing vulnerabilities.
+    llm:
+      model: "llama3:8b"
+      temperature: 0.2
+      max_tokens: 2048
+    tools:
+      - nmap
+      - nikto
+      - sqlmap
+    memory:
+      enabled: true
+      type: "conversational"
+    cache:
+      enabled: true
+      ttl: 7200
+  
+  # Log Analyzer Agent
+  log_analyzer:
+    name: "Log Analyzer"
+    description: "AI-powered log analysis and correlation"
+    system_prompt: |
+      You are a log analysis and correlation expert.
+      Your role is to analyze security logs, detect patterns, and identify anomalies.
+      Correlate events across multiple log sources to identify attack chains.
+      Distinguish between normal behavior and potential security incidents.
+      Provide clear explanations of findings and recommended actions.
+    llm:
+      model: "llama3:8b"
+      temperature: 0.2
+      max_tokens: 2048
+    tools: []
+    memory:
+      enabled: true
+      type: "episodic"
+    cache:
+      enabled: false
+
+# MLFlow experiment tracking
+mlflow:
+  enabled: true
+  experiment_name: "cybersec-operations"
+  tracking_uri: "${MLFLOW_TRACKING_URI:http://localhost:5000}"
+  artifact_location: "./data/mlflow/artifacts"
+  # Auto-log parameters and metrics
+  autolog: true
+  # Tags for experiments
+  tags:
+    project: "cybersec-hub"
+    environment: "${ENVIRONMENT:development}"
+
+# OpenTelemetry configuration
+telemetry:
+  enabled: true
+  service_name: "cybersec-hub"
+  service_version: "1.0.0"
+  # OTLP endpoint
+  otlp_endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}"
+  # Sampling rate (0.0-1.0)
+  sampling_rate: 1.0
+  # Export traces, metrics, logs
+  traces_enabled: true
+  metrics_enabled: true
+  logs_enabled: true
+
+# Ollama configuration (for local LLM inference)
+ollama:
+  base_url: "${OLLAMA_BASE_URL:http://localhost:11434}"
+  models:
+    - "llama3:8b"
+  # Pull models on startup if not available
+  auto_pull: false
+  # GPU acceleration
+  gpu_enabled: true
+  # Number of GPU layers
+  num_gpu: 35
+
+# Cache configuration
+cache:
+  backend: "redis"
+  redis_url: "${REDIS_URL:redis://localhost:6379/0}"
+  ttl: 3600
+  # Namespace for keys
+  namespace: "cybersec-hub"
+
+# Feature store configuration (optional)
+features:
+  enabled: false
+  backend: "feast"
+  registry: "./data/features/registry.db"
+  online_store: "sqlite"
+  offline_store: "file"
+
+# Logging configuration
+logging:
+  level: "${LOG_LEVEL:INFO}"
+  format: "json"
+  output: "both"  # console, file, both
+  file_path: "./data/logs/cybersec-hub.log"
+  # Rotate logs
+  rotation: "1 day"
+  retention: "30 days"
+  # Redact sensitive data
+  redact_secrets: true
+
+# Security settings
+security:
+  # API authentication
+  api_key_required: true
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+  # CORS settings
+  cors:
+    enabled: true
+    allowed_origins:
+      - "http://localhost:3000"
+      - "http://localhost:3002"
+  # Data encryption at rest
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+  # Audit logging
+  audit_log:
+    enabled: true
+    path: "./data/logs/audit.log"
+
+# Scheduling configuration
+scheduling:
+  enabled: true
+  # Scheduled jobs
+  jobs:
+    # Daily vulnerability scan
+    - name: "daily-vuln-scan"
+      schedule: "0 2 * * *"  # 2 AM daily
+      workflow: "vulnerability-assessment"
+      enabled: false
+    
+    # Hourly log analysis
+    - name: "hourly-log-analysis"
+      schedule: "0 * * * *"  # Every hour
+      workflow: "log-analysis"
+      enabled: false
+    
+    # Weekly model retraining
+    - name: "weekly-ml-training"
+      schedule: "0 3 * * 0"  # 3 AM Sunday
+      workflow: "ml-model-training"
+      enabled: false
+
+# External integrations
+integrations:
+  # HackTheBox
+  hackthebox:
+    enabled: false
+    api_key: "${HACKTHEBOX_API_KEY:}"
+    api_url: "https://www.hackthebox.com/api/v4"
+  
+  # TryHackMe
+  tryhackme:
+    enabled: false
+    api_key: "${TRYHACKME_API_KEY:}"
+  
+  # VirusTotal
+  virustotal:
+    enabled: false
+    api_key: "${VIRUSTOTAL_API_KEY:}"
+  
+  # Shodan
+  shodan:
+    enabled: false
+    api_key: "${SHODAN_API_KEY:}"
+  
+  # NVD (National Vulnerability Database)
+  nvd:
+    enabled: true
+    api_key: "${NVD_API_KEY:}"
+    api_url: "https://services.nvd.nist.gov/rest/json/cves/2.0"
+
+# Development settings
+development:
+  debug: false
+  hot_reload: false
+  # Use mock tools for testing
+  mock_tools: false
+  # Test data
+  test_targets:
+    - "scanme.nmap.org"
+    - "testphp.vulnweb.com"

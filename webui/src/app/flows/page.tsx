@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useFlows } from "@/lib/api";
 import type { Flow } from "@/lib/types";
+import { TestingSection } from "@/components/testing/testing-section";
 import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
@@ -273,6 +274,12 @@ export default function FlowsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <TestingSection
+        resourceType="flow"
+        resourceName="Flow"
+        defaultCode={`# Example flow test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate flow inputs and outputs here\",\n}\n`}
+      />
     </div>
   );
 }

@@ -45,10 +45,12 @@ from agentic_assistants.server.api import (
     kubernetes_router,
     docs_router,
     assistant_router,
+    testing_router,
     learning_router,
     evaluations_router,
     framework_assistant_router,
     ollama_router,
+    huggingface_router,
 )
 
 # Import examples router
@@ -63,6 +65,20 @@ from agentic_assistants.server.api.models import router as models_router
 
 # Import ML deployments router
 from agentic_assistants.server.api.ml_deployments import router as ml_deployments_router
+
+# Import Dagster router
+from agentic_assistants.server.api.dagster import router as dagster_router
+
+# Import Nemotron router
+from agentic_assistants.server.api.nemotron import router as nemotron_router
+
+# Import DataHub, Iceberg, and dbt routers
+from agentic_assistants.server.api.datahub import router as datahub_router
+from agentic_assistants.server.api.iceberg import router as iceberg_router
+from agentic_assistants.server.api.dbt import router as dbt_router
+
+# Import Document Stores router
+from agentic_assistants.server.api.document_stores import router as document_stores_router
 
 # Import WebSocket support
 from agentic_assistants.server.websocket import add_websocket_routes
@@ -321,11 +337,37 @@ def create_rest_app(
             except Exception as exc:
                 logger.warning("Failed to start scheduler: %s", exc)
             
+            # Try to start managed Jupyter notebook server
+            try:
+                from agentic_assistants.config import AgenticConfig as _Cfg
+                _cfg = _Cfg()
+                if _cfg.jupyter.enabled and not _cfg.jupyter.external_url:
+                    from agentic_assistants.integrations.jupyter_server import get_jupyter_manager
+                    jm = get_jupyter_manager(_cfg)
+                    t0 = time.time()
+                    await jm.start()
+                    logger.info("Managed Jupyter server started in %.2fs", time.time() - t0)
+                elif _cfg.jupyter.external_url:
+                    logger.info("Jupyter pointing to external hub: %s", _cfg.jupyter.external_url)
+            except Exception as exc:
+                logger.warning("Managed Jupyter server startup skipped: %s", exc)
+
             app.state.bootstrap_complete = True
             logger.info("Bootstrap completed in %.2fs total", time.time() - start_time)
         
         # Schedule bootstrap to run in background
         asyncio.create_task(background_bootstrap())
+
+    @app.on_event("shutdown")
+    async def shutdown_managed_services():
+        """Stop managed child processes on server shutdown."""
+        try:
+            from agentic_assistants.integrations.jupyter_server import get_jupyter_manager
+            jm = get_jupyter_manager()
+            if jm.is_running:
+                await jm.stop()
+        except Exception as exc:
+            logger.warning("Jupyter shutdown error: %s", exc)
 
     
     # Include modular API routers
@@ -343,6 +385,7 @@ def create_rest_app(
     app.include_router(notes_router, prefix="/api/v1")
     app.include_router(tags_router, prefix="/api/v1")
     app.include_router(datasources_router, prefix="/api/v1")
+    app.include_router(testing_router, prefix="/api/v1")
     app.include_router(generation_router, prefix="/api/v1")
     app.include_router(docs_router, prefix="/api/v1")
     app.include_router(assistant_router, prefix="/api/v1")
@@ -351,6 +394,7 @@ def create_rest_app(
     # Framework Assistant routers (new)
     app.include_router(framework_assistant_router, prefix="/api/v1")
     app.include_router(ollama_router, prefix="/api/v1")
+    app.include_router(huggingface_router, prefix="/api/v1")
     
     # Learning framework routers
     app.include_router(learning_router, prefix="/api/v1")
@@ -372,7 +416,58 @@ def create_rest_app(
     
     # ML Deployments router
     app.include_router(ml_deployments_router, prefix="/api/v1")
+
+    # Dagster orchestration
+    app.include_router(dagster_router, prefix="/api/v1/dagster", tags=["dagster"])
+
+    # Nemotron model management
+    app.include_router(nemotron_router, prefix="/api/v1", tags=["nemotron"])
+
+    # Data Catalog (DataHub), Iceberg, and dbt
+    app.include_router(datahub_router, prefix="/api/v1/catalog", tags=["catalog"])
+    app.include_router(iceberg_router, prefix="/api/v1/iceberg", tags=["iceberg"])
+    app.include_router(dbt_router, prefix="/api/v1/dbt", tags=["dbt"])
+
+    # Document Stores (ephemeral document collections)
+    app.include_router(document_stores_router, prefix="/api/v1/document-stores", tags=["document-stores"])
     
+    # === Managed Jupyter Endpoints ===
+
+    @app.get("/api/v1/jupyter/status")
+    async def jupyter_status():
+        """Return the current Jupyter notebook server status."""
+        try:
+            from agentic_assistants.integrations.jupyter_server import get_jupyter_manager
+            jm = get_jupyter_manager()
+            return await jm.health_check()
+        except Exception as exc:
+            return {"running": False, "mode": "unknown", "error": str(exc)}
+
+    @app.post("/api/v1/jupyter/restart")
+    async def jupyter_restart():
+        """Restart the managed Jupyter notebook server."""
+        try:
+            from agentic_assistants.integrations.jupyter_server import get_jupyter_manager
+            jm = get_jupyter_manager()
+            if jm.mode == "external":
+                return {"status": "skipped", "message": "Cannot restart external JupyterHub"}
+            ok = await jm.restart()
+            return {"status": "ok" if ok else "unhealthy", "url": jm.get_url()}
+        except Exception as exc:
+            return {"status": "error", "error": str(exc)}
+
+    @app.get("/api/v1/jupyter/url")
+    async def jupyter_url():
+        """Return the URL to open for Jupyter (managed or external)."""
+        try:
+            from agentic_assistants.integrations.jupyter_server import get_jupyter_manager
+            jm = get_jupyter_manager()
+            return {"url": jm.get_url(), "mode": jm.mode}
+        except Exception:
+            cfg = AgenticConfig()
+            port = cfg.jupyter.port
+            return {"url": f"http://localhost:{port}", "mode": "fallback"}
+
     # === Health Check Endpoints ===
     
     @app.get("/ready", response_model=ReadyResponse)

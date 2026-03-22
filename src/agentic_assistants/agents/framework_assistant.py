@@ -32,6 +32,7 @@ from agentic_assistants.config import AgenticConfig
 from agentic_assistants.agents.modules.coding_helper import CodingHelperModule
 from agentic_assistants.agents.modules.framework_guide import FrameworkGuideModule
 from agentic_assistants.agents.modules.meta_analyzer_module import MetaAnalyzerModule
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -139,7 +140,7 @@ When you don't know something, say so and suggest where to find the answer."""
     
     def _get_model(self) -> str:
         """Get the model to use."""
-        return self.config.assistant.model or self.config.ollama.default_model
+        return self.config.assistant.model or self.config.llm.model or self.config.ollama.default_model
     
     def _get_system_prompt(self) -> str:
         """Get the system prompt."""
@@ -152,8 +153,6 @@ When you don't know something, say so and suggest where to find the answer."""
         temperature: float = 0.7,
     ) -> str:
         """Make an LLM call."""
-        import httpx
-        
         system = system_message or self._get_system_prompt()
         
         # Build messages with history
@@ -165,23 +164,20 @@ When you don't know something, say so and suggest where to find the answer."""
         
         messages.append({"role": "user", "content": prompt})
         
-        start_time = time.time()
-        
-        response = httpx.post(
-            f"{self.config.ollama.host}/api/chat",
-            json={
-                "model": self._get_model(),
-                "messages": messages,
-                "stream": False,
-                "options": {"temperature": temperature},
-            },
-            timeout=self.config.ollama.timeout,
+        provider_client = LLMProvider.from_config(
+            self.config,
+            provider=self.config.assistant.provider,
+            model=self._get_model(),
+            endpoint=self.config.assistant.endpoint,
+            api_key_env=self.config.assistant.openai_api_key_env,
         )
-        response.raise_for_status()
-        
-        duration_ms = (time.time() - start_time) * 1000
-        result = response.json()
-        content = result.get("message", {}).get("content", "")
+        result = provider_client.chat(
+            messages=messages,
+            model=self._get_model(),
+            temperature=temperature,
+        )
+        duration_ms = result.duration_ms
+        content = result.content
         
         # Update conversation history
         self._conversation_history.append({"role": "user", "content": prompt})
@@ -192,8 +188,8 @@ When you don't know something, say so and suggest where to find the answer."""
             self.usage_tracker.track_model_inference(
                 model=self._get_model(),
                 duration_ms=duration_ms,
-                prompt_tokens=result.get("prompt_eval_count", 0),
-                completion_tokens=result.get("eval_count", 0),
+                prompt_tokens=result.prompt_tokens or 0,
+                completion_tokens=result.completion_tokens or 0,
             )
             
             self.usage_tracker.track_user_interaction(

@@ -1,0 +1,336 @@
+# Security Tool Registry
+# Defines available security tools, installation methods, and capabilities
+
+tools:
+  # Network Scanning Tools
+  nmap:
+    name: "Nmap"
+    description: "Network exploration and security auditing"
+    category: network
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y nmap"
+        yum: "sudo yum install -y nmap"
+        pacman: "sudo pacman -S --noconfirm nmap"
+      windows: "choco install -y nmap"
+      macos: "brew install nmap"
+    wrapper: "tools.wrappers.nmap_wrapper.NmapWrapper"
+    capabilities:
+      - port_scan
+      - service_detection
+      - os_detection
+      - script_scanning
+    docker_image: "instrumentisto/nmap"
+    docs_url: "https://nmap.org/book/man.html"
+  
+  masscan:
+    name: "Masscan"
+    description: "Fast TCP port scanner"
+    category: network
+    os_support: [linux, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y masscan"
+        yum: "sudo yum install -y masscan"
+      macos: "brew install masscan"
+    wrapper: "tools.wrappers.masscan_wrapper.MasscanWrapper"
+    capabilities:
+      - port_scan
+      - fast_scanning
+    docker_image: "m3l3m01t/masscan"
+    docs_url: "https://github.com/robertdavidgraham/masscan"
+  
+  zmap:
+    name: "ZMap"
+    description: "Fast single packet network scanner"
+    category: network
+    os_support: [linux]
+    install:
+      linux:
+        apt: "sudo apt-get install -y zmap"
+    wrapper: "tools.wrappers.zmap_wrapper.ZmapWrapper"
+    capabilities:
+      - network_scanning
+      - internet_wide_scanning
+    docker_image: "zmap/zmap"
+    docs_url: "https://zmap.io/"
+  
+  # Web Application Testing
+  owasp-zap:
+    name: "OWASP ZAP"
+    description: "Web application security scanner"
+    category: web
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        snap: "sudo snap install zaproxy --classic"
+      windows: "choco install -y zap"
+      macos: "brew install --cask owasp-zap"
+    wrapper: "tools.wrappers.zap_wrapper.ZAPWrapper"
+    capabilities:
+      - web_scanning
+      - proxy
+      - active_scanning
+      - passive_scanning
+    docker_image: "owasp/zap2docker-stable"
+    docs_url: "https://www.zaproxy.org/docs/"
+  
+  nikto:
+    name: "Nikto"
+    description: "Web server scanner"
+    category: web
+    os_support: [linux, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y nikto"
+      macos: "brew install nikto"
+    wrapper: "tools.wrappers.nikto_wrapper.NiktoWrapper"
+    capabilities:
+      - web_scanning
+      - vulnerability_detection
+    docker_image: "securecodebox/scanner-nikto"
+    docs_url: "https://cirt.net/Nikto2"
+  
+  sqlmap:
+    name: "SQLMap"
+    description: "Automatic SQL injection and database takeover"
+    category: web
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y sqlmap"
+      windows: "pip install sqlmap"
+      macos: "brew install sqlmap"
+    wrapper: "tools.wrappers.sqlmap_wrapper.SQLMapWrapper"
+    capabilities:
+      - sql_injection
+      - database_enumeration
+    docker_image: "paoloo/sqlmap"
+    docs_url: "https://sqlmap.org/"
+  
+  dirb:
+    name: "DIRB"
+    description: "Web content scanner"
+    category: web
+    os_support: [linux]
+    install:
+      linux:
+        apt: "sudo apt-get install -y dirb"
+    wrapper: "tools.wrappers.dirb_wrapper.DIRBWrapper"
+    capabilities:
+      - directory_enumeration
+      - web_fuzzing
+    docs_url: "http://dirb.sourceforge.net/"
+  
+  wfuzz:
+    name: "Wfuzz"
+    description: "Web application fuzzer"
+    category: web
+    os_support: [linux, windows, macos]
+    install:
+      linux: "pip3 install wfuzz"
+      windows: "pip install wfuzz"
+      macos: "pip3 install wfuzz"
+    wrapper: "tools.wrappers.wfuzz_wrapper.WfuzzWrapper"
+    capabilities:
+      - web_fuzzing
+      - parameter_testing
+    docs_url: "https://wfuzz.readthedocs.io/"
+  
+  # Exploitation Frameworks
+  metasploit:
+    name: "Metasploit Framework"
+    description: "Penetration testing framework"
+    category: exploit
+    os_support: [linux, windows, macos]
+    install:
+      linux: "curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > /tmp/msfinstall && chmod 755 /tmp/msfinstall && /tmp/msfinstall"
+      windows: "choco install -y metasploit"
+      macos: "brew install metasploit"
+    wrapper: "tools.wrappers.metasploit_wrapper.MetasploitWrapper"
+    capabilities:
+      - exploitation
+      - payload_generation
+      - post_exploitation
+      - auxiliary_modules
+    docker_image: "metasploitframework/metasploit-framework"
+    docs_url: "https://docs.metasploit.com/"
+  
+  # Forensics Tools
+  wireshark:
+    name: "Wireshark"
+    description: "Network protocol analyzer"
+    category: forensics
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y wireshark tshark"
+        yum: "sudo yum install -y wireshark"
+      windows: "choco install -y wireshark"
+      macos: "brew install --cask wireshark"
+    wrapper: "tools.wrappers.tshark_wrapper.TSharkWrapper"
+    capabilities:
+      - packet_capture
+      - protocol_analysis
+      - traffic_analysis
+    docs_url: "https://www.wireshark.org/docs/"
+  
+  volatility:
+    name: "Volatility"
+    description: "Memory forensics framework"
+    category: forensics
+    os_support: [linux, windows, macos]
+    install:
+      linux: "pip3 install volatility3"
+      windows: "pip install volatility3"
+      macos: "pip3 install volatility3"
+    wrapper: "tools.wrappers.volatility_wrapper.VolatilityWrapper"
+    capabilities:
+      - memory_analysis
+      - artifact_extraction
+    docs_url: "https://volatility3.readthedocs.io/"
+  
+  # Password Attacks
+  hashcat:
+    name: "Hashcat"
+    description: "Advanced password recovery"
+    category: password
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y hashcat"
+      windows: "choco install -y hashcat"
+      macos: "brew install hashcat"
+    wrapper: "tools.wrappers.hashcat_wrapper.HashcatWrapper"
+    capabilities:
+      - password_cracking
+      - hash_analysis
+    docs_url: "https://hashcat.net/wiki/"
+  
+  john:
+    name: "John the Ripper"
+    description: "Password cracker"
+    category: password
+    os_support: [linux, windows, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y john"
+        yum: "sudo yum install -y john"
+      windows: "choco install -y johntheripper"
+      macos: "brew install john"
+    wrapper: "tools.wrappers.john_wrapper.JohnWrapper"
+    capabilities:
+      - password_cracking
+      - hash_detection
+    docs_url: "https://www.openwall.com/john/"
+  
+  hydra:
+    name: "Hydra"
+    description: "Network authentication cracker"
+    category: password
+    os_support: [linux, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y hydra"
+      macos: "brew install hydra"
+    wrapper: "tools.wrappers.hydra_wrapper.HydraWrapper"
+    capabilities:
+      - brute_force
+      - network_authentication
+    docs_url: "https://github.com/vanhauser-thc/thc-hydra"
+  
+  # Wireless Security
+  aircrack-ng:
+    name: "Aircrack-ng"
+    description: "WiFi security auditing suite"
+    category: wireless
+    os_support: [linux, macos]
+    install:
+      linux:
+        apt: "sudo apt-get install -y aircrack-ng"
+      macos: "brew install aircrack-ng"
+    wrapper: "tools.wrappers.aircrack_wrapper.AircrackWrapper"
+    capabilities:
+      - wifi_monitoring
+      - packet_capture
+      - password_cracking
+    docs_url: "https://www.aircrack-ng.org/documentation.html"
+  
+  # Python-based Tools
+  impacket:
+    name: "Impacket"
+    description: "Network protocols Python library"
+    category: exploit
+    os_support: [linux, windows, macos]
+    install:
+      linux: "pip3 install impacket"
+      windows: "pip install impacket"
+      macos: "pip3 install impacket"
+    wrapper: "tools.wrappers.impacket_wrapper.ImpacketWrapper"
+    capabilities:
+      - smb_enumeration
+      - ntlm_relay
+      - psexec
+    docs_url: "https://github.com/SecureAuthCorp/impacket"
+  
+  scapy:
+    name: "Scapy"
+    description: "Packet manipulation program"
+    category: network
+    os_support: [linux, windows, macos]
+    install:
+      linux: "pip3 install scapy"
+      windows: "pip install scapy"
+      macos: "pip3 install scapy"
+    wrapper: "tools.wrappers.scapy_wrapper.ScapyWrapper"
+    capabilities:
+      - packet_crafting
+      - network_discovery
+    docs_url: "https://scapy.readthedocs.io/"
+  
+  pwntools:
+    name: "Pwntools"
+    description: "CTF framework and exploit development"
+    category: exploit
+    os_support: [linux, macos]
+    install:
+      linux: "pip3 install pwntools"
+      macos: "pip3 install pwntools"
+    wrapper: "tools.wrappers.pwntools_wrapper.PwntoolsWrapper"
+    capabilities:
+      - exploit_development
+      - binary_analysis
+    docs_url: "https://docs.pwntools.com/"
+
+# Tool categories
+categories:
+  network:
+    name: "Network Scanning"
+    description: "Tools for network discovery and port scanning"
+    icon: "network"
+  
+  web:
+    name: "Web Application Testing"
+    description: "Tools for testing web applications and APIs"
+    icon: "web"
+  
+  exploit:
+    name: "Exploitation"
+    description: "Frameworks and tools for exploitation"
+    icon: "bug"
+  
+  forensics:
+    name: "Forensics & Analysis"
+    description: "Tools for network and memory forensics"
+    icon: "search"
+  
+  password:
+    name: "Password Attacks"
+    description: "Tools for password cracking and authentication testing"
+    icon: "key"
+  
+  wireless:
+    name: "Wireless Security"
+    description: "Tools for WiFi and wireless security testing"
+    icon: "wifi"

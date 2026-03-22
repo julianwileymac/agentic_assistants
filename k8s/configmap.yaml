@@ -29,3 +29,25 @@ data:
   # Vector DB settings
   VECTORDB_PATH: "/data/vectordb"
   VECTORDB_EMBEDDING_MODEL: "all-MiniLM-L6-v2"
+  
+  # DataHub settings
+  DATAHUB_ENABLED: "true"
+  DATAHUB_GMS_URL: "http://datahub-datahub-gms.data-services.svc.cluster.local:8080"
+  DATAHUB_FRONTEND_URL: "http://datahub.local"
+  DATAHUB_ICEBERG_ENABLED: "true"
+  
+  # Iceberg settings
+  ICEBERG_CATALOG_URI: "http://datahub-datahub-gms.data-services.svc.cluster.local:8080/iceberg"
+  ICEBERG_WAREHOUSE: "s3://iceberg-warehouse/"
+  ICEBERG_S3_ENDPOINT: "http://minio.data-services.svc.cluster.local:9000"
+  ICEBERG_S3_ACCESS_KEY: "minioadmin"
+  ICEBERG_S3_SECRET_KEY: "minioadmin123"
+  
+  # dbt settings
+  DBT_ENABLED: "true"
+  DBT_TARGET: "prod"
+  DBT_POSTGRES_HOST: "postgresql.data-services.svc.cluster.local"
+  DBT_POSTGRES_PORT: "5432"
+  DBT_POSTGRES_DATABASE: "agentic"
+  DBT_POSTGRES_USER: "postgres"
+  DBT_POSTGRES_PASSWORD: "postgres123"

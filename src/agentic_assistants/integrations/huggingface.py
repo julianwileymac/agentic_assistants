@@ -3,9 +3,13 @@ HuggingFace Hub integration.
 
 This module provides integration with HuggingFace Hub for:
 - Model storage and versioning
-- Dataset hosting
+- Dataset hosting and loading
 - Model cards generation
 - Inference API integration
+- Paper search and retrieval
+- LoRA adapter weight management
+- Model/tokenizer loading via transformers
+- Spaces listing
 
 Example:
     >>> from agentic_assistants.integrations.huggingface import HuggingFaceHubIntegration
@@ -21,6 +25,12 @@ Example:
     >>> 
     >>> # Pull a model
     >>> local_path = hf.pull_model("username/my-model")
+    >>>
+    >>> # Load a model and tokenizer via transformers
+    >>> model, tokenizer = hf.load_model_and_tokenizer("meta-llama/Llama-3.2-1B")
+    >>>
+    >>> # Search papers
+    >>> papers = hf.search_papers("reinforcement learning")
 """
 
 import json
@@ -28,7 +38,7 @@ import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from agentic_assistants.utils.logging import get_logger
 
@@ -220,7 +230,12 @@ class HuggingFaceHubIntegration:
     def is_available(self) -> bool:
         """Check if Hub integration is available."""
         return self._hub_available and self.token is not None
-    
+
+    def set_token(self, token: Optional[str]) -> None:
+        """Update the API token and re-check Hub availability."""
+        self.token = token
+        self._hub_available = self._check_hub()
+
     # =========================================================================
     # Model Operations
     # =========================================================================
@@ -640,3 +655,571 @@ class HuggingFaceHubIntegration:
         if self.is_available:
             return "huggingface_hub"
         return "local"
+
+    # =========================================================================
+    # Authentication
+    # =========================================================================
+
+    def whoami(self) -> Optional[Dict[str, Any]]:
+        """Get current user info from HuggingFace Hub."""
+        if not self._hub_available or not self.token:
+            return None
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+            info = api.whoami()
+            return {
+                "name": info.get("name"),
+                "fullname": info.get("fullname"),
+                "email": info.get("email"),
+                "orgs": [
+                    {"name": org.get("name"), "id": org.get("id")}
+                    for org in info.get("orgs", [])
+                ],
+                "auth": info.get("auth", {}),
+            }
+        except Exception as e:
+            logger.error(f"Failed to get user info: {e}")
+            return None
+
+    def login(self, token: str) -> bool:
+        """Validate and set a new HuggingFace token."""
+        old_token = self.token
+        self.token = token
+        self._hub_available = self._check_hub()
+
+        if self.whoami() is not None:
+            return True
+
+        self.token = old_token
+        self._hub_available = self._check_hub()
+        return False
+
+    # =========================================================================
+    # Paper Operations
+    # =========================================================================
+
+    def search_papers(
+        self,
+        query: str,
+        limit: int = 20,
+    ) -> List[Dict[str, Any]]:
+        """
+        Search papers on HuggingFace via the Hub API.
+
+        Args:
+            query: Search query string
+            limit: Maximum papers to return
+
+        Returns:
+            List of paper metadata dicts
+        """
+        if not self._hub_available:
+            return []
+
+        try:
+            import httpx
+
+            response = httpx.get(
+                f"{self._hub_url}/api/papers",
+                params={"query": query, "limit": limit},
+                headers=self._auth_headers(),
+                timeout=30,
+            )
+            if response.status_code == 200:
+                return response.json()
+            logger.warning(f"Paper search returned {response.status_code}")
+            return []
+        except Exception as e:
+            logger.error(f"Failed to search papers: {e}")
+            return []
+
+    def get_paper(self, paper_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get details of a specific paper by its arXiv ID or HF paper ID.
+
+        Args:
+            paper_id: Paper identifier (e.g. "2305.18290")
+
+        Returns:
+            Paper metadata or None
+        """
+        if not self._hub_available:
+            return None
+
+        try:
+            import httpx
+
+            response = httpx.get(
+                f"{self._hub_url}/api/papers/{paper_id}",
+                headers=self._auth_headers(),
+                timeout=30,
+            )
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            logger.error(f"Failed to get paper: {e}")
+            return None
+
+    # =========================================================================
+    # Weight Operations (LoRA adapters)
+    # =========================================================================
+
+    def push_weights(
+        self,
+        weights_path: str,
+        repo_id: str,
+        adapter_name: str = "default",
+        private: bool = False,
+        commit_message: str = "Upload adapter weights",
+    ) -> Dict[str, Any]:
+        """
+        Push LoRA/PEFT adapter weights to HuggingFace Hub.
+
+        Args:
+            weights_path: Local path to adapter weights directory
+            repo_id: HuggingFace repo ID
+            adapter_name: Name for this adapter variant
+            private: Make repo private
+            commit_message: Commit message
+
+        Returns:
+            Result dictionary
+        """
+        if not self.is_available:
+            if self.default_to_local:
+                return self._save_model_locally(weights_path, repo_id, None)
+            return {"success": False, "error": "HuggingFace Hub not available"}
+
+        try:
+            from huggingface_hub import HfApi, create_repo
+
+            api = HfApi(token=self.token)
+
+            create_repo(repo_id, token=self.token, private=private, exist_ok=True)
+
+            path_in_repo = adapter_name if adapter_name != "default" else ""
+
+            api.upload_folder(
+                folder_path=weights_path,
+                repo_id=repo_id,
+                path_in_repo=path_in_repo,
+                commit_message=commit_message,
+            )
+
+            url = f"https://huggingface.co/{repo_id}"
+            logger.info(f"Pushed adapter weights to {url}")
+
+            return {
+                "success": True,
+                "repo_id": repo_id,
+                "adapter_name": adapter_name,
+                "url": url,
+            }
+        except Exception as e:
+            logger.error(f"Failed to push weights: {e}")
+            if self.default_to_local:
+                return self._save_model_locally(weights_path, repo_id, None)
+            return {"success": False, "error": str(e)}
+
+    def pull_weights(
+        self,
+        repo_id: str,
+        adapter_name: str = "default",
+        revision: Optional[str] = None,
+        local_dir: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Pull LoRA/PEFT adapter weights from HuggingFace Hub.
+
+        Args:
+            repo_id: HuggingFace repo ID
+            adapter_name: Name of the adapter variant
+            revision: Specific revision
+            local_dir: Local directory to save to
+
+        Returns:
+            Local path to downloaded weights
+        """
+        if not self._hub_available:
+            local_path = self.local_cache_dir / "weights" / repo_id.replace("/", "_")
+            if local_path.exists():
+                return str(local_path)
+            return None
+
+        try:
+            from huggingface_hub import snapshot_download
+
+            local_dir = local_dir or str(
+                self.local_cache_dir / "weights" / repo_id.replace("/", "_")
+            )
+
+            allow_patterns = None
+            if adapter_name != "default":
+                allow_patterns = [f"{adapter_name}/*", f"{adapter_name}/**"]
+
+            path = snapshot_download(
+                repo_id=repo_id,
+                revision=revision,
+                local_dir=local_dir,
+                token=self.token,
+                allow_patterns=allow_patterns,
+            )
+
+            logger.info(f"Downloaded adapter weights to {path}")
+            return path
+        except Exception as e:
+            logger.error(f"Failed to pull weights: {e}")
+            return None
+
+    # =========================================================================
+    # Dataset Operations (extended)
+    # =========================================================================
+
+    def load_hf_dataset(
+        self,
+        dataset_id: str,
+        split: Optional[str] = None,
+        subset: Optional[str] = None,
+        streaming: bool = False,
+    ) -> Any:
+        """
+        Load a dataset using the HuggingFace datasets library.
+
+        Args:
+            dataset_id: HuggingFace dataset ID or local path
+            split: Dataset split (train, test, validation)
+            subset: Dataset subset/configuration name
+            streaming: Enable streaming mode for large datasets
+
+        Returns:
+            HuggingFace Dataset or DatasetDict object
+
+        Raises:
+            ImportError: If datasets library is not installed
+        """
+        try:
+            from datasets import load_dataset
+        except ImportError:
+            raise ImportError(
+                "datasets library required. Install with: pip install datasets"
+            )
+
+        kwargs: Dict[str, Any] = {"streaming": streaming}
+        if split:
+            kwargs["split"] = split
+        if subset:
+            kwargs["name"] = subset
+        if self.token:
+            kwargs["token"] = self.token
+
+        return load_dataset(dataset_id, **kwargs)
+
+    def list_datasets(
+        self,
+        author: Optional[str] = None,
+        search: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """List datasets from HuggingFace Hub."""
+        if not self._hub_available:
+            return []
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+
+            datasets = api.list_datasets(
+                author=author,
+                search=search,
+                limit=limit,
+            )
+
+            return [
+                {
+                    "id": d.id,
+                    "author": d.author,
+                    "downloads": d.downloads,
+                    "likes": d.likes,
+                    "tags": d.tags,
+                }
+                for d in datasets
+            ]
+        except Exception as e:
+            logger.error(f"Failed to list datasets: {e}")
+            return []
+
+    def get_dataset_info(self, repo_id: str) -> Optional[Dict[str, Any]]:
+        """Get information about a dataset on the Hub."""
+        if not self._hub_available:
+            return None
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+            info = api.dataset_info(repo_id)
+
+            return {
+                "id": info.id,
+                "author": info.author,
+                "downloads": info.downloads,
+                "likes": info.likes,
+                "tags": info.tags,
+                "description": info.description,
+                "created_at": str(info.created_at) if info.created_at else None,
+                "last_modified": str(info.last_modified) if info.last_modified else None,
+            }
+        except Exception as e:
+            logger.error(f"Failed to get dataset info: {e}")
+            return None
+
+    # =========================================================================
+    # Model Loading (via transformers)
+    # =========================================================================
+
+    def load_model(
+        self,
+        model_id: str,
+        device_map: Optional[str] = "auto",
+        torch_dtype: Optional[str] = None,
+        quantization_config: Optional[Any] = None,
+        **kwargs,
+    ) -> Any:
+        """
+        Load a model using transformers AutoModel.
+
+        Args:
+            model_id: HuggingFace model ID or local path
+            device_map: Device mapping strategy
+            torch_dtype: Torch dtype string (e.g. "bfloat16", "float16")
+            quantization_config: BitsAndBytes or GPTQ quantization config
+            **kwargs: Additional arguments for from_pretrained
+
+        Returns:
+            Loaded model
+
+        Raises:
+            ImportError: If transformers is not installed
+        """
+        try:
+            from transformers import AutoModelForCausalLM
+        except ImportError:
+            raise ImportError(
+                "transformers library required. Install with: pip install transformers"
+            )
+
+        load_kwargs: Dict[str, Any] = {**kwargs}
+        if device_map:
+            load_kwargs["device_map"] = device_map
+        if torch_dtype:
+            import torch
+            dtype_map = {
+                "bfloat16": torch.bfloat16,
+                "float16": torch.float16,
+                "float32": torch.float32,
+            }
+            load_kwargs["torch_dtype"] = dtype_map.get(torch_dtype, torch.float32)
+        if quantization_config:
+            load_kwargs["quantization_config"] = quantization_config
+        if self.token:
+            load_kwargs["token"] = self.token
+
+        logger.info(f"Loading model {model_id}")
+        return AutoModelForCausalLM.from_pretrained(model_id, **load_kwargs)
+
+    def load_tokenizer(self, model_id: str, **kwargs) -> Any:
+        """
+        Load a tokenizer using transformers AutoTokenizer.
+
+        Args:
+            model_id: HuggingFace model ID or local path
+            **kwargs: Additional arguments for from_pretrained
+
+        Returns:
+            Loaded tokenizer
+
+        Raises:
+            ImportError: If transformers is not installed
+        """
+        try:
+            from transformers import AutoTokenizer
+        except ImportError:
+            raise ImportError(
+                "transformers library required. Install with: pip install transformers"
+            )
+
+        load_kwargs: Dict[str, Any] = {**kwargs}
+        if self.token:
+            load_kwargs["token"] = self.token
+
+        tokenizer = AutoTokenizer.from_pretrained(model_id, **load_kwargs)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        return tokenizer
+
+    def load_model_and_tokenizer(
+        self,
+        model_id: str,
+        device_map: Optional[str] = "auto",
+        torch_dtype: Optional[str] = None,
+        **kwargs,
+    ) -> Tuple[Any, Any]:
+        """
+        Load both model and tokenizer.
+
+        Returns:
+            Tuple of (model, tokenizer)
+        """
+        model = self.load_model(model_id, device_map=device_map, torch_dtype=torch_dtype, **kwargs)
+        tokenizer = self.load_tokenizer(model_id)
+        return model, tokenizer
+
+    def search_models(
+        self,
+        query: Optional[str] = None,
+        author: Optional[str] = None,
+        task: Optional[str] = None,
+        library: Optional[str] = None,
+        language: Optional[str] = None,
+        sort: str = "downloads",
+        direction: int = -1,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """
+        Search models on HuggingFace Hub with advanced filters.
+
+        Args:
+            query: Search query
+            author: Filter by author/org
+            task: Filter by task (text-generation, text-classification, etc.)
+            library: Filter by library (pytorch, tensorflow, etc.)
+            language: Filter by language
+            sort: Sort field (downloads, likes, created_at, etc.)
+            direction: Sort direction (-1 descending, 1 ascending)
+            limit: Maximum results
+
+        Returns:
+            List of model info dicts
+        """
+        if not self._hub_available:
+            return []
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+
+            filter_kwargs: Dict[str, Any] = {}
+            if task:
+                filter_kwargs["task"] = task
+            if library:
+                filter_kwargs["library"] = library
+            if language:
+                filter_kwargs["language"] = language
+
+            models = api.list_models(
+                search=query,
+                author=author,
+                sort=sort,
+                direction=direction,
+                limit=limit,
+                **filter_kwargs,
+            )
+
+            return [
+                {
+                    "id": m.id,
+                    "author": m.author,
+                    "downloads": m.downloads,
+                    "likes": m.likes,
+                    "tags": m.tags,
+                    "pipeline_tag": getattr(m, "pipeline_tag", None),
+                    "library_name": getattr(m, "library_name", None),
+                    "created_at": str(m.created_at) if getattr(m, "created_at", None) else None,
+                    "last_modified": str(m.last_modified) if getattr(m, "last_modified", None) else None,
+                }
+                for m in models
+            ]
+        except Exception as e:
+            logger.error(f"Failed to search models: {e}")
+            return []
+
+    # =========================================================================
+    # Spaces
+    # =========================================================================
+
+    def list_spaces(
+        self,
+        author: Optional[str] = None,
+        search: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """List Spaces from HuggingFace Hub."""
+        if not self._hub_available:
+            return []
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+
+            spaces = api.list_spaces(
+                author=author,
+                search=search,
+                limit=limit,
+            )
+
+            return [
+                {
+                    "id": s.id,
+                    "author": s.author,
+                    "likes": s.likes,
+                    "sdk": getattr(s, "sdk", None),
+                }
+                for s in spaces
+            ]
+        except Exception as e:
+            logger.error(f"Failed to list spaces: {e}")
+            return []
+
+    def get_space_info(self, repo_id: str) -> Optional[Dict[str, Any]]:
+        """Get info about a Space."""
+        if not self._hub_available:
+            return None
+
+        try:
+            from huggingface_hub import HfApi
+
+            api = HfApi(token=self.token)
+            info = api.space_info(repo_id)
+
+            return {
+                "id": info.id,
+                "author": info.author,
+                "likes": info.likes,
+                "sdk": getattr(info, "sdk", None),
+                "runtime": getattr(info, "runtime", None),
+                "created_at": str(info.created_at) if getattr(info, "created_at", None) else None,
+                "last_modified": str(info.last_modified) if getattr(info, "last_modified", None) else None,
+            }
+        except Exception as e:
+            logger.error(f"Failed to get space info: {e}")
+            return None
+
+    # =========================================================================
+    # Internal Helpers
+    # =========================================================================
+
+    @property
+    def _hub_url(self) -> str:
+        return os.environ.get("HF_HUB_URL", "https://huggingface.co")
+
+    def _auth_headers(self) -> Dict[str, str]:
+        if self.token:
+            return {"Authorization": f"Bearer {self.token}"}
+        return {}

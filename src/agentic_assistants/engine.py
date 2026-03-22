@@ -26,6 +26,7 @@ from agentic_assistants.core.ollama import OllamaManager
 from agentic_assistants.core.session import Session, SessionManager
 from agentic_assistants.data.layer import DataLayer
 from agentic_assistants.indexing.codebase import CodebaseIndexer, IndexingStats
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.utils.logging import get_logger
 from agentic_assistants.vectordb.base import Document, SearchResult, VectorStore
 
@@ -495,13 +496,24 @@ class AgenticEngine:
             context_collection: Collection for RAG context
             context_top_k: Number of context documents
             save_to_session: Whether to save chat to session
-            **kwargs: Additional parameters for Ollama
+            **kwargs: Additional provider-specific parameters
         
         Returns:
             Assistant response text
         """
-        # Ensure Ollama is running
-        self.ensure_ollama()
+        provider_override = kwargs.pop("provider", None)
+        endpoint_override = kwargs.pop("endpoint", None)
+        api_key_env = kwargs.pop("api_key_env", None)
+        provider = (provider_override or self.config.llm.provider or "ollama").strip().lower().replace("-", "_")
+        if provider == "openai":
+            provider = "openai_compatible"
+        elif provider == "huggingface":
+            provider = "huggingface_local"
+
+        resolved_model = model or self.config.llm.model or self.config.ollama.default_model
+
+        if provider == "ollama":
+            self.ensure_ollama()
         
         # Build messages
         if isinstance(message, str):
@@ -524,17 +536,50 @@ class AgenticEngine:
         else:
             messages = message
         
-        # Call Ollama
-        with self._trace_chat(messages, model) as run:
-            response = self.ollama.chat(messages, model=model, **kwargs)
-            response_text = response["message"]["content"]
+        # Call configured provider
+        with self._trace_chat(messages, resolved_model) as run:
+            logger.info(
+                "Engine chat dispatch",
+                extra={
+                    "provider": provider,
+                    "model": resolved_model,
+                    "endpoint_override": endpoint_override,
+                    "message_count": len(messages),
+                },
+            )
+            provider_client = LLMProvider.from_config(
+                self.config,
+                provider=provider,
+                model=resolved_model,
+                endpoint=endpoint_override,
+                api_key_env=api_key_env,
+            )
+            try:
+                llm_result = provider_client.chat(
+                    messages=messages,
+                    model=resolved_model,
+                    **kwargs,
+                )
+            except Exception as exc:
+                logger.error(
+                    "Engine chat failed",
+                    extra={
+                        "provider": provider,
+                        "model": resolved_model,
+                        "endpoint_override": endpoint_override,
+                        "error": str(exc),
+                    },
+                )
+                raise
+            response_text = llm_result.content
+            used_model = llm_result.model
             
             if run:
                 from agentic_assistants.core.mlflow_tracker import MLFlowTracker
                 MLFlowTracker(self.config).log_chat_interaction(
                     messages=messages,
                     response=response_text,
-                    model=model or self.config.ollama.default_model,
+                    model=used_model,
                 )
         
         # Save to session
@@ -542,7 +587,7 @@ class AgenticEngine:
             self.session.log_chat(
                 messages=messages + [{"role": "assistant", "content": response_text}],
                 summary=message[:100] if isinstance(message, str) else None,
-                model=model or self.config.ollama.default_model,
+                model=used_model,
             )
         
         return response_text

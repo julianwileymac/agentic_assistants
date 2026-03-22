@@ -1,5 +1,5 @@
 """
-MCP-backed coding agent using Ollama for responses.
+MCP-backed coding agent with provider-agnostic responses.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from agentic_assistants.config import AgenticConfig
-from agentic_assistants.core.ollama import OllamaManager
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -24,7 +24,7 @@ DEFAULT_SYSTEM_PROMPT = (
 
 
 class McpOllamaCodingAgent:
-    """Coding agent that retrieves context via MCP and responds with Ollama."""
+    """Coding agent that retrieves context via MCP and responds via configurable LLM provider."""
 
     def __init__(
         self,
@@ -33,6 +33,8 @@ class McpOllamaCodingAgent:
         collection: str = "default",
         top_k: int = 5,
         model: Optional[str] = None,
+        provider: Optional[str] = None,
+        endpoint: Optional[str] = None,
         system_prompt: Optional[str] = None,
         timeout: float = 30.0,
     ) -> None:
@@ -40,10 +42,18 @@ class McpOllamaCodingAgent:
         self.mcp_url = mcp_url or f"http://{self.config.server.host}:{self.config.server.port}/mcp"
         self.collection = collection
         self.top_k = top_k
-        self.model = model or self.config.ollama.default_model
+        self.model = model or self.config.llm.model or self.config.ollama.default_model
+        self.provider = provider or self.config.llm.provider
+        self.endpoint = endpoint or self.config.assistant.endpoint
         self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
         self.timeout = timeout
-        self._ollama = OllamaManager(self.config)
+        self._llm_provider = LLMProvider.from_config(
+            self.config,
+            provider=self.provider,
+            model=self.model,
+            endpoint=self.endpoint,
+            api_key_env=self.config.assistant.openai_api_key_env,
+        )
 
     def _mcp_request(self, method: str, params: Dict[str, Any]) -> Dict[str, Any]:
         payload = {
@@ -110,5 +120,5 @@ class McpOllamaCodingAgent:
             {"role": "user", "content": user_prompt},
         ]
 
-        response = self._ollama.chat(messages=messages, model=self.model)
-        return response.get("message", {}).get("content", "")
+        response = self._llm_provider.chat(messages=messages, model=self.model)
+        return response.content

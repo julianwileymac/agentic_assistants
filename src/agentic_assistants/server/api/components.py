@@ -22,7 +22,10 @@ router = APIRouter(prefix="/components", tags=["components"])
 class ComponentCreate(BaseModel):
     """Request to create a new component."""
     name: str = Field(..., description="Component name")
-    category: str = Field(..., description="Component category (tool, agent, task, pattern, utility, template)")
+    category: str = Field(
+        ...,
+        description="Component category (tool, agent, task, pattern, utility, template, snippet)",
+    )
     code: str = Field(default="", description="Component source code")
     language: str = Field(default="python", description="Programming language")
     description: str = Field(default="", description="Component description")
@@ -86,6 +89,7 @@ VALID_CATEGORIES = {
     "pattern",       # Agentic patterns (RAG, ReAct, etc.)
     "utility",       # Utility functions
     "template",      # Project templates
+    "snippet",       # Code snippets for the snippet library
     # New categories for extended functionality
     "datasource_handler",  # Data source connection handlers
     "embedding_model",     # Custom embedding configurations
@@ -219,6 +223,7 @@ async def list_categories() -> dict:
             {"id": "pattern", "name": "Pattern", "description": "Agentic patterns (RAG, ReAct, etc.)", "group": "core"},
             {"id": "utility", "name": "Utility", "description": "Utility functions", "group": "core"},
             {"id": "template", "name": "Template", "description": "Project templates", "group": "core"},
+            {"id": "snippet", "name": "Snippet", "description": "Reusable code snippets", "group": "core"},
             # Extended categories
             {"id": "datasource_handler", "name": "Data Source Handler", "description": "Custom data source connection handlers", "group": "data"},
             {"id": "embedding_model", "name": "Embedding Model", "description": "Custom embedding configurations", "group": "ai"},

@@ -59,6 +59,29 @@ ASSISTANT_MEMORY_ENABLED=true
 ASSISTANT_USAGE_TRACKING_ENABLED=true
 ```
 
+### Provider-aware assistant configuration
+
+The assistant now supports hybrid provider routing:
+
+```bash
+# Assistant-level defaults
+ASSISTANT_PROVIDER=ollama
+ASSISTANT_MODEL=llama3.2
+# ASSISTANT_ENDPOINT=http://localhost:11434
+
+# Optional OpenAI-compatible auth indirection
+ASSISTANT_OPENAI_API_KEY_ENV=OPENAI_API_KEY
+
+# HF local/remote mode selection
+ASSISTANT_HF_EXECUTION_MODE=hybrid
+```
+
+Available provider values:
+
+- `ollama`: local Ollama API (`/api/chat`)
+- `huggingface_local`: in-process `transformers` inference
+- `openai_compatible`: vLLM/TGI/OpenAI-style chat endpoints
+
 Or configure programmatically:
 
 ```python
@@ -70,6 +93,15 @@ config = AgenticConfig()
 print(config.assistant.model)
 print(config.assistant.enable_coding_helper)
 ```
+
+## Context options (Control Panel)
+
+The Control Panel chat UI supports optional context injection:
+
+- **Code context**: Loads `.index/context` packs via `ContextLoader` (task-specific when selected).
+- **Project docs**: Injects curated excerpts from `docs/` to ground responses.
+
+These are toggles in the assistant chat UI and are sent as `include_code_context`, `include_project_docs`, and `context_task`.
 
 ## Features
 
@@ -179,6 +211,7 @@ The assistant exposes REST API endpoints:
 |----------|--------|-------------|
 | `/api/v1/assistant/chat` | POST | Chat with the assistant |
 | `/api/v1/assistant/config` | GET/PUT | Get/update configuration |
+| `/api/v1/assistant/models/catalog` | GET | Unified model picker catalog (Ollama + custom + HF cache) |
 | `/api/v1/assistant/analytics` | GET | Get usage analytics |
 | `/api/v1/assistant/health` | GET | Get health summary |
 | `/api/v1/assistant/suggestions` | GET | Get improvement suggestions |
@@ -189,7 +222,12 @@ The assistant exposes REST API endpoints:
 ```bash
 curl -X POST http://localhost:8080/api/v1/assistant/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "How do I create an agent?", "include_rag": true}'
+  -d '{
+    "messages": [{"role": "user", "content": "How do I create an agent?"}],
+    "provider": "openai_compatible",
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "endpoint": "http://localhost:8000/v1"
+  }'
 ```
 
 ## WebUI

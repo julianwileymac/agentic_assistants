@@ -11,16 +11,19 @@ import {
   Settings,
   Trash2,
   Sparkles,
+  Code2,
 } from "lucide-react";
 
 import { useAssistantChat } from "@/lib/api";
 import { useHelpStore } from "@/lib/store";
 import type { AssistantChatMessage } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -28,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiFetch } from "@/lib/api";
+import type { AssistantModelCatalogEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -41,11 +46,33 @@ const DOC_SLUGS = [
   { value: "usage_analytics", label: "Usage Analytics" },
 ];
 
+const CONTEXT_TASKS = [
+  { value: "understand", label: "Understand codebase" },
+  { value: "add_adapter", label: "Add adapter" },
+  { value: "add_cli_command", label: "Add CLI command" },
+  { value: "add_config", label: "Add config" },
+  { value: "debug", label: "Debug issue" },
+];
+
+const PROVIDER_OPTIONS = [
+  { value: "default", label: "Default provider" },
+  { value: "ollama", label: "Ollama" },
+  { value: "huggingface_local", label: "HF local" },
+  { value: "openai_compatible", label: "OpenAI-compatible" },
+];
+
 export default function AssistantChatPage() {
   const pathname = usePathname();
   const { selectedDocSlug, setSelectedDoc } = useHelpStore();
   const [messages, setMessages] = React.useState<AssistantChatMessage[]>([]);
   const [input, setInput] = React.useState("");
+  const [includeCodeContext, setIncludeCodeContext] = React.useState(false);
+  const [includeProjectDocs, setIncludeProjectDocs] = React.useState(false);
+  const [contextTask, setContextTask] = React.useState("understand");
+  const [providerOverride, setProviderOverride] = React.useState("default");
+  const [modelOverride, setModelOverride] = React.useState("");
+  const [endpointOverride, setEndpointOverride] = React.useState("");
+  const [modelCatalog, setModelCatalog] = React.useState<AssistantModelCatalogEntry[]>([]);
   const { trigger, isMutating } = useAssistantChat();
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -53,6 +80,37 @@ export default function AssistantChatPage() {
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  React.useEffect(() => {
+    const loadAssistantMeta = async () => {
+      try {
+        const [config, catalog] = await Promise.all([
+          apiFetch<{ provider?: string; model?: string; endpoint?: string }>("/api/v1/assistant/config"),
+          apiFetch<{ models: AssistantModelCatalogEntry[] }>("/api/v1/assistant/models/catalog"),
+        ]);
+        setProviderOverride("default");
+        setModelOverride(config.model || "");
+        setEndpointOverride(config.endpoint || "");
+        setModelCatalog(catalog.models || []);
+      } catch {
+        // non-blocking for chat UX
+      }
+    };
+    loadAssistantMeta();
+  }, []);
+
+  const availableModels = React.useMemo(() => {
+    const selectedProvider = providerOverride === "default" ? null : providerOverride;
+    const names = modelCatalog
+      .filter((entry) => (selectedProvider ? entry.provider === selectedProvider : true))
+      .map((entry) => entry.model)
+      .filter(Boolean);
+    const deduped = Array.from(new Set(names));
+    if (modelOverride && !deduped.includes(modelOverride)) {
+      deduped.unshift(modelOverride);
+    }
+    return deduped;
+  }, [modelCatalog, modelOverride, providerOverride]);
 
   const sendMessage = async () => {
     if (!input.trim() || isMutating) return;
@@ -66,42 +124,29 @@ export default function AssistantChatPage() {
         messages: [...messages, userMessage],
         route: pathname,
         selected_doc_slug: selectedDocSlug || undefined,
+        include_code_context: includeCodeContext,
+        include_project_docs: includeProjectDocs,
+        context_task: includeCodeContext ? contextTask : undefined,
+        provider: providerOverride !== "default" ? (providerOverride as "ollama" | "huggingface_local" | "openai_compatible") : undefined,
+        model: modelOverride || undefined,
+        endpoint: endpointOverride || undefined,
       });
       if (response?.message) {
         setMessages((prev) => [...prev, response.message]);
       }
-    } catch (error: any) {
-      // Extract detailed error message from the API response
-      let errorMessage = "Sorry, I encountered an error connecting to the assistant.";
-      let suggestion = "";
-      
-      try {
-        // Try to parse the error detail
-        const errorDetail = error?.message || "";
-        if (errorDetail.includes("No Ollama connection")) {
-          errorMessage = "Cannot connect to Ollama. The LLM server is not available.";
-          suggestion = "Please ensure Ollama is running with `ollama serve` or check your deployment.";
-        } else if (errorDetail.includes("Model not found")) {
-          errorMessage = "The configured model is not installed on the Ollama server.";
-          suggestion = "Run `ollama pull <model>` to download it, or change the model in Assistant Settings.";
-        } else if (errorDetail.includes("timeout")) {
-          errorMessage = "The request timed out. The model may be loading or the server is under heavy load.";
-          suggestion = "Please try again in a moment.";
-        } else if (errorDetail.includes("503") || errorDetail.includes("502")) {
-          errorMessage = "The assistant service is temporarily unavailable.";
-          suggestion = "Check if the backend server and Ollama are running.";
-        }
-      } catch {
-        // Use default message if parsing fails
+    } catch (error: unknown) {
+      let errorMessage = "The assistant request failed.";
+      const detail = error instanceof Error ? error.message : String(error || "");
+      if (detail.toLowerCase().includes("timeout")) {
+        errorMessage = "The request timed out. Try again or use a smaller model.";
+      } else if (detail.includes("503") || detail.includes("502")) {
+        errorMessage = "The selected provider endpoint is unavailable.";
+      } else if (detail) {
+        errorMessage = `Assistant error: ${detail}`;
       }
-      
-      const fullMessage = suggestion 
-        ? `${errorMessage}\n\n**Suggestion:** ${suggestion}`
-        : errorMessage;
-      
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: fullMessage },
+        { role: "assistant", content: errorMessage },
       ]);
     }
   };
@@ -132,7 +177,18 @@ export default function AssistantChatPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-xs text-muted-foreground">
+            <Switch checked={includeCodeContext} onCheckedChange={setIncludeCodeContext} />
+            <span className="flex items-center gap-1">
+              <Code2 className="size-3.5" />
+              Code context
+            </span>
+          </div>
+          <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-xs text-muted-foreground">
+            <Switch checked={includeProjectDocs} onCheckedChange={setIncludeProjectDocs} />
+            <span>Project docs</span>
+          </div>
           <Select
             value={selectedDocSlug || "none"}
             onValueChange={(value) => setSelectedDoc(value === "none" ? null : value)}
@@ -149,12 +205,67 @@ export default function AssistantChatPage() {
               ))}
             </SelectContent>
           </Select>
+          {includeCodeContext && (
+            <Select value={contextTask} onValueChange={setContextTask}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Context task" />
+              </SelectTrigger>
+              <SelectContent>
+                {CONTEXT_TASKS.map((task) => (
+                  <SelectItem key={task.value} value={task.value}>
+                    {task.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Select value={providerOverride} onValueChange={setProviderOverride}>
+            <SelectTrigger className="w-[190px]">
+              <SelectValue placeholder="Provider override" />
+            </SelectTrigger>
+            <SelectContent>
+              {PROVIDER_OPTIONS.map((provider) => (
+                <SelectItem key={provider.value} value={provider.value}>
+                  {provider.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={modelOverride || "__assistant_default__"}
+            onValueChange={(value) => setModelOverride(value === "__assistant_default__" ? "" : value)}
+          >
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="Model override" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__assistant_default__">Assistant default model</SelectItem>
+              {availableModels.map((model) => (
+                <SelectItem key={model} value={model}>
+                  {model}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {(providerOverride === "ollama" || providerOverride === "openai_compatible") && (
+            <Input
+              className="w-[220px]"
+              placeholder={providerOverride === "ollama" ? "Endpoint (optional)" : "Endpoint / base URL (optional)"}
+              value={endpointOverride}
+              onChange={(e) => setEndpointOverride(e.target.value)}
+            />
+          )}
           <Button variant="outline" size="icon" onClick={clearChat} title="Clear chat">
             <Trash2 className="size-4" />
           </Button>
           <Link href="/assistant">
             <Button variant="outline" size="icon" title="Settings">
               <Settings className="size-4" />
+            </Button>
+          </Link>
+          <Link href="/agents">
+            <Button variant="outline" size="icon" title="Open Agent UI">
+              <MessageSquare className="size-4" />
             </Button>
           </Link>
         </div>

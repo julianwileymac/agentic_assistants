@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cybersec-config
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+data:
+  # Service URLs
+  ollama_url: "http://ollama:11434"
+  mlflow_url: "http://mlflow:5000"
+  redis_url: "redis://redis:6379/0"
+  
+  # Application Configuration
+  cybersec_mode: "full"
+  log_level: "INFO"
+  
+  # Feature Flags
+  enable_red_team: "true"
+  enable_blue_team: "true"
+  enable_ml_detection: "true"
+  enable_vpn: "true"
+  
+  # Security Settings
+  require_authorization: "true"
+  auto_exploit: "false"
+  containerized_tools: "true"
+  
+  # Monitoring
+  monitoring_interval: "60"
+  alert_threshold: "0.8"
+  
+  # Model Configuration
+  anomaly_model: "isolation-forest"
+  vuln_prediction_model: "random-forest"
+  assistant_model: "llama3:8b"

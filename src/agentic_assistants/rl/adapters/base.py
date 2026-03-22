@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from agentic_assistants.rl.config import RLConfig, RLMethod
+from agentic_assistants.rl.config import RLConfig, RLMethod, ORPOConfig, KTOConfig, SFTConfig
 
 
 @dataclass
@@ -130,6 +130,67 @@ class BaseRLAdapter(ABC):
         """
         pass
     
+    @abstractmethod
+    async def train_orpo(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """Train using Odds Ratio Preference Optimization."""
+        pass
+
+    @abstractmethod
+    async def train_kto(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """Train using Kahneman-Tversky Optimization."""
+        pass
+
+    @abstractmethod
+    async def train_sft(
+        self,
+        config: RLConfig,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """Run supervised fine-tuning (pre-RL step)."""
+        pass
+
+    async def run_experiment(
+        self,
+        config: RLConfig,
+        reward_model_path: Optional[str] = None,
+        metrics_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+    ) -> RLTrainingResult:
+        """
+        Dispatch to the correct training method based on config.method.
+
+        Args:
+            config: RL configuration with method selection
+            reward_model_path: Path to reward model (for PPO/RLHF)
+            metrics_callback: Optional callback for metrics
+        """
+        if config.method == RLMethod.DPO:
+            return await self.train_dpo(config, metrics_callback)
+        elif config.method == RLMethod.PPO:
+            return await self.train_ppo(config, reward_model_path or "", metrics_callback)
+        elif config.method == RLMethod.REWARD_MODEL:
+            return await self.train_reward_model(config, metrics_callback)
+        elif config.method == RLMethod.ORPO:
+            return await self.train_orpo(config, metrics_callback)
+        elif config.method == RLMethod.KTO:
+            return await self.train_kto(config, metrics_callback)
+        elif config.method == RLMethod.SFT:
+            return await self.train_sft(config, metrics_callback)
+        elif config.method == RLMethod.RLHF:
+            return await self.train_ppo(config, reward_model_path or "", metrics_callback)
+        else:
+            return RLTrainingResult(
+                success=False,
+                error=f"Unsupported method: {config.method}",
+            )
+
     def validate_config(self, config: RLConfig) -> List[str]:
         """
         Validate RL configuration.
@@ -148,7 +209,7 @@ class BaseRLAdapter(ABC):
         if not config.output_name:
             errors.append("output_name is required")
         
-        if not config.preference_dataset_id:
+        if config.method != RLMethod.SFT and not config.preference_dataset_id:
             errors.append("preference_dataset_id is required")
         
         if config.method not in self.supported_methods:

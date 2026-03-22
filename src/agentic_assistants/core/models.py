@@ -161,6 +161,158 @@ class Component:
 
 
 @dataclass
+class TestCase:
+    """A reusable test case for framework components."""
+    id: str
+    name: str
+    description: str = ""
+    resource_type: str = "component"
+    resource_id: Optional[str] = None
+    language: str = "python"
+    code: str = ""
+    input_data: str = ""
+    expected_output: str = ""
+    test_type: str = "unit"
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    tags: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "resource_type": self.resource_type,
+            "resource_id": self.resource_id,
+            "language": self.language,
+            "code": self.code,
+            "input_data": self.input_data,
+            "expected_output": self.expected_output,
+            "test_type": self.test_type,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "tags": self.tags,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass
+class TestSuite:
+    """A collection of test cases."""
+    id: str
+    name: str
+    description: str = ""
+    resource_type: str = "project"
+    resource_id: Optional[str] = None
+    test_ids: List[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    tags: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "resource_type": self.resource_type,
+            "resource_id": self.resource_id,
+            "test_ids": self.test_ids,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "tags": self.tags,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass
+class TestRun:
+    """A single execution of a test case or suite."""
+    id: str
+    run_name: str = ""
+    test_case_id: Optional[str] = None
+    suite_id: Optional[str] = None
+    resource_type: Optional[str] = None
+    resource_id: Optional[str] = None
+    status: str = "pending"
+    sandbox_enabled: bool = True
+    tracking_enabled: bool = False
+    agent_eval_enabled: bool = False
+    rl_metrics_enabled: bool = False
+    evaluation_provider: Optional[str] = None
+    evaluation_model: Optional[str] = None
+    evaluation_endpoint: Optional[str] = None
+    evaluation_hf_execution_mode: Optional[str] = None
+    dataset_id: Optional[str] = None
+    input_data: str = ""
+    output_data: str = ""
+    metrics: Dict[str, Any] = field(default_factory=dict)
+    error_message: Optional[str] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    duration_seconds: Optional[float] = None
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "run_name": self.run_name,
+            "test_case_id": self.test_case_id,
+            "suite_id": self.suite_id,
+            "resource_type": self.resource_type,
+            "resource_id": self.resource_id,
+            "status": self.status,
+            "sandbox_enabled": self.sandbox_enabled,
+            "tracking_enabled": self.tracking_enabled,
+            "agent_eval_enabled": self.agent_eval_enabled,
+            "rl_metrics_enabled": self.rl_metrics_enabled,
+            "evaluation_provider": self.evaluation_provider,
+            "evaluation_model": self.evaluation_model,
+            "evaluation_endpoint": self.evaluation_endpoint,
+            "evaluation_hf_execution_mode": self.evaluation_hf_execution_mode,
+            "dataset_id": self.dataset_id,
+            "input_data": self.input_data,
+            "output_data": self.output_data,
+            "metrics": self.metrics,
+            "error_message": self.error_message,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "duration_seconds": self.duration_seconds,
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+@dataclass
+class TestResult:
+    """Result for a single test case execution."""
+    id: str
+    run_id: str
+    test_case_id: Optional[str] = None
+    name: str = ""
+    passed: bool = False
+    status: str = "failed"
+    output: str = ""
+    error_message: Optional[str] = None
+    metrics: Dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "run_id": self.run_id,
+            "test_case_id": self.test_case_id,
+            "name": self.name,
+            "passed": self.passed,
+            "status": self.status,
+            "output": self.output,
+            "error_message": self.error_message,
+            "metrics": self.metrics,
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+@dataclass
 class Note:
     """A free-form note attached to a resource."""
     id: str
@@ -466,6 +618,87 @@ class ControlPanelStore:
                 );
                 CREATE INDEX IF NOT EXISTS idx_components_category ON components(category);
                 
+                -- Test Cases table
+                CREATE TABLE IF NOT EXISTS test_cases (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    description TEXT DEFAULT '',
+                    resource_type TEXT NOT NULL,
+                    resource_id TEXT,
+                    language TEXT DEFAULT 'python',
+                    code TEXT DEFAULT '',
+                    input_data TEXT DEFAULT '',
+                    expected_output TEXT DEFAULT '',
+                    test_type TEXT DEFAULT 'unit',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    tags TEXT DEFAULT '[]',
+                    metadata TEXT DEFAULT '{}'
+                );
+                CREATE INDEX IF NOT EXISTS idx_test_cases_resource ON test_cases(resource_type, resource_id);
+                CREATE INDEX IF NOT EXISTS idx_test_cases_type ON test_cases(test_type);
+                
+                -- Test Suites table
+                CREATE TABLE IF NOT EXISTS test_suites (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    description TEXT DEFAULT '',
+                    resource_type TEXT NOT NULL,
+                    resource_id TEXT,
+                    test_ids TEXT DEFAULT '[]',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    tags TEXT DEFAULT '[]',
+                    metadata TEXT DEFAULT '{}'
+                );
+                CREATE INDEX IF NOT EXISTS idx_test_suites_resource ON test_suites(resource_type, resource_id);
+                
+                -- Test Runs table
+                CREATE TABLE IF NOT EXISTS test_runs (
+                    id TEXT PRIMARY KEY,
+                    run_name TEXT DEFAULT '',
+                    test_case_id TEXT,
+                    suite_id TEXT,
+                    resource_type TEXT,
+                    resource_id TEXT,
+                    status TEXT DEFAULT 'pending',
+                    sandbox_enabled INTEGER DEFAULT 1,
+                    tracking_enabled INTEGER DEFAULT 0,
+                    agent_eval_enabled INTEGER DEFAULT 0,
+                    rl_metrics_enabled INTEGER DEFAULT 0,
+                    evaluation_provider TEXT,
+                    evaluation_model TEXT,
+                    evaluation_endpoint TEXT,
+                    evaluation_hf_execution_mode TEXT,
+                    dataset_id TEXT,
+                    input_data TEXT DEFAULT '',
+                    output_data TEXT DEFAULT '',
+                    metrics TEXT DEFAULT '{}',
+                    error_message TEXT,
+                    started_at TEXT,
+                    completed_at TEXT,
+                    duration_seconds REAL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_test_runs_status ON test_runs(status);
+                CREATE INDEX IF NOT EXISTS idx_test_runs_resource ON test_runs(resource_type, resource_id);
+                
+                -- Test Results table
+                CREATE TABLE IF NOT EXISTS test_results (
+                    id TEXT PRIMARY KEY,
+                    run_id TEXT NOT NULL,
+                    test_case_id TEXT,
+                    name TEXT DEFAULT '',
+                    passed INTEGER DEFAULT 0,
+                    status TEXT DEFAULT 'failed',
+                    output TEXT DEFAULT '',
+                    error_message TEXT,
+                    metrics TEXT DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (run_id) REFERENCES test_runs(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_test_results_run ON test_results(run_id);
+                
                 -- Notes table
                 CREATE TABLE IF NOT EXISTS notes (
                     id TEXT PRIMARY KEY,
@@ -575,7 +808,25 @@ class ControlPanelStore:
                 CREATE INDEX IF NOT EXISTS idx_indexing_states_project ON indexing_states(project_id);
                 CREATE INDEX IF NOT EXISTS idx_indexing_states_status ON indexing_states(status);
             """)
+            self._migrate_test_runs_schema(conn)
         logger.info(f"Database initialized at {self.db_path}")
+
+    def _migrate_test_runs_schema(self, conn: sqlite3.Connection) -> None:
+        """Apply idempotent migrations for test_runs table evolution."""
+        existing_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(test_runs)").fetchall()
+        }
+        expected_columns: Dict[str, str] = {
+            "evaluation_provider": "TEXT",
+            "evaluation_model": "TEXT",
+            "evaluation_endpoint": "TEXT",
+            "evaluation_hf_execution_mode": "TEXT",
+        }
+        for column_name, column_type in expected_columns.items():
+            if column_name in existing_columns:
+                continue
+            conn.execute(f"ALTER TABLE test_runs ADD COLUMN {column_name} {column_type}")
     
     # =========================================================================
     # Projects CRUD
@@ -1077,6 +1328,480 @@ class ControlPanelStore:
             updated_at=datetime.fromisoformat(row["updated_at"]),
             tags=json.loads(row["tags"]),
             metadata=json.loads(row["metadata"]),
+        )
+    
+    # =========================================================================
+    # Testing CRUD
+    # =========================================================================
+    
+    def create_test_case(self, name: str, resource_type: str, **kwargs) -> TestCase:
+        """Create a new test case."""
+        test_case = TestCase(
+            id=str(uuid.uuid4()),
+            name=name,
+            description=kwargs.get("description", ""),
+            resource_type=resource_type,
+            resource_id=kwargs.get("resource_id"),
+            language=kwargs.get("language", "python"),
+            code=kwargs.get("code", ""),
+            input_data=kwargs.get("input_data", ""),
+            expected_output=kwargs.get("expected_output", ""),
+            test_type=kwargs.get("test_type", "unit"),
+            tags=kwargs.get("tags", []),
+            metadata=kwargs.get("metadata", {}),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO test_cases (id, name, description, resource_type, resource_id,
+                                       language, code, input_data, expected_output, test_type,
+                                       created_at, updated_at, tags, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                test_case.id, test_case.name, test_case.description, test_case.resource_type,
+                test_case.resource_id, test_case.language, test_case.code, test_case.input_data,
+                test_case.expected_output, test_case.test_type, test_case.created_at.isoformat(),
+                test_case.updated_at.isoformat(), json.dumps(test_case.tags),
+                json.dumps(test_case.metadata),
+            ))
+        
+        return test_case
+    
+    def get_test_case(self, test_case_id: str) -> Optional[TestCase]:
+        """Get a test case by ID."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM test_cases WHERE id = ?", (test_case_id,)
+            ).fetchone()
+            
+            if row is None:
+                return None
+            return self._row_to_test_case(row)
+    
+    def list_test_cases(
+        self,
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+        test_type: Optional[str] = None,
+        search: Optional[str] = None,
+        page: int = 1,
+        limit: int = 50,
+    ) -> tuple[List[TestCase], int]:
+        """List test cases with optional filtering."""
+        offset = (page - 1) * limit
+        conditions = []
+        params = []
+        
+        if resource_type:
+            conditions.append("resource_type = ?")
+            params.append(resource_type)
+        if resource_id:
+            conditions.append("resource_id = ?")
+            params.append(resource_id)
+        if test_type:
+            conditions.append("test_type = ?")
+            params.append(test_type)
+        if search:
+            conditions.append("(name LIKE ? OR description LIKE ?)")
+            params.extend([f"%{search}%", f"%{search}%"])
+        
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        
+        with self._get_connection() as conn:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM test_cases WHERE {where_clause}", params
+            ).fetchone()[0]
+            
+            rows = conn.execute(
+                f"SELECT * FROM test_cases WHERE {where_clause} ORDER BY updated_at DESC LIMIT ? OFFSET ?",
+                params + [limit, offset]
+            ).fetchall()
+            
+            return [self._row_to_test_case(row) for row in rows], total
+    
+    def update_test_case(self, test_case_id: str, **kwargs) -> Optional[TestCase]:
+        """Update a test case."""
+        test_case = self.get_test_case(test_case_id)
+        if test_case is None:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(test_case, key):
+                setattr(test_case, key, value)
+        test_case.updated_at = datetime.utcnow()
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE test_cases SET name = ?, description = ?, resource_type = ?, resource_id = ?,
+                       language = ?, code = ?, input_data = ?, expected_output = ?, test_type = ?,
+                       updated_at = ?, tags = ?, metadata = ?
+                WHERE id = ?
+            """, (
+                test_case.name, test_case.description, test_case.resource_type, test_case.resource_id,
+                test_case.language, test_case.code, test_case.input_data, test_case.expected_output,
+                test_case.test_type, test_case.updated_at.isoformat(), json.dumps(test_case.tags),
+                json.dumps(test_case.metadata), test_case.id,
+            ))
+        
+        return test_case
+    
+    def delete_test_case(self, test_case_id: str) -> bool:
+        """Delete a test case."""
+        with self._get_connection() as conn:
+            result = conn.execute("DELETE FROM test_cases WHERE id = ?", (test_case_id,))
+            return result.rowcount > 0
+    
+    def _row_to_test_case(self, row) -> TestCase:
+        """Convert a database row to a TestCase."""
+        return TestCase(
+            id=row["id"],
+            name=row["name"],
+            description=row["description"],
+            resource_type=row["resource_type"],
+            resource_id=row["resource_id"],
+            language=row["language"],
+            code=row["code"],
+            input_data=row["input_data"],
+            expected_output=row["expected_output"],
+            test_type=row["test_type"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            tags=json.loads(row["tags"]),
+            metadata=json.loads(row["metadata"]),
+        )
+    
+    def create_test_suite(self, name: str, resource_type: str, **kwargs) -> TestSuite:
+        """Create a new test suite."""
+        test_suite = TestSuite(
+            id=str(uuid.uuid4()),
+            name=name,
+            description=kwargs.get("description", ""),
+            resource_type=resource_type,
+            resource_id=kwargs.get("resource_id"),
+            test_ids=kwargs.get("test_ids", []),
+            tags=kwargs.get("tags", []),
+            metadata=kwargs.get("metadata", {}),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO test_suites (id, name, description, resource_type, resource_id,
+                                        test_ids, created_at, updated_at, tags, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                test_suite.id, test_suite.name, test_suite.description, test_suite.resource_type,
+                test_suite.resource_id, json.dumps(test_suite.test_ids),
+                test_suite.created_at.isoformat(), test_suite.updated_at.isoformat(),
+                json.dumps(test_suite.tags), json.dumps(test_suite.metadata),
+            ))
+        
+        return test_suite
+    
+    def get_test_suite(self, test_suite_id: str) -> Optional[TestSuite]:
+        """Get a test suite by ID."""
+        with self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM test_suites WHERE id = ?", (test_suite_id,)
+            ).fetchone()
+            
+            if row is None:
+                return None
+            return self._row_to_test_suite(row)
+    
+    def list_test_suites(
+        self,
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+        search: Optional[str] = None,
+        page: int = 1,
+        limit: int = 50,
+    ) -> tuple[List[TestSuite], int]:
+        """List test suites with optional filtering."""
+        offset = (page - 1) * limit
+        conditions = []
+        params = []
+        
+        if resource_type:
+            conditions.append("resource_type = ?")
+            params.append(resource_type)
+        if resource_id:
+            conditions.append("resource_id = ?")
+            params.append(resource_id)
+        if search:
+            conditions.append("(name LIKE ? OR description LIKE ?)")
+            params.extend([f"%{search}%", f"%{search}%"])
+        
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        
+        with self._get_connection() as conn:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM test_suites WHERE {where_clause}", params
+            ).fetchone()[0]
+            
+            rows = conn.execute(
+                f"SELECT * FROM test_suites WHERE {where_clause} ORDER BY updated_at DESC LIMIT ? OFFSET ?",
+                params + [limit, offset]
+            ).fetchall()
+            
+            return [self._row_to_test_suite(row) for row in rows], total
+    
+    def update_test_suite(self, test_suite_id: str, **kwargs) -> Optional[TestSuite]:
+        """Update a test suite."""
+        test_suite = self.get_test_suite(test_suite_id)
+        if test_suite is None:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(test_suite, key):
+                setattr(test_suite, key, value)
+        test_suite.updated_at = datetime.utcnow()
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE test_suites SET name = ?, description = ?, resource_type = ?, resource_id = ?,
+                       test_ids = ?, updated_at = ?, tags = ?, metadata = ?
+                WHERE id = ?
+            """, (
+                test_suite.name, test_suite.description, test_suite.resource_type,
+                test_suite.resource_id, json.dumps(test_suite.test_ids),
+                test_suite.updated_at.isoformat(), json.dumps(test_suite.tags),
+                json.dumps(test_suite.metadata), test_suite.id,
+            ))
+        
+        return test_suite
+    
+    def delete_test_suite(self, test_suite_id: str) -> bool:
+        """Delete a test suite."""
+        with self._get_connection() as conn:
+            result = conn.execute("DELETE FROM test_suites WHERE id = ?", (test_suite_id,))
+            return result.rowcount > 0
+    
+    def _row_to_test_suite(self, row) -> TestSuite:
+        """Convert a database row to a TestSuite."""
+        return TestSuite(
+            id=row["id"],
+            name=row["name"],
+            description=row["description"],
+            resource_type=row["resource_type"],
+            resource_id=row["resource_id"],
+            test_ids=json.loads(row["test_ids"]),
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            tags=json.loads(row["tags"]),
+            metadata=json.loads(row["metadata"]),
+        )
+    
+    def create_test_run(self, **kwargs) -> TestRun:
+        """Create a new test run."""
+        test_run = TestRun(
+            id=str(uuid.uuid4()),
+            run_name=kwargs.get("run_name", ""),
+            test_case_id=kwargs.get("test_case_id"),
+            suite_id=kwargs.get("suite_id"),
+            resource_type=kwargs.get("resource_type"),
+            resource_id=kwargs.get("resource_id"),
+            status=kwargs.get("status", "pending"),
+            sandbox_enabled=kwargs.get("sandbox_enabled", True),
+            tracking_enabled=kwargs.get("tracking_enabled", False),
+            agent_eval_enabled=kwargs.get("agent_eval_enabled", False),
+            rl_metrics_enabled=kwargs.get("rl_metrics_enabled", False),
+            evaluation_provider=kwargs.get("evaluation_provider"),
+            evaluation_model=kwargs.get("evaluation_model"),
+            evaluation_endpoint=kwargs.get("evaluation_endpoint"),
+            evaluation_hf_execution_mode=kwargs.get("evaluation_hf_execution_mode"),
+            dataset_id=kwargs.get("dataset_id"),
+            input_data=kwargs.get("input_data", ""),
+            output_data=kwargs.get("output_data", ""),
+            metrics=kwargs.get("metrics", {}),
+            error_message=kwargs.get("error_message"),
+            started_at=kwargs.get("started_at"),
+            completed_at=kwargs.get("completed_at"),
+            duration_seconds=kwargs.get("duration_seconds"),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO test_runs (id, run_name, test_case_id, suite_id, resource_type, resource_id,
+                                      status, sandbox_enabled, tracking_enabled, agent_eval_enabled,
+                                      rl_metrics_enabled, evaluation_provider, evaluation_model,
+                                      evaluation_endpoint, evaluation_hf_execution_mode, dataset_id,
+                                      input_data, output_data, metrics, error_message, started_at,
+                                      completed_at, duration_seconds, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                test_run.id, test_run.run_name, test_run.test_case_id, test_run.suite_id,
+                test_run.resource_type, test_run.resource_id, test_run.status,
+                int(test_run.sandbox_enabled), int(test_run.tracking_enabled),
+                int(test_run.agent_eval_enabled), int(test_run.rl_metrics_enabled),
+                test_run.evaluation_provider, test_run.evaluation_model,
+                test_run.evaluation_endpoint, test_run.evaluation_hf_execution_mode,
+                test_run.dataset_id, test_run.input_data, test_run.output_data,
+                json.dumps(test_run.metrics), test_run.error_message,
+                test_run.started_at.isoformat() if test_run.started_at else None,
+                test_run.completed_at.isoformat() if test_run.completed_at else None,
+                test_run.duration_seconds, test_run.created_at.isoformat(),
+            ))
+        
+        return test_run
+    
+    def get_test_run(self, run_id: str) -> Optional[TestRun]:
+        """Get a test run by ID."""
+        with self._get_connection() as conn:
+            row = conn.execute("SELECT * FROM test_runs WHERE id = ?", (run_id,)).fetchone()
+            if row is None:
+                return None
+            return self._row_to_test_run(row)
+    
+    def list_test_runs(
+        self,
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+        status: Optional[str] = None,
+        page: int = 1,
+        limit: int = 50,
+    ) -> tuple[List[TestRun], int]:
+        """List test runs with optional filtering."""
+        offset = (page - 1) * limit
+        conditions = []
+        params = []
+        
+        if resource_type:
+            conditions.append("resource_type = ?")
+            params.append(resource_type)
+        if resource_id:
+            conditions.append("resource_id = ?")
+            params.append(resource_id)
+        if status:
+            conditions.append("status = ?")
+            params.append(status)
+        
+        where_clause = " AND ".join(conditions) if conditions else "1=1"
+        
+        with self._get_connection() as conn:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM test_runs WHERE {where_clause}", params
+            ).fetchone()[0]
+            
+            rows = conn.execute(
+                f"SELECT * FROM test_runs WHERE {where_clause} ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                params + [limit, offset]
+            ).fetchall()
+            
+            return [self._row_to_test_run(row) for row in rows], total
+    
+    def update_test_run(self, run_id: str, **kwargs) -> Optional[TestRun]:
+        """Update a test run."""
+        test_run = self.get_test_run(run_id)
+        if test_run is None:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(test_run, key):
+                setattr(test_run, key, value)
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                UPDATE test_runs SET run_name = ?, test_case_id = ?, suite_id = ?, resource_type = ?,
+                       resource_id = ?, status = ?, sandbox_enabled = ?, tracking_enabled = ?,
+                       agent_eval_enabled = ?, rl_metrics_enabled = ?, evaluation_provider = ?,
+                       evaluation_model = ?, evaluation_endpoint = ?, evaluation_hf_execution_mode = ?,
+                       dataset_id = ?, input_data = ?, output_data = ?, metrics = ?, error_message = ?,
+                       started_at = ?, completed_at = ?, duration_seconds = ?
+                WHERE id = ?
+            """, (
+                test_run.run_name, test_run.test_case_id, test_run.suite_id, test_run.resource_type,
+                test_run.resource_id, test_run.status, int(test_run.sandbox_enabled),
+                int(test_run.tracking_enabled), int(test_run.agent_eval_enabled),
+                int(test_run.rl_metrics_enabled), test_run.evaluation_provider,
+                test_run.evaluation_model, test_run.evaluation_endpoint,
+                test_run.evaluation_hf_execution_mode, test_run.dataset_id, test_run.input_data,
+                test_run.output_data, json.dumps(test_run.metrics), test_run.error_message,
+                test_run.started_at.isoformat() if test_run.started_at else None,
+                test_run.completed_at.isoformat() if test_run.completed_at else None,
+                test_run.duration_seconds, test_run.id,
+            ))
+        
+        return test_run
+    
+    def create_test_result(self, run_id: str, **kwargs) -> TestResult:
+        """Create a test result record."""
+        result = TestResult(
+            id=str(uuid.uuid4()),
+            run_id=run_id,
+            test_case_id=kwargs.get("test_case_id"),
+            name=kwargs.get("name", ""),
+            passed=kwargs.get("passed", False),
+            status=kwargs.get("status", "failed"),
+            output=kwargs.get("output", ""),
+            error_message=kwargs.get("error_message"),
+            metrics=kwargs.get("metrics", {}),
+        )
+        
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO test_results (id, run_id, test_case_id, name, passed, status,
+                                         output, error_message, metrics, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                result.id, result.run_id, result.test_case_id, result.name,
+                int(result.passed), result.status, result.output, result.error_message,
+                json.dumps(result.metrics), result.created_at.isoformat(),
+            ))
+        
+        return result
+    
+    def list_test_results(self, run_id: str) -> List[TestResult]:
+        """List test results for a run."""
+        with self._get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM test_results WHERE run_id = ? ORDER BY created_at ASC",
+                (run_id,),
+            ).fetchall()
+            
+            return [self._row_to_test_result(row) for row in rows]
+    
+    def _row_to_test_run(self, row) -> TestRun:
+        """Convert a database row to a TestRun."""
+        return TestRun(
+            id=row["id"],
+            run_name=row["run_name"],
+            test_case_id=row["test_case_id"],
+            suite_id=row["suite_id"],
+            resource_type=row["resource_type"],
+            resource_id=row["resource_id"],
+            status=row["status"],
+            sandbox_enabled=bool(row["sandbox_enabled"]),
+            tracking_enabled=bool(row["tracking_enabled"]),
+            agent_eval_enabled=bool(row["agent_eval_enabled"]),
+            rl_metrics_enabled=bool(row["rl_metrics_enabled"]),
+            evaluation_provider=row["evaluation_provider"] if "evaluation_provider" in row.keys() else None,
+            evaluation_model=row["evaluation_model"] if "evaluation_model" in row.keys() else None,
+            evaluation_endpoint=row["evaluation_endpoint"] if "evaluation_endpoint" in row.keys() else None,
+            evaluation_hf_execution_mode=row["evaluation_hf_execution_mode"] if "evaluation_hf_execution_mode" in row.keys() else None,
+            dataset_id=row["dataset_id"],
+            input_data=row["input_data"],
+            output_data=row["output_data"],
+            metrics=json.loads(row["metrics"]),
+            error_message=row["error_message"],
+            started_at=datetime.fromisoformat(row["started_at"]) if row["started_at"] else None,
+            completed_at=datetime.fromisoformat(row["completed_at"]) if row["completed_at"] else None,
+            duration_seconds=row["duration_seconds"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+        )
+    
+    def _row_to_test_result(self, row) -> TestResult:
+        """Convert a database row to a TestResult."""
+        return TestResult(
+            id=row["id"],
+            run_id=row["run_id"],
+            test_case_id=row["test_case_id"],
+            name=row["name"],
+            passed=bool(row["passed"]),
+            status=row["status"],
+            output=row["output"],
+            error_message=row["error_message"],
+            metrics=json.loads(row["metrics"]),
+            created_at=datetime.fromisoformat(row["created_at"]),
         )
     
     # =========================================================================
@@ -1658,6 +2383,8 @@ class ControlPanelStore:
             agents = conn.execute("SELECT COUNT(*) FROM agents").fetchone()[0]
             flows = conn.execute("SELECT COUNT(*) FROM flows").fetchone()[0]
             components = conn.execute("SELECT COUNT(*) FROM components").fetchone()[0]
+            test_cases = conn.execute("SELECT COUNT(*) FROM test_cases").fetchone()[0]
+            test_runs = conn.execute("SELECT COUNT(*) FROM test_runs").fetchone()[0]
             datasources = conn.execute("SELECT COUNT(*) FROM datasources").fetchone()[0]
             services = conn.execute("SELECT COUNT(*) FROM services").fetchone()[0]
             indexed_projects = conn.execute(
@@ -1669,6 +2396,8 @@ class ControlPanelStore:
                 "agents_count": agents,
                 "flows_count": flows,
                 "components_count": components,
+                "test_cases_count": test_cases,
+                "test_runs_count": test_runs,
                 "datasources_count": datasources,
                 "services_count": services,
                 "indexed_projects_count": indexed_projects,

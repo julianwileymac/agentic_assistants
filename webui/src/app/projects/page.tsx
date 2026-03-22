@@ -27,6 +27,7 @@ import { useProjects, useDeleteProject } from "@/lib/api";
 import type { Project } from "@/lib/types";
 import { toast } from "sonner";
 import { ImportExampleDialog } from "@/components/import-example-dialog";
+import { TestingSection } from "@/components/testing/testing-section";
 
 const statusColors: Record<string, string> = {
   active: "bg-green-500/10 text-green-500 border-green-500/20",
@@ -256,6 +257,12 @@ export default function ProjectsPage() {
       <ImportExampleDialog
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}
+      />
+
+      <TestingSection
+        resourceType="project"
+        resourceName="Project"
+        defaultCode={`# Project test\nresult = {\n    \"status\": \"ok\",\n    \"notes\": \"Validate project configuration and resources\",\n}\n`}
       />
     </div>
   );

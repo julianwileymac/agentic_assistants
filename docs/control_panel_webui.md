@@ -31,6 +31,15 @@ The UI talks to the backend at `http://localhost:8080` by default.
 
 The API client is implemented in `webui/src/lib/api.ts` and uses SWR (`useSWR`, `useSWRMutation`) for caching/mutations.
 
+## Testing & terminal tools
+
+The Control Panel now ships with testing and terminal panels to support component experimentation during development:
+
+- **Testing sandbox**: free-form test runner with optional MLFlow tracking, agent evaluation, and RL metrics.
+- **Snippet library**: save snippets from the testing panel into the component library (`category=snippet`).
+- **Terminal panel**: run shell commands via the backend execution API.
+- **Code editor**: Monaco-backed editor is used for code and YAML editing in key panels.
+
 ## Route map (high-level)
 
 The app router pages live under `webui/src/app/`:

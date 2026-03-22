@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from agentic_assistants.config import AgenticConfig
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -95,7 +96,7 @@ Be specific and practical in your suggestions."""
     
     def _get_model(self) -> str:
         """Get the model to use."""
-        return self.config.assistant.model or self.config.ollama.default_model
+        return self.config.assistant.model or self.config.llm.model or self.config.ollama.default_model
     
     def _call_llm(
         self,
@@ -103,26 +104,24 @@ Be specific and practical in your suggestions."""
         system_message: Optional[str] = None,
     ) -> str:
         """Make an LLM call."""
-        import httpx
-        
         system = system_message or self.DEFAULT_ANALYSIS_PROMPT
-        
-        response = httpx.post(
-            f"{self.config.ollama.host}/api/chat",
-            json={
-                "model": self._get_model(),
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                "stream": False,
-                "options": {"temperature": 0.3},
-            },
-            timeout=self.config.ollama.timeout,
+
+        provider_client = LLMProvider.from_config(
+            self.config,
+            provider=self.config.assistant.provider,
+            model=self._get_model(),
+            endpoint=self.config.assistant.endpoint,
+            api_key_env=self.config.assistant.openai_api_key_env,
         )
-        response.raise_for_status()
-        
-        return response.json().get("message", {}).get("content", "")
+        result = provider_client.chat(
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            model=self._get_model(),
+            temperature=0.3,
+        )
+        return result.content
     
     def analyze_and_suggest(
         self,

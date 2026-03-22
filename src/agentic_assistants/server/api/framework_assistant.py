@@ -152,7 +152,7 @@ class MetaAnalysisResponse(BaseModel):
 
 # Endpoints
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/framework-chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
     Chat with the Framework Assistant.
@@ -231,7 +231,7 @@ async def get_help(question: str = Query(..., description="Help question")):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/config", response_model=AssistantConfigResponse)
+@router.get("/framework-config", response_model=AssistantConfigResponse)
 async def get_assistant_config():
     """Get the current assistant configuration."""
     config = get_config()
@@ -255,7 +255,7 @@ async def get_assistant_config():
     )
 
 
-@router.put("/config", response_model=AssistantConfigResponse)
+@router.put("/framework-config", response_model=AssistantConfigResponse)
 async def update_assistant_config(update: AssistantConfigUpdate):
     """Update the assistant configuration."""
     # In a real implementation, this would persist to YAML
@@ -398,7 +398,7 @@ async def get_session_info():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/test")
+@router.get("/framework-test")
 async def test_connection():
     """Test the assistant connection."""
     try:

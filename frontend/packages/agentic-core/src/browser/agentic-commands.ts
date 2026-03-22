@@ -9,6 +9,7 @@ import { CommandContribution, CommandRegistry, Command } from '@theia/core/lib/c
 import { MessageService } from '@theia/core';
 import { AgenticBackendService, AgenticBackendServiceSymbol } from './agentic-backend-service';
 import { AgenticWebSocketClient, AgenticWebSocketClientSymbol } from './agentic-websocket-client';
+import { TestingViewContribution } from './testing-view-contribution';
 
 export namespace AgenticCommands {
     const AGENTIC_CATEGORY = 'Agentic';
@@ -54,6 +55,36 @@ export namespace AgenticCommands {
         label: 'Reconnect WebSocket',
         category: AGENTIC_CATEGORY
     };
+
+    export const OPEN_TESTING_VIEW: Command = {
+        id: 'agentic.openTestingView',
+        label: 'Open Testing Panel',
+        category: AGENTIC_CATEGORY
+    };
+
+    export const RUN_TEST: Command = {
+        id: 'agentic.runTest',
+        label: 'Run Free-form Test',
+        category: AGENTIC_CATEGORY
+    };
+
+    export const OPEN_TERMINAL: Command = {
+        id: 'agentic.openTerminal',
+        label: 'Open Terminal',
+        category: AGENTIC_CATEGORY
+    };
+
+    export const OPEN_ASSISTANT_UI: Command = {
+        id: 'agentic.openAssistantUi',
+        label: 'Open Assistant UI',
+        category: AGENTIC_CATEGORY
+    };
+
+    export const OPEN_AGENT_UI: Command = {
+        id: 'agentic.openAgentUi',
+        label: 'Open Agent UI',
+        category: AGENTIC_CATEGORY
+    };
 }
 
 @injectable()
@@ -68,7 +99,13 @@ export class AgenticCommandContribution implements CommandContribution {
     @inject(MessageService)
     protected readonly messageService: MessageService;
 
+    @inject(TestingViewContribution)
+    protected readonly testingView: TestingViewContribution;
+
+    protected commandRegistry?: CommandRegistry;
+
     registerCommands(registry: CommandRegistry): void {
+        this.commandRegistry = registry;
         registry.registerCommand(AgenticCommands.CHECK_CONNECTION, {
             execute: async () => {
                 const connected = await this.backendService.checkConnection();
@@ -149,6 +186,50 @@ export class AgenticCommandContribution implements CommandContribution {
                 } catch (error) {
                     this.messageService.error('Failed to reconnect WebSocket: ' + error);
                 }
+            }
+        });
+
+        registry.registerCommand(AgenticCommands.OPEN_TESTING_VIEW, {
+            execute: async () => {
+                await this.testingView.openView({ activate: true });
+            }
+        });
+
+        registry.registerCommand(AgenticCommands.RUN_TEST, {
+            execute: async () => {
+                const code = window.prompt('Python code to run', 'result = 2 + 2');
+                if (!code) {
+                    return;
+                }
+                const response = await this.backendService.runTest({
+                    code,
+                    language: 'python'
+                });
+                if (response.data) {
+                    this.messageService.info('Test run completed');
+                } else {
+                    this.messageService.error('Test run failed: ' + response.error);
+                }
+            }
+        });
+
+        registry.registerCommand(AgenticCommands.OPEN_TERMINAL, {
+            execute: async () => {
+                if (this.commandRegistry) {
+                    this.commandRegistry.executeCommand('terminal:new');
+                }
+            }
+        });
+
+        registry.registerCommand(AgenticCommands.OPEN_ASSISTANT_UI, {
+            execute: async () => {
+                window.open('http://localhost:3000/assistant/chat', '_blank');
+            }
+        });
+
+        registry.registerCommand(AgenticCommands.OPEN_AGENT_UI, {
+            execute: async () => {
+                window.open('http://localhost:3000/agents', '_blank');
             }
         });
     }

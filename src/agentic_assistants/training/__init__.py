@@ -51,6 +51,7 @@ from agentic_assistants.training.config import (
     QuantizationConfig,
     TrainingMethod,
     QuantizationType,
+    CustomModelInfo,
 )
 from agentic_assistants.training.jobs import (
     TrainingJob,
@@ -88,6 +89,7 @@ __all__ = [
     "QuantizationConfig",
     "TrainingMethod",
     "QuantizationType",
+    "CustomModelInfo",
     # Jobs
     "TrainingJob",
     "TrainingJobManager",

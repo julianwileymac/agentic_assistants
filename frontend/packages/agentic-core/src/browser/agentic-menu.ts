@@ -13,6 +13,8 @@ export namespace AgenticMenus {
     export const AGENTIC_EXPERIMENTS: MenuPath = [...AGENTIC, '1_experiments'];
     export const AGENTIC_SESSIONS: MenuPath = [...AGENTIC, '2_sessions'];
     export const AGENTIC_SYSTEM: MenuPath = [...AGENTIC, '3_system'];
+    export const AGENTIC_TESTING: MenuPath = [...AGENTIC, '4_testing'];
+    export const AGENTIC_TOOLS: MenuPath = [...AGENTIC, '5_tools'];
 }
 
 @injectable()
@@ -65,6 +67,32 @@ export class AgenticMenuContribution implements MenuContribution {
 
         menus.registerMenuAction(AgenticMenus.AGENTIC_SYSTEM, {
             commandId: AgenticCommands.RECONNECT_WEBSOCKET.id,
+            order: '3'
+        });
+
+        // Testing submenu
+        menus.registerSubmenu(AgenticMenus.AGENTIC_TESTING, 'Testing');
+        menus.registerMenuAction(AgenticMenus.AGENTIC_TESTING, {
+            commandId: AgenticCommands.OPEN_TESTING_VIEW.id,
+            order: '1'
+        });
+        menus.registerMenuAction(AgenticMenus.AGENTIC_TESTING, {
+            commandId: AgenticCommands.RUN_TEST.id,
+            order: '2'
+        });
+
+        // Tools submenu
+        menus.registerSubmenu(AgenticMenus.AGENTIC_TOOLS, 'Tools');
+        menus.registerMenuAction(AgenticMenus.AGENTIC_TOOLS, {
+            commandId: AgenticCommands.OPEN_TERMINAL.id,
+            order: '1'
+        });
+        menus.registerMenuAction(AgenticMenus.AGENTIC_TOOLS, {
+            commandId: AgenticCommands.OPEN_ASSISTANT_UI.id,
+            order: '2'
+        });
+        menus.registerMenuAction(AgenticMenus.AGENTIC_TOOLS, {
+            commandId: AgenticCommands.OPEN_AGENT_UI.id,
             order: '3'
         });
     }

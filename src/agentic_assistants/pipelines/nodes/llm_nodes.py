@@ -21,6 +21,8 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from agentic_assistants.config import AgenticConfig
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.pipelines.nodes.base import BaseFlowNode, NodeConfig
 from agentic_assistants.utils.logging import get_logger
 
@@ -53,7 +55,12 @@ class LLMConfig(NodeConfig):
     # Stop sequences
     stop_sequences: List[str] = field(default_factory=list)
     
-    # Model host URL (for Ollama)
+    # Provider configuration
+    provider: str = "ollama"
+    endpoint: Optional[str] = None
+    api_key_env: Optional[str] = None
+
+    # Legacy field retained as alias for endpoint
     host: str = "http://localhost:11434"
 
 
@@ -90,7 +97,12 @@ class ChatModelConfig(NodeConfig):
     # Maximum history messages to keep
     max_history: int = 10
     
-    # Model host URL
+    # Provider configuration
+    provider: str = "ollama"
+    endpoint: Optional[str] = None
+    api_key_env: Optional[str] = None
+
+    # Legacy field retained as alias for endpoint
     host: str = "http://localhost:11434"
 
 
@@ -131,25 +143,33 @@ class LLMNode(BaseFlowNode):
             full_prompt = f"Context:\n{context}\n\n{prompt}"
         
         try:
-            from langchain_ollama import ChatOllama
-            from langchain_core.messages import HumanMessage, SystemMessage
-            
-            llm = ChatOllama(
+            runtime_config = AgenticConfig()
+            provider_client = LLMProvider.from_config(
+                runtime_config,
+                provider=self.config.provider,
                 model=self.config.model,
-                base_url=self.config.host,
-                temperature=self.config.temperature,
+                endpoint=self.config.endpoint or self.config.host,
+                api_key_env=self.config.api_key_env,
             )
-            
-            messages = []
+
+            messages: List[Dict[str, str]] = []
             if self.config.system_prompt:
-                messages.append(SystemMessage(content=self.config.system_prompt))
-            messages.append(HumanMessage(content=full_prompt))
-            
-            response = llm.invoke(messages)
-            response_text = response.content
-            
-            # Estimate token count (rough approximation)
-            tokens_used = len(full_prompt.split()) + len(response_text.split())
+                messages.append({"role": "system", "content": self.config.system_prompt})
+            messages.append({"role": "user", "content": full_prompt})
+
+            llm_response = provider_client.chat(
+                messages=messages,
+                model=self.config.model,
+                temperature=self.config.temperature,
+                max_new_tokens=self.config.max_tokens,
+                stop=self.config.stop_sequences or None,
+            )
+            response_text = llm_response.content
+            tokens_used = (
+                llm_response.total_tokens
+                if llm_response.total_tokens is not None
+                else len(full_prompt.split()) + len(response_text.split())
+            )
             
             # Emit metrics
             self.emit_metric("prompt_length", len(full_prompt))
@@ -162,7 +182,7 @@ class LLMNode(BaseFlowNode):
             }
             
         except ImportError:
-            logger.warning("LangChain Ollama not available")
+            logger.warning("Provider dependency not available")
             return {"response": "", "tokens_used": 0, "error": "LLM not available"}
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
@@ -277,31 +297,30 @@ class ChatModelNode(BaseFlowNode):
             return {"response": "", "history": history}
         
         try:
-            from langchain_ollama import ChatOllama
-            from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-            
-            llm = ChatOllama(
+            runtime_config = AgenticConfig()
+            provider_client = LLMProvider.from_config(
+                runtime_config,
+                provider=self.config.provider,
                 model=self.config.model,
-                base_url=self.config.host,
-                temperature=self.config.temperature,
+                endpoint=self.config.endpoint or self.config.host,
+                api_key_env=self.config.api_key_env,
             )
-            
-            # Build messages
-            messages = [SystemMessage(content=self.config.system_prompt)]
-            
-            # Add history
+
+            messages: List[Dict[str, str]] = [{"role": "system", "content": self.config.system_prompt}]
             for entry in history[-self.config.max_history:]:
                 if entry.get("role") == "user":
-                    messages.append(HumanMessage(content=entry["content"]))
+                    messages.append({"role": "user", "content": entry["content"]})
                 elif entry.get("role") == "assistant":
-                    messages.append(AIMessage(content=entry["content"]))
-            
-            # Add current message
-            messages.append(HumanMessage(content=message))
-            
-            # Generate response
-            response = llm.invoke(messages)
-            response_text = response.content
+                    messages.append({"role": "assistant", "content": entry["content"]})
+
+            messages.append({"role": "user", "content": message})
+
+            llm_response = provider_client.chat(
+                messages=messages,
+                model=self.config.model,
+                temperature=self.config.temperature,
+            )
+            response_text = llm_response.content
             
             # Update history
             new_history = history + [
@@ -327,7 +346,7 @@ class ChatModelNode(BaseFlowNode):
             }
             
         except ImportError:
-            logger.warning("LangChain Ollama not available")
+            logger.warning("Provider dependency not available")
             return {"response": "", "history": history, "error": "Chat model not available"}
         except Exception as e:
             logger.error(f"Chat generation failed: {e}")

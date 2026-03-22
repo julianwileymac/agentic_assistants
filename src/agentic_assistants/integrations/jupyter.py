@@ -349,6 +349,99 @@ if HAS_IPYTHON:
                 print(f"  ... and {results.total - 20} more")
             
             return results
+
+        @cell_magic
+        @magic_arguments()
+        @argument('--language', default='python', help='Language to lint')
+        def agentic_lint(self, line, cell):
+            """
+            Lint a code snippet from a cell.
+
+            Usage:
+                %%agentic_lint --language python
+                def add(a, b):
+                    return a + b
+            """
+            from agentic_assistants.testing import lint_code
+
+            args = parse_argstring(self.agentic_lint, line)
+            code = cell or ""
+            if not code.strip():
+                print("Provide code in the cell body.")
+                return {"issues": ["No code provided"]}
+
+            result = lint_code(code, language=args.language)
+            issues = result.get("issues", [])
+            if not issues:
+                print("No lint issues found.")
+            else:
+                print("Lint issues:")
+                for issue in issues:
+                    print(f"- {issue}")
+            return result
+
+        @cell_magic
+        @magic_arguments()
+        @argument('--dataset', default=None, help='Dataset id or name')
+        @argument('--tracking', action='store_true', help='Enable MLFlow tracking')
+        @argument('--agent-eval', action='store_true', help='Enable agent evaluation')
+        @argument('--rl-metrics', action='store_true', help='Enable RL metrics')
+        @argument('--no-sandbox', action='store_true', help='Disable sandbox execution')
+        def agentic_test(self, line, cell):
+            """
+            Run a free-form test using the Agentic test runner.
+
+            Usage:
+                %%agentic_test --tracking
+                result = 2 + 2
+            """
+            import threading
+            import asyncio
+
+            from agentic_assistants.testing import TestRunner
+
+            args = parse_argstring(self.agentic_test, line)
+            runner = TestRunner()
+
+            result_container = {}
+
+            def _run():
+                result_container["result"] = asyncio.run(
+                    runner.run_test(
+                        code=cell,
+                        language="python",
+                        dataset_id=args.dataset,
+                        sandbox_enabled=not args.no_sandbox,
+                        tracking_enabled=args.tracking,
+                        agent_eval_enabled=args.agent_eval,
+                        rl_metrics_enabled=args.rl_metrics,
+                    )
+                )
+
+            thread = threading.Thread(target=_run)
+            thread.start()
+            thread.join()
+
+            result = result_container.get("result")
+            if not result:
+                print("Test failed to run.")
+                return None
+
+            status = "passed" if result.passed else "failed"
+            print(f"Test {status}.")
+            if result.error_message:
+                print(f"Error: {result.error_message}")
+            if result.output:
+                print("Output:")
+                print(result.output.get("stdout", ""))
+                if result.output.get("stderr"):
+                    print("Errors:")
+                    print(result.output.get("stderr"))
+            if result.metrics:
+                print("Metrics:")
+                for key, value in result.metrics.items():
+                    print(f"- {key}: {value}")
+            return result
         
         @cell_magic
         def save_dataset(self, line, cell):

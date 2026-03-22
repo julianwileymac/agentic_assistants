@@ -26,11 +26,13 @@ Example:
 
 import functools
 import os
+import socket
 import subprocess
 import time
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Callable, Optional, Union
+from urllib.parse import urlparse
 
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.utils.logging import get_logger
@@ -78,6 +80,28 @@ class MLFlowTracker:
         self._active_run = None
         self._initialized = False
 
+    def _tracking_uri_reachable(self, tracking_uri: str, timeout_seconds: float = 1.5) -> bool:
+        """Best-effort reachability check for HTTP(S) tracking endpoints."""
+        parsed = urlparse(tracking_uri)
+        if parsed.scheme not in {"http", "https"}:
+            return True
+
+        host = parsed.hostname
+        if not host:
+            return True
+
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+        try:
+            with socket.create_connection((host, port), timeout=timeout_seconds):
+                return True
+        except OSError as exc:
+            logger.warning(
+                "MLFlow tracking endpoint is unreachable: %s (%s).",
+                tracking_uri,
+                exc,
+            )
+            return False
+
     def _initialize(self) -> None:
         """Initialize MLFlow connection and experiment with centralized persistence."""
         if self._initialized or not self.enabled:
@@ -94,6 +118,11 @@ class MLFlowTracker:
                 cluster_uri = "http://mlflow.ml-platform.svc.cluster.local:5000"
                 # Try cluster URI, fall back to configured URI
                 tracking_uri = cluster_uri
+
+            if not self._tracking_uri_reachable(tracking_uri):
+                logger.warning("Disabling MLFlow tracking because endpoint is unreachable.")
+                self.enabled = False
+                return
             
             mlflow.set_tracking_uri(tracking_uri)
             
@@ -173,6 +202,9 @@ class MLFlowTracker:
             return
 
         self._initialize()
+        if not self.enabled:
+            yield None
+            return
         mlflow = _get_mlflow()
 
         run_name = run_name or f"run-{datetime.now().strftime('%Y%m%d-%H%M%S')}"

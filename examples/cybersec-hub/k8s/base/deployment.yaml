@@ -1,0 +1,157 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cybersec-hub
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+    component: security
+    version: v1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cybersec-hub
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: cybersec-hub
+        component: security
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: cybersec-hub-sa
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      
+      containers:
+      - name: cybersec-hub
+        image: cybersec-hub:latest
+        imagePullPolicy: IfNotPresent
+        
+        ports:
+        - name: api
+          containerPort: 8080
+          protocol: TCP
+        - name: dashboard
+          containerPort: 3000
+          protocol: TCP
+        
+        env:
+        - name: CYBERSEC_MODE
+          value: "full"
+        - name: ENABLE_RED_TEAM
+          value: "true"
+        - name: ENABLE_BLUE_TEAM
+          value: "true"
+        - name: OLLAMA_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: cybersec-config
+              key: ollama_url
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: cybersec-config
+              key: mlflow_url
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: cybersec-config
+              key: redis_url
+        
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        - name: tools
+          mountPath: /app/tools
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: vpn-configs
+          mountPath: /app/network/vpn-configs
+          readOnly: true
+        
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "5Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+            ephemeral-storage: "20Gi"
+        
+        livenessProbe:
+          httpGet:
+            path: /api/v1/cybersec/health
+            port: api
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /api/v1/cybersec/health
+            port: api
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: cybersec-data-pvc
+      - name: tools
+        persistentVolumeClaim:
+          claimName: cybersec-tools-pvc
+      - name: config
+        configMap:
+          name: cybersec-config
+      - name: vpn-configs
+        secret:
+          secretName: vpn-configs
+          optional: true
+      
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cybersec-data-pvc
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cybersec-tools-pvc
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard

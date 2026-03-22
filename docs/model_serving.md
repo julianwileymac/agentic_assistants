@@ -1,4 +1,4 @@
-﻿# Model Serving Guide
+# Model Serving Guide
 
 This guide covers how to deploy and serve custom LLMs using the Agentic Assistants framework.
 
@@ -16,6 +16,39 @@ The serving subsystem supports multiple deployment backends:
 | Ollama | Development, local use | Easy | Good | Efficient |
 | vLLM | Production, high throughput | Medium | Excellent | Higher |
 | TGI | Production, HF ecosystem | Medium | Excellent | Higher |
+
+## Hybrid Hugging Face Execution for Assistant/Testing
+
+Assistant chat and testing/eval flows now support a hybrid provider model:
+
+1. **HF local path** (`huggingface_local`) runs `transformers` inference in-process.
+2. **OpenAI-compatible path** (`openai_compatible`) routes to servers like vLLM/TGI/Ollama-proxy.
+3. **Legacy Ollama path** (`ollama`) remains default for backward compatibility.
+
+Example environment configuration:
+
+```bash
+LLM_PROVIDER=openai_compatible
+LLM_MODEL=meta-llama/Llama-3.1-8B-Instruct
+LLM_OPENAI_BASE_URL=http://localhost:8000/v1
+LLM_OPENAI_API_KEY_ENV=OPENAI_API_KEY
+
+# Assistant-specific override (optional)
+ASSISTANT_PROVIDER=huggingface_local
+ASSISTANT_MODEL=meta-llama/Llama-3.2-3B-Instruct
+
+# Testing/eval override (optional)
+TESTING_EVAL_PROVIDER=openai_compatible
+TESTING_EVAL_MODEL=meta-llama/Llama-3.1-8B-Instruct
+TESTING_EVAL_ENDPOINT=http://localhost:8000/v1
+```
+
+Provider/model resolution precedence:
+
+- Request payload override (WebUI/API)
+- Assistant/testing defaults
+- Global `LLM_*` defaults
+- Legacy `OLLAMA_*` defaults
 
 ## Quick Start with Ollama
 

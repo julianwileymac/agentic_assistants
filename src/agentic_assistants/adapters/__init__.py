@@ -17,6 +17,7 @@ Supported frameworks:
 - Agno: Modern agent framework with reasoning modes
 - LangFlow: Visual workflow builder for LangChain
 - Prefect: Workflow orchestration for data and ML pipelines
+- Dagster: Asset-oriented data orchestration and scheduling
 
 Example:
     >>> from agentic_assistants.adapters import CrewAIAdapter, LangGraphAdapter
@@ -40,6 +41,7 @@ from agentic_assistants.adapters.google_adk_adapter import GoogleADKAdapter
 from agentic_assistants.adapters.agno_adapter import AgnoAdapter
 from agentic_assistants.adapters.langflow_adapter import LangFlowAdapter
 from agentic_assistants.adapters.prefect_adapter import PrefectAdapter
+from agentic_assistants.adapters.dagster_adapter import DagsterAdapter
 
 __all__ = [
     # Base
@@ -52,6 +54,7 @@ __all__ = [
     "AgnoAdapter",
     "LangFlowAdapter",
     "PrefectAdapter",
+    "DagsterAdapter",
 ]
 
 
@@ -77,6 +80,7 @@ def get_adapter(framework: str, **kwargs) -> BaseAdapter:
         "agno": AgnoAdapter,
         "langflow": LangFlowAdapter,
         "prefect": PrefectAdapter,
+        "dagster": DagsterAdapter,
     }
     
     framework_lower = framework.lower()
@@ -91,5 +95,5 @@ def get_adapter(framework: str, **kwargs) -> BaseAdapter:
 
 def list_frameworks() -> list:
     """List all supported frameworks."""
-    return ["crewai", "langgraph", "autogen", "google_adk", "agno", "langflow", "prefect"]
+    return ["crewai", "langgraph", "autogen", "google_adk", "agno", "langflow", "prefect", "dagster"]
 

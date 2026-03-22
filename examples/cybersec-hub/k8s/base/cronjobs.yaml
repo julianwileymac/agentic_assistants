@@ -1,0 +1,168 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cybersec-vulnerability-scan
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+    component: scheduled-scan
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cybersec-hub
+            job: vulnerability-scan
+        spec:
+          serviceAccountName: cybersec-hub-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: scanner
+            image: cybersec-hub:latest
+            command:
+            - python
+            - -c
+            - |
+              from examples.cybersec_hub import CybersecHub
+              hub = CybersecHub()
+              scanner = hub.get_agent("vulnerability_scanner")
+              # Scan authorized targets
+              for target in hub.network_manager["targets"].list_targets():
+                  scanner.scan_target(target.identifier)
+            env:
+            - name: CYBERSEC_MODE
+              value: "full"
+            volumeMounts:
+            - name: data
+              mountPath: /app/data
+            resources:
+              requests:
+                memory: "1Gi"
+                cpu: "500m"
+              limits:
+                memory: "4Gi"
+                cpu: "2000m"
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: cybersec-data-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cybersec-log-analysis
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+    component: log-analysis
+spec:
+  schedule: "0 * * * *"  # Hourly
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cybersec-hub
+            job: log-analysis
+        spec:
+          serviceAccountName: cybersec-hub-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: analyzer
+            image: cybersec-hub:latest
+            command:
+            - python
+            - -c
+            - |
+              from examples.cybersec_hub import CybersecHub
+              hub = CybersecHub()
+              analyzer = hub.get_agent("log_analyzer")
+              # Analyze logs from configured sources
+              for source in ["/app/data/logs/security.log"]:
+                  analyzer.analyze(source=source)
+            env:
+            - name: CYBERSEC_MODE
+              value: "full"
+            volumeMounts:
+            - name: data
+              mountPath: /app/data
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "250m"
+              limits:
+                memory: "2Gi"
+                cpu: "1000m"
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: cybersec-data-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cybersec-ml-training
+  namespace: agentic
+  labels:
+    app: cybersec-hub
+    component: ml-training
+spec:
+  schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cybersec-hub
+            job: ml-training
+        spec:
+          serviceAccountName: cybersec-hub-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: trainer
+            image: cybersec-hub:latest
+            command:
+            - python
+            - -c
+            - |
+              from examples.cybersec_hub import CybersecHub
+              hub = CybersecHub()
+              # Retrain anomaly detection model
+              if hub.ml_engine:
+                  detector = hub.ml_engine["anomaly_detector"]
+                  # Load historical logs
+                  logs = []  # Load from storage
+                  detector.retrain(logs)
+            env:
+            - name: CYBERSEC_MODE
+              value: "full"
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: cybersec-config
+                  key: mlflow_url
+            volumeMounts:
+            - name: data
+              mountPath: /app/data
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "1000m"
+              limits:
+                memory: "8Gi"
+                cpu: "4000m"
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: cybersec-data-pvc

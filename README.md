@@ -13,6 +13,7 @@ Agentic Assistants provides a unified platform for the complete AI development l
 - **Custom LLM Training**: Fine-tune and train domain-specific models with LoRA, QLoRA, and full fine-tuning
 - **Reinforcement Learning**: Implement RLHF, DPO, and preference-based alignment
 - **Model Serving**: Deploy custom models via Ollama, vLLM, or TGI
+- **Hybrid LLM Routing**: Use Ollama, local Hugging Face (`transformers`), or OpenAI-compatible endpoints
 - **Data Observability**: Track training data lineage, quality, and governance
 - **MLOps Integration**: Built-in MLFlow tracking for experiment comparison
 - **Observability**: OpenTelemetry tracing and metrics out of the box
@@ -211,6 +212,29 @@ Build sophisticated multi-agent teams with CrewAI or stateful workflows with Lan
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Ollama](https://ollama.ai)
 - CUDA-capable GPU (recommended for training)
+
+### Hybrid LLM Quick Config (Assistant + Testing)
+
+```bash
+# Global provider defaults
+LLM_PROVIDER=ollama
+LLM_MODEL=llama3.2
+
+# Optional OpenAI-compatible endpoint (vLLM / TGI / compatible gateways)
+# LLM_PROVIDER=openai_compatible
+# LLM_MODEL=meta-llama/Llama-3.1-8B-Instruct
+# LLM_OPENAI_BASE_URL=http://localhost:8000/v1
+# OPENAI_API_KEY=...
+
+# Optional HF local execution
+# LLM_PROVIDER=huggingface_local
+# LLM_HF_LOCAL_MODEL=meta-llama/Llama-3.2-3B-Instruct
+# LLM_HF_EXECUTION_MODE=hybrid
+
+# Optional evaluation override
+# TESTING_EVAL_PROVIDER=openai_compatible
+# TESTING_EVAL_MODEL=meta-llama/Llama-3.1-8B-Instruct
+```
 
 ### Installation
 

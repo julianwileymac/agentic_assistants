@@ -48,3 +48,6 @@ Typical operations:
 - run a pipeline and poll status
 - visualize a pipeline
 
+## Testing & evaluationThe framework now includes a testing layer for pipeline development:- Use `/api/v1/testing/runs` for free-form tests tied to pipelines.
+- Optional tracking flags log execution metrics to MLFlow.
+- RL metrics can be emitted as `rl/*` metrics when enabled.

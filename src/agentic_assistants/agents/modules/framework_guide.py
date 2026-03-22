@@ -17,6 +17,7 @@ import time
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from agentic_assistants.config import AgenticConfig
+from agentic_assistants.llms import LLMProvider
 from agentic_assistants.utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -197,7 +198,7 @@ Prerequisites:
     
     def _get_model(self) -> str:
         """Get the model to use."""
-        return self.config.assistant.model or self.config.ollama.default_model
+        return self.config.assistant.model or self.config.llm.model or self.config.ollama.default_model
     
     def _call_llm(
         self,
@@ -206,31 +207,26 @@ Prerequisites:
         temperature: float = 0.5,
     ) -> str:
         """Make an LLM call."""
-        import httpx
-        
         system = system_message or self.DEFAULT_GUIDE_SYSTEM_PROMPT
         
         messages = [{"role": "system", "content": system}]
         messages.extend(self._conversation_history[-10:])
         messages.append({"role": "user", "content": prompt})
         
-        start_time = time.time()
-        
-        response = httpx.post(
-            f"{self.config.ollama.host}/api/chat",
-            json={
-                "model": self._get_model(),
-                "messages": messages,
-                "stream": False,
-                "options": {"temperature": temperature},
-            },
-            timeout=self.config.ollama.timeout,
+        provider_client = LLMProvider.from_config(
+            self.config,
+            provider=self.config.assistant.provider,
+            model=self._get_model(),
+            endpoint=self.config.assistant.endpoint,
+            api_key_env=self.config.assistant.openai_api_key_env,
         )
-        response.raise_for_status()
-        
-        duration_ms = (time.time() - start_time) * 1000
-        result = response.json()
-        content = result.get("message", {}).get("content", "")
+        result = provider_client.chat(
+            messages=messages,
+            model=self._get_model(),
+            temperature=temperature,
+        )
+        duration_ms = result.duration_ms
+        content = result.content
         
         # Update conversation history
         self._conversation_history.append({"role": "user", "content": prompt})
@@ -241,8 +237,8 @@ Prerequisites:
             self.usage_tracker.track_model_inference(
                 model=self._get_model(),
                 duration_ms=duration_ms,
-                prompt_tokens=result.get("prompt_eval_count", 0),
-                completion_tokens=result.get("eval_count", 0),
+                prompt_tokens=result.prompt_tokens or 0,
+                completion_tokens=result.completion_tokens or 0,
             )
         
         return content

@@ -21,6 +21,9 @@ resources:
   - redis/redis-deployment.yaml
   - redis/redis-configmap.yaml
   
+  # Dagster
+  - dagster/dagster-deployment.yaml
+
   # CronJobs
   - cronjobs/data-sync-cronjob.yaml
   - cronjobs/global-repo-ingestion.yaml

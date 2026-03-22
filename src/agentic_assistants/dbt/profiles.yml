@@ -1,0 +1,21 @@
+agentic:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_POSTGRES_USER', 'postgres') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD', 'postgres123') }}"
+      dbname: "{{ env_var('DBT_POSTGRES_DATABASE', 'agentic') }}"
+      schema: public
+      threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST', 'postgresql.data-services.svc.cluster.local') }}"
+      port: 5432
+      user: "{{ env_var('DBT_POSTGRES_USER', 'postgres') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD', '') }}"
+      dbname: "{{ env_var('DBT_POSTGRES_DATABASE', 'agentic') }}"
+      schema: public
+      threads: 4

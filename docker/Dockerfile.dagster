@@ -1,0 +1,50 @@
+# Dagster services Dockerfile
+# Supports webserver, daemon, and code server via different CMD overrides
+
+FROM python:3.11-slim AS base
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Dagster and extensions
+RUN pip install --no-cache-dir \
+    dagster \
+    dagster-webserver \
+    dagster-postgres \
+    dagster-k8s \
+    dagster-docker
+
+# Install framework dependencies required by code location
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-interaction --no-root --only main 2>/dev/null || true
+
+# Copy application source
+COPY src/ ./src/
+
+# Install the package
+RUN pip install --no-cache-dir -e .
+
+# Create dagster home directory
+RUN mkdir -p /opt/dagster/dagster_home
+
+# Copy Dagster configuration
+COPY conf/base/dagster.yaml /opt/dagster/dagster_home/dagster.yaml
+COPY conf/base/workspace.yaml /opt/dagster/dagster_home/workspace.yaml
+
+ENV DAGSTER_HOME=/opt/dagster/dagster_home
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:3000/server_info || exit 1
+
+# Default: run the webserver
+EXPOSE 3000
+CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]

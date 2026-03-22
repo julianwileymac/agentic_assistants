@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
+import type { AssistantModelCatalogEntry } from "@/lib/types";
 
 const frameworks = [
   { id: "crewai", name: "CrewAI", description: "Multi-agent crew orchestration" },
@@ -87,16 +89,28 @@ const DEFAULT_OLLAMA_MODELS = [
   "mxbai-embed-large",
 ];
 
+const LLM_PROVIDERS = [
+  { id: "ollama", label: "Ollama" },
+  { id: "huggingface_local", label: "Hugging Face (local)" },
+  { id: "openai_compatible", label: "OpenAI-compatible endpoint" },
+];
+
 export default function AssistantPage() {
   const [isSaving, setIsSaving] = React.useState(false);
   const [isTestingConnection, setIsTestingConnection] = React.useState(false);
   const [connectionStatus, setConnectionStatus] = React.useState<"connected" | "disconnected" | null>(null);
-  const [ollamaModels, setOllamaModels] = React.useState<string[]>([]);
+  const [modelCatalog, setModelCatalog] = React.useState<AssistantModelCatalogEntry[]>([]);
 
   const [config, setConfig] = React.useState({
     enabled: true,
     defaultFramework: "crewai",
+    provider: "ollama",
     model: "llama3.2",
+    endpoint: "",
+    openaiCompatibleBaseUrl: "http://localhost:8000/v1",
+    openaiCompatibleApiKeyEnv: "OPENAI_API_KEY",
+    hfExecutionMode: "hybrid",
+    hfLocalModel: "",
     enableCodingHelper: true,
     enableFrameworkGuide: true,
     enableMetaAnalysis: true,
@@ -110,68 +124,44 @@ export default function AssistantPage() {
     systemPrompt: "",
   });
 
-  // Fetch Ollama models on mount
-  React.useEffect(() => {
-    fetchOllamaModels();
-    loadConfig();
-  }, []);
-
-  const fetchOllamaModels = async () => {
+  const fetchModelCatalog = React.useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/v1/ollama/models");
-      if (response.ok) {
-        const data = await response.json();
-        const deployedModels = data.models?.map((m: any) => m.name) || [];
-        // Merge deployed models with defaults, avoiding duplicates
-        // Deployed models come first, then defaults that aren't already in deployed
-        const allModels = [
-          ...deployedModels,
-          ...DEFAULT_OLLAMA_MODELS.filter(m => !deployedModels.includes(m)),
-        ];
-        setOllamaModels(allModels);
-        setConnectionStatus("connected");
-      } else {
-        // Use defaults when connection fails
-        setOllamaModels(DEFAULT_OLLAMA_MODELS);
-        setConnectionStatus("disconnected");
-      }
-    } catch (error) {
-      // Use defaults when connection fails
-      setOllamaModels(DEFAULT_OLLAMA_MODELS);
+      const data = await apiFetch<{ models: AssistantModelCatalogEntry[] }>("/api/v1/assistant/models/catalog");
+      setModelCatalog(data.models || []);
+      setConnectionStatus("connected");
+    } catch {
+      setModelCatalog(DEFAULT_OLLAMA_MODELS.map((model) => ({ provider: "ollama", model, source: "fallback" })));
       setConnectionStatus("disconnected");
     }
-  };
+  }, []);
 
-  const loadConfig = async () => {
+  const loadConfig = React.useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/v1/assistant/config");
-      if (response.ok) {
-        const data = await response.json();
-        setConfig(prev => ({
-          ...prev,
-          ...data,
-        }));
-      }
+      const data = await apiFetch<typeof config>("/api/v1/assistant/config");
+      setConfig(prev => ({
+        ...prev,
+        ...data,
+      }));
     } catch (error) {
       console.error("Failed to load config:", error);
     }
-  };
+  }, []);
+
+  React.useEffect(() => {
+    fetchModelCatalog();
+    loadConfig();
+  }, [fetchModelCatalog, loadConfig]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch("http://localhost:8080/api/v1/assistant/config", {
+      await apiFetch("/api/v1/assistant/config", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
-
-      if (response.ok) {
-        toast.success("Assistant configuration saved");
-      } else {
-        toast.error("Failed to save configuration");
-      }
-    } catch (error) {
+      toast.success("Assistant configuration saved");
+      fetchModelCatalog();
+    } catch {
       toast.error("Failed to save configuration");
     } finally {
       setIsSaving(false);
@@ -181,21 +171,36 @@ export default function AssistantPage() {
   const handleTestConnection = async () => {
     setIsTestingConnection(true);
     try {
-      const response = await fetch("http://localhost:8080/api/v1/assistant/test");
-      if (response.ok) {
-        toast.success("Assistant connection successful");
-        setConnectionStatus("connected");
-      } else {
-        toast.error("Assistant connection failed");
-        setConnectionStatus("disconnected");
-      }
-    } catch (error) {
+      const data = await apiFetch<{ message?: string }>("/api/v1/assistant/test");
+      toast.success(data.message || "Assistant connection successful");
+      setConnectionStatus("connected");
+    } catch {
       toast.error("Assistant connection failed");
       setConnectionStatus("disconnected");
     } finally {
       setIsTestingConnection(false);
     }
   };
+
+  const availableModels = React.useMemo(() => {
+    const provider = config.provider || "ollama";
+    const catalog = modelCatalog.filter((entry) => {
+      if (provider === "ollama") {
+        return entry.provider === "ollama" || entry.provider === "custom";
+      }
+      return entry.provider === provider;
+    });
+    const deduped = Array.from(new Set(catalog.map((entry) => entry.model).filter(Boolean)));
+    if (provider === "ollama") {
+      for (const fallback of DEFAULT_OLLAMA_MODELS) {
+        if (!deduped.includes(fallback)) deduped.push(fallback);
+      }
+    }
+    if (config.model && !deduped.includes(config.model)) {
+      deduped.unshift(config.model);
+    }
+    return deduped;
+  }, [config.model, config.provider, modelCatalog]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -344,22 +349,40 @@ export default function AssistantPage() {
               <Separator />
 
               <div className="space-y-2">
-                <Label>LLM Model</Label>
+                <Label>LLM Provider</Label>
                 <Select
-                  value={config.model || "llama3.2"}
-                  onValueChange={(value) => setConfig({ ...config, model: value })}
+                  value={config.provider || "ollama"}
+                  onValueChange={(value) => setConfig({ ...config, provider: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Ensure current model is always available, even if not in list */}
-                    {config.model && !ollamaModels.includes(config.model) && (
-                      <SelectItem key={config.model} value={config.model}>
-                        {config.model} (current)
+                    {LLM_PROVIDERS.map((provider) => (
+                      <SelectItem key={provider.id} value={provider.id}>
+                        {provider.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>LLM Model</Label>
+                <Select
+                  value={config.model || ""}
+                  onValueChange={(value) => setConfig({ ...config, model: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.length === 0 && (
+                      <SelectItem value="__none" disabled>
+                        No models discovered
                       </SelectItem>
                     )}
-                    {ollamaModels.map((model) => (
+                    {availableModels.map((model) => (
                       <SelectItem key={model} value={model}>
                         {model}
                       </SelectItem>
@@ -367,9 +390,73 @@ export default function AssistantPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  The LLM model used by the assistant. Deployed models are listed first.
+                  Model picker combines Ollama, custom registry, and Hugging Face cache entries.
                 </p>
               </div>
+
+              {(config.provider === "ollama" || config.provider === "openai_compatible") && (
+                <div className="space-y-2">
+                  <Label>Endpoint Override</Label>
+                  <Input
+                    placeholder={config.provider === "ollama" ? "http://localhost:11434" : "http://localhost:8000/v1"}
+                    value={config.endpoint ?? ""}
+                    onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optional endpoint override for this assistant profile.
+                  </p>
+                </div>
+              )}
+
+              {config.provider === "openai_compatible" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>OpenAI-Compatible Base URL</Label>
+                    <Input
+                      placeholder="http://localhost:8000/v1"
+                      value={config.openaiCompatibleBaseUrl ?? ""}
+                      onChange={(e) => setConfig({ ...config, openaiCompatibleBaseUrl: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>API Key Environment Variable</Label>
+                    <Input
+                      placeholder="OPENAI_API_KEY"
+                      value={config.openaiCompatibleApiKeyEnv ?? ""}
+                      onChange={(e) => setConfig({ ...config, openaiCompatibleApiKeyEnv: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
+
+              {config.provider === "huggingface_local" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>HF Execution Mode</Label>
+                    <Select
+                      value={config.hfExecutionMode || "hybrid"}
+                      onValueChange={(value) => setConfig({ ...config, hfExecutionMode: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="local">local</SelectItem>
+                        <SelectItem value="remote">remote</SelectItem>
+                        <SelectItem value="hybrid">hybrid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>HF Local Model Override</Label>
+                    <Input
+                      placeholder="meta-llama/Llama-3.2-3B-Instruct"
+                      value={config.hfLocalModel ?? ""}
+                      onChange={(e) => setConfig({ ...config, hfLocalModel: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="space-y-2">
                 <Label>Custom System Prompt</Label>

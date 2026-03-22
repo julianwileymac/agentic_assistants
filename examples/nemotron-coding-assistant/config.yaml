@@ -1,0 +1,303 @@
+# Nemotron Coding Assistant Configuration
+# ========================================
+# Fine-tuning and evaluating nemotron-nano models for coding assistance.
+
+project:
+  id: nemotron-coding-assistant
+  name: Nemotron Coding Assistant
+  description: Train, fine-tune, and evaluate nemotron-nano models on curated coding datasets
+  version: "0.1.0"
+  tags:
+    - nemotron
+    - coding-assistant
+    - fine-tuning
+    - rlhf
+
+paths:
+  data_dir: ./data
+  models_dir: ./data/models
+  datasets_dir: ./data/datasets
+  cache_dir: ./data/cache
+  checkpoints_dir: ./data/checkpoints
+  logs_dir: ./data/logs
+  exports_dir: ./data/exports
+
+nemotron:
+  base_model: nvidia/Llama-3.1-Nemotron-Nano-8B-v1
+  model_family: nemotron-nano
+  revision: main
+  trust_remote_code: true
+
+  quantization:
+    default: none
+    options:
+      - none
+      - int8
+      - int4
+      - gptq
+      - awq
+
+  serving:
+    preferred_backend: vllm
+    fallback_backend: ollama
+    ollama_model_name: nemotron-nano-coding
+    vllm_gpu_memory_utilization: 0.85
+    vllm_max_model_len: 8192
+    tensor_parallel_size: 1
+
+  generation:
+    temperature: 0.2
+    top_p: 0.95
+    max_tokens: 4096
+    repetition_penalty: 1.1
+    stop_sequences:
+      - "<|endoftext|>"
+      - "<|end|>"
+
+datasets:
+  sources:
+    - name: code-alpaca
+      type: huggingface
+      path: sahil2801/CodeAlpaca-20k
+      format: alpaca
+      enabled: true
+
+    - name: the-stack-python
+      type: huggingface
+      path: bigcode/the-stack-dedup
+      subset: python
+      format: raw
+      sample_size: 50000
+      enabled: false
+
+    - name: magicoder-evol
+      type: huggingface
+      path: ise-uiit/Magicoder-Evol-Instruct-110K
+      format: sharegpt
+      enabled: true
+
+    - name: custom-local
+      type: local
+      path: ./data/datasets/custom
+      format: jsonl
+      enabled: true
+
+    - name: openhermes-coding
+      type: huggingface
+      path: teknium/OpenHermes-2.5
+      format: sharegpt
+      filters:
+        category: coding
+      sample_size: 25000
+      enabled: false
+
+  processing:
+    dedup_strategy: minhash
+    dedup_threshold: 0.85
+    min_length: 50
+    max_length: 8192
+    quality_threshold: 0.6
+    language_filter:
+      - python
+      - javascript
+      - typescript
+      - rust
+      - go
+      - java
+      - c
+      - cpp
+
+  output:
+    default_format: sharegpt
+    formats:
+      - alpaca
+      - sharegpt
+      - openai
+      - dpo
+    train_ratio: 0.9
+    val_ratio: 0.05
+    test_ratio: 0.05
+    seed: 42
+
+training:
+  default_method: qlora
+
+  sft:
+    learning_rate: 2.0e-5
+    num_epochs: 3
+    batch_size: 4
+    gradient_accumulation_steps: 8
+    max_seq_length: 4096
+    warmup_ratio: 0.03
+    weight_decay: 0.01
+    lr_scheduler: cosine
+    packing: true
+
+  lora:
+    r: 64
+    alpha: 128
+    dropout: 0.05
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+
+  qlora:
+    bits: 4
+    bnb_4bit_compute_dtype: bfloat16
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+    r: 64
+    alpha: 128
+    dropout: 0.05
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+
+  dpo:
+    beta: 0.1
+    learning_rate: 5.0e-7
+    num_epochs: 1
+    batch_size: 2
+    max_length: 2048
+    max_prompt_length: 1024
+    loss_type: sigmoid
+
+  full:
+    learning_rate: 1.0e-5
+    num_epochs: 2
+    batch_size: 1
+    gradient_accumulation_steps: 16
+    gradient_checkpointing: true
+
+evaluation:
+  benchmarks:
+    - name: humaneval
+      type: code_generation
+      enabled: true
+      k_values: [1, 10]
+    - name: mbpp
+      type: code_generation
+      enabled: true
+      k_values: [1, 10]
+    - name: custom-coding
+      type: custom
+      enabled: true
+      path: ./data/evaluation/custom_tasks.jsonl
+
+  metrics:
+    - pass_at_k
+    - syntax_correctness
+    - code_style
+    - execution_success
+    - bleu
+    - code_bleu
+
+agents:
+  coding_agent:
+    name: Nemotron Coding Agent
+    description: Code generation and assistance using the fine-tuned nemotron model
+    system_prompt: |
+      You are an expert coding assistant powered by a fine-tuned Nemotron model.
+      You excel at code generation, code review, debugging, and explaining code.
+      Provide accurate, well-documented, and idiomatic code.
+      Always consider edge cases, error handling, and performance.
+    llm:
+      model: nemotron-nano-coding
+      temperature: 0.2
+      max_tokens: 4096
+    tools:
+      - code_search
+      - file_read
+      - code_analysis
+    memory:
+      enabled: true
+      type: episodic
+
+  dataset_curator:
+    name: Dataset Curator Agent
+    description: Assists in curating and filtering training data
+    system_prompt: |
+      You are a dataset curation specialist. Your role is to evaluate
+      the quality of code samples, filter low-quality data, and help
+      annotate training examples with metadata.
+    llm:
+      model: llama3.2
+      temperature: 0.3
+      max_tokens: 2048
+    tools:
+      - code_analysis
+      - quality_scoring
+    memory:
+      enabled: false
+
+  eval_agent:
+    name: Evaluation Agent
+    description: Runs benchmarks and produces comparison reports
+    system_prompt: |
+      You are an evaluation specialist. Analyze model outputs against
+      benchmarks, compare performance across training runs, and
+      provide detailed analysis of model capabilities and weaknesses.
+    llm:
+      model: llama3.2
+      temperature: 0.1
+      max_tokens: 4096
+    tools:
+      - benchmark_runner
+      - metrics_calculator
+
+vector_db:
+  backend: lancedb
+  path: ./data/vectordb
+  scope: project
+  collections:
+    codebase:
+      description: Indexed training code examples
+      scope: project
+    documentation:
+      description: Technical documentation and papers
+      scope: project
+    evaluations:
+      description: Evaluation results and comparisons
+      scope: project
+
+mlflow:
+  enabled: true
+  experiment_name: nemotron-coding-assistant
+  tracking_uri: "${MLFLOW_TRACKING_URI:http://localhost:5000}"
+  artifact_location: ./data/mlflow/artifacts
+  autolog: true
+  tags:
+    project: nemotron-coding-assistant
+    model_family: nemotron-nano
+
+ollama:
+  base_url: "${OLLAMA_BASE_URL:http://localhost:11434}"
+  models:
+    - nemotron-nano-coding
+    - llama3.2
+  auto_pull: false
+
+cache:
+  enabled: true
+  backend: redis
+  redis_url: "${REDIS_URL:redis://localhost:6379/0}"
+  namespace: nemotron-coding
+  ttl: 3600
+
+logging:
+  level: "${LOG_LEVEL:INFO}"
+  format: json
+  output: both
+  file_path: ./data/logs/nemotron-coding.log
+  rotation: "1 day"
+  retention: "30 days"

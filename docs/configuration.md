@@ -22,6 +22,23 @@ Configuration is loaded from multiple sources in this order (later sources overr
 | `AGENTIC_LOG_LEVEL` | `INFO` | Log level (DEBUG, INFO, WARNING, ERROR) |
 | `AGENTIC_DATA_DIR` | `./data` | Local data storage directory |
 
+### Testing Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TESTING_ENABLED` | `true` | Enable testing features |
+| `TESTING_SANDBOX_DEFAULT` | `true` | Sandbox tests by default |
+| `TESTING_TRACKING_DEFAULT` | `false` | Log tests to MLFlow by default |
+| `TESTING_AGENT_EVAL_DEFAULT` | `false` | Enable agent evaluation by default |
+| `TESTING_RL_METRICS_DEFAULT` | `false` | Emit RL metrics by default |
+| `TESTING_EVAL_PROVIDER` | `None` | Default LLM provider for agent evaluation (`ollama`, `huggingface_local`, `openai_compatible`) |
+| `TESTING_EVAL_MODEL` | `None` | Default model for LLM evaluation |
+| `TESTING_EVAL_ENDPOINT` | `None` | Optional endpoint override for evaluation calls |
+| `TESTING_EVAL_HF_EXECUTION_MODE` | `hybrid` | Evaluation mode for HF local/remote execution |
+| `TESTING_TIMEOUT_SECONDS` | `60` | Default test timeout |
+| `TESTING_DATASET_SAMPLE_SIZE` | `25` | Default dataset sample size |
+| `TESTING_MAX_OUTPUT_CHARS` | `8000` | Output size cap for test results |
+
 ### Ollama Settings
 
 | Variable | Default | Description |
@@ -29,6 +46,33 @@ Configuration is loaded from multiple sources in this order (later sources overr
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
 | `OLLAMA_DEFAULT_MODEL` | `llama3.2` | Default model for inference |
 | `OLLAMA_TIMEOUT` | `120` | Request timeout in seconds |
+
+### Generic LLM Provider Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | `ollama` | Active provider (`ollama`, `huggingface_local`, `openai_compatible`) |
+| `LLM_MODEL` | `None` | Global default chat model |
+| `LLM_TIMEOUT` | `120` | Shared chat timeout (seconds) |
+| `LLM_OLLAMA_HOST` | `None` | Optional Ollama endpoint override |
+| `LLM_OPENAI_BASE_URL` | `http://localhost:8000/v1` | OpenAI-compatible base URL |
+| `LLM_OPENAI_API_KEY_ENV` | `OPENAI_API_KEY` | Env var name containing endpoint API key |
+| `LLM_HF_EXECUTION_MODE` | `hybrid` | HF execution mode (`local`, `remote`, `hybrid`) |
+| `LLM_HF_LOCAL_MODEL` | `None` | Default HF local model id |
+| `LLM_HF_DEVICE_MAP` | `auto` | Transformers `device_map` for local inference |
+| `LLM_HF_TORCH_DTYPE` | `None` | Optional torch dtype override |
+| `LLM_HF_TRUST_REMOTE_CODE` | `false` | Trust remote model code for HF loading |
+| `LLM_FALLBACK_PROVIDER` | `None` | Optional fallback provider name |
+
+### Assistant LLM Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ASSISTANT_PROVIDER` | `ollama` | Assistant-specific provider default |
+| `ASSISTANT_MODEL` | `llama3.2` | Assistant default model |
+| `ASSISTANT_ENDPOINT` | `None` | Assistant endpoint override |
+| `ASSISTANT_OPENAI_API_KEY_ENV` | `OPENAI_API_KEY` | API key env for assistant OpenAI-compatible requests |
+| `ASSISTANT_HF_EXECUTION_MODE` | `hybrid` | HF mode for assistant flows |
 
 ### MLFlow Settings
 
@@ -251,6 +295,17 @@ SERVER_PORT=8080
 # OPENAI_API_KEY=sk-...
 # ANTHROPIC_API_KEY=sk-ant-...
 ```
+
+## Provider/Model Precedence
+
+Provider-aware assistant and testing calls resolve settings in this order:
+
+1. **Request override** (WebUI/API payload fields like `provider`, `model`, `endpoint`)
+2. **Assistant/testing defaults** (`ASSISTANT_*`, `TESTING_EVAL_*`)
+3. **Global LLM defaults** (`LLM_*`)
+4. **Legacy Ollama defaults** (`OLLAMA_*`)
+
+This keeps existing Ollama-first behavior working while allowing per-request/provider routing for hybrid deployments.
 
 ## Programmatic Configuration
 

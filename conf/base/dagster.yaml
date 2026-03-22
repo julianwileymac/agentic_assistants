@@ -1,0 +1,64 @@
+# Dagster Instance Configuration
+# https://docs.dagster.io/deployment/dagster-instance
+#
+# This file configures the Dagster instance for storage, compute logs,
+# and telemetry. Place this at $DAGSTER_HOME/dagster.yaml.
+
+# Run storage: PostgreSQL (production) or SQLite (local dev)
+storage:
+  postgres:
+    postgres_db:
+      hostname:
+        env: DAGSTER_PG_HOST
+      port:
+        env: DAGSTER_PG_PORT
+      username:
+        env: DAGSTER_PG_USERNAME
+      password:
+        env: DAGSTER_PG_PASSWORD
+      db_name:
+        env: DAGSTER_PG_DB
+
+# Compute log storage
+compute_logs:
+  module: dagster.core.storage.local_compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir: /opt/dagster/dagster_home/compute_logs
+
+# Local artifact storage
+local_artifact_storage:
+  module: dagster.core.storage.root
+  class: LocalArtifactStorage
+  config:
+    base_dir: /opt/dagster/dagster_home/artifacts
+
+# Run launcher: default (in-process) or K8s
+# Uncomment the k8s section when deploying to Kubernetes
+# run_launcher:
+#   module: dagster_k8s
+#   class: K8sRunLauncher
+#   config:
+#     service_account_name: dagster
+#     job_namespace: agentic
+#     load_incluster_config: true
+
+# Run coordinator
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 10
+
+# Schedule and sensor evaluation
+schedules:
+  use_threads: true
+  num_workers: 4
+
+sensors:
+  use_threads: true
+  num_workers: 4
+
+# Opt out of telemetry
+telemetry:
+  enabled: false
