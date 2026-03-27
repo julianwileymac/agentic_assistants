@@ -308,7 +308,10 @@ All endpoints are prefixed with `/api/v1/dagster`.
 Start Dagster services via Docker Compose:
 
 ```bash
-# Start Dagster alongside other services
+# Rebuild images after Dockerfile / workspace changes
+docker compose --profile dagster build --no-cache
+
+# Start Postgres + Dagster (postgres profile is included for the dagster profile)
 docker compose --profile dagster up -d
 
 # Services started:
@@ -319,16 +322,31 @@ docker compose --profile dagster up -d
 
 The Dagster UI is accessible at `http://localhost:3100`.
 
+### Instance config and Docker volumes
+
+The `dagster_data` named volume mounts over `$DAGSTER_HOME`. Without a bootstrap step, that would hide `dagster.yaml` and `workspace.yaml` from the image and the webserver would fail to start (connection refused / unhealthy).
+
+The image uses [`docker/dagster-entrypoint.sh`](../docker/dagster-entrypoint.sh) to copy templates from `/opt/dagster/dagster_config_templates/` into `$DAGSTER_HOME` when those files are missing. After changing compose or env, rebuild with `docker compose --profile dagster build`.
+
+If you still see an empty or broken UI, remove the old volume and bring the stack up again:
+
+```bash
+docker compose --profile dagster down
+docker volume rm agentic_assistants_dagster_data  # name may vary; use docker volume ls
+docker compose --profile dagster up -d
+```
+
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DAGSTER_HOME` | `/opt/dagster/dagster_home` | Dagster home directory |
+| `PYTHONPATH` | `/app` | Ensures the installed package is importable in all Dagster processes |
 | `DAGSTER_PG_HOST` | `postgres` | PostgreSQL host |
 | `DAGSTER_PG_PORT` | `5432` | PostgreSQL port |
-| `DAGSTER_PG_DB` | `dagster` | Database name |
-| `DAGSTER_PG_USERNAME` | `postgres` | Database user |
-| `DAGSTER_PG_PASSWORD` | `postgres` | Database password |
+| `DAGSTER_PG_DB` | `agentic` | Database name (must match the `postgres` service) |
+| `DAGSTER_PG_USERNAME` | `agentic` | Database user |
+| `DAGSTER_PG_PASSWORD` | `agentic123` | Database password |
 
 ## Kubernetes Deployment
 

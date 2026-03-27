@@ -305,6 +305,147 @@ if DAGSTER_AVAILABLE:
         return result
 
     # -------------------------------------------------------------------
+    # CrewAI Integration Ops
+    # -------------------------------------------------------------------
+
+    @dg.op(
+        description="Execute a CrewAI crew via the CrewAIAdapter.",
+        tags={"kind": "crewai"},
+    )
+    def crew_execution_op(
+        context: dg.OpExecutionContext,
+        crew_name: str = "",
+        task_description: str = "",
+        model: str = "llama3.2",
+    ) -> Dict[str, Any]:
+        """
+        Run a CrewAI crew using the existing CrewAIAdapter.
+
+        Creates agents and tasks from configuration, then executes
+        the crew via CrewAIAdapter.run_crew().
+
+        Args:
+            context: Dagster execution context
+            crew_name: Identifier for the crew
+            task_description: Description of the task for the crew
+            model: LLM model to use for agents
+
+        Returns:
+            Crew execution result
+        """
+        context.log.info(f"Running CrewAI crew: {crew_name}")
+
+        try:
+            from agentic_assistants.adapters.crewai_adapter import CrewAIAdapter
+
+            adapter = CrewAIAdapter(default_model=model)
+
+            agent = adapter.create_ollama_agent(
+                role=crew_name or "assistant",
+                goal=task_description or "Complete the assigned task",
+                backstory=f"Expert agent for {crew_name} tasks",
+                model=model,
+            )
+            task = adapter.create_task(
+                description=task_description or f"Execute {crew_name} workflow",
+                agent=agent,
+                expected_output="Structured result of the task execution",
+            )
+            crew = adapter.create_crew(
+                agents=[agent],
+                tasks=[task],
+            )
+            result = adapter.run_crew(
+                crew,
+                experiment_name=f"dagster-crew-{crew_name}",
+                run_name=crew_name,
+            )
+
+            context.log.info(f"Crew '{crew_name}' completed")
+            return {"crew": crew_name, "success": True, "result": str(result)}
+
+        except ImportError:
+            context.log.warning("CrewAI not installed, skipping crew execution")
+            return {"crew": crew_name, "success": False, "error": "crewai not installed"}
+        except Exception as e:
+            context.log.error(f"Crew '{crew_name}' failed: {e}")
+            return {"crew": crew_name, "success": False, "error": str(e)}
+
+    # -------------------------------------------------------------------
+    # Document Parsing Ops (LlamaIndex/LangChain)
+    # -------------------------------------------------------------------
+
+    @dg.op(
+        description="Parse and chunk a document file using LlamaIndex splitters.",
+        tags={"kind": "document_parsing"},
+    )
+    def document_parsing_op(
+        context: dg.OpExecutionContext,
+        file_path: str = "",
+        strategy: str = "sentence",
+        chunk_size: int = 1024,
+        chunk_overlap: int = 128,
+    ) -> Dict[str, Any]:
+        """
+        Parse and chunk a single document using the existing DocumentChunker.
+
+        Uses LlamaIndex splitters (SentenceSplitter, CodeSplitter,
+        SemanticSplitterNodeParser) depending on the chosen strategy.
+
+        Args:
+            context: Dagster execution context
+            file_path: Path to the document to parse
+            strategy: Chunking strategy (sentence, code_aware, semantic, fixed)
+            chunk_size: Target chunk size in characters
+            chunk_overlap: Overlap between chunks
+
+        Returns:
+            Dict with chunk count and metadata
+        """
+        context.log.info(f"Parsing document: {file_path} (strategy={strategy})")
+
+        try:
+            from agentic_assistants.indexing.chunker import (
+                DocumentChunker,
+                ChunkingStrategy,
+            )
+
+            strategy_enum = ChunkingStrategy(strategy)
+            chunker = DocumentChunker(
+                strategy=strategy_enum,
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+            )
+            chunks = chunker.chunk_file(file_path)
+
+            context.log.info(f"Parsed {len(chunks)} chunks from {file_path}")
+            return {
+                "file_path": file_path,
+                "chunk_count": len(chunks),
+                "strategy": strategy,
+                "chunk_size": chunk_size,
+            }
+
+        except ImportError:
+            context.log.warning("LlamaIndex not installed, using simple chunker")
+            try:
+                from agentic_assistants.indexing.chunker import SimpleChunker
+                chunker = SimpleChunker(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+                chunks = chunker.chunk_text(open(file_path).read())
+                return {
+                    "file_path": file_path,
+                    "chunk_count": len(chunks),
+                    "strategy": "simple",
+                    "chunk_size": chunk_size,
+                }
+            except Exception as e:
+                context.log.error(f"Simple chunking failed: {e}")
+                return {"file_path": file_path, "chunk_count": 0, "error": str(e)}
+        except Exception as e:
+            context.log.error(f"Document parsing failed: {e}")
+            return {"file_path": file_path, "chunk_count": 0, "error": str(e)}
+
+    # -------------------------------------------------------------------
     # Software-Defined Assets
     # -------------------------------------------------------------------
 
@@ -362,6 +503,99 @@ if DAGSTER_AVAILABLE:
 
         except Exception as e:
             context.log.error(f"Knowledge base update failed: {e}")
+            return {"status": "failed", "error": str(e)}
+
+    # -------------------------------------------------------------------
+    # CrewAI and Document Parsing Assets
+    # -------------------------------------------------------------------
+
+    @dg.asset(
+        description="Run a CrewAI crew for code analysis and produce a structured report.",
+        group_name="agents",
+    )
+    def crew_analysis_asset(context: dg.AssetExecutionContext) -> Dict[str, Any]:
+        """
+        Software-defined asset that runs a CrewAI crew for code analysis.
+
+        Uses the existing CrewAIAdapter to create agents, tasks, and a crew,
+        then executes the analysis workflow.
+
+        Returns:
+            Analysis results from the crew
+        """
+        context.log.info("Starting CrewAI analysis asset materialization")
+
+        try:
+            from agentic_assistants.adapters.crewai_adapter import CrewAIAdapter
+
+            adapter = CrewAIAdapter()
+            agent = adapter.create_ollama_agent(
+                role="code_analyst",
+                goal="Analyze codebase structure, patterns, and potential improvements",
+                backstory="Senior software engineer specializing in code quality analysis",
+            )
+            task = adapter.create_task(
+                description="Analyze the current codebase and identify architectural patterns, code quality issues, and improvement opportunities",
+                agent=agent,
+                expected_output="Structured analysis report with findings and recommendations",
+            )
+            crew = adapter.create_crew(agents=[agent], tasks=[task])
+            result = adapter.run_crew(
+                crew,
+                experiment_name="dagster-crew-analysis",
+                run_name="code-analysis",
+            )
+
+            context.log.info("CrewAI analysis completed")
+            return {"status": "success", "result": str(result)}
+
+        except ImportError:
+            context.log.warning("CrewAI not installed")
+            return {"status": "skipped", "reason": "crewai not installed"}
+        except Exception as e:
+            context.log.error(f"CrewAI analysis failed: {e}")
+            return {"status": "failed", "error": str(e)}
+
+    @dg.asset(
+        description="Ingest and chunk documents from a directory using LlamaIndex parsers.",
+        group_name="ingestion",
+    )
+    def document_ingestion_asset(context: dg.AssetExecutionContext) -> Dict[str, Any]:
+        """
+        Software-defined asset for document ingestion.
+
+        Uses the existing DocumentChunker (backed by LlamaIndex splitters)
+        to recursively parse and chunk documents from a configured directory.
+
+        Returns:
+            Ingestion summary with chunk counts
+        """
+        import os
+        source_dir = os.getenv("AGENTIC_DOCS_DIR", "./data/documents")
+        context.log.info(f"Starting document ingestion from: {source_dir}")
+
+        try:
+            from agentic_assistants.indexing.chunker import DocumentChunker
+
+            chunker = DocumentChunker()
+            chunks = chunker.chunk_directory(
+                source_dir,
+                patterns=["*.md", "*.txt", "*.py", "*.rst", "*.json"],
+                recursive=True,
+            )
+
+            context.log.info(f"Document ingestion complete: {len(chunks)} chunks")
+            return {
+                "status": "success",
+                "source_dir": source_dir,
+                "chunk_count": len(chunks),
+            }
+
+        except ImportError:
+            context.log.warning("LlamaIndex not installed, skipping document ingestion")
+            return {"status": "skipped", "reason": "llama-index not installed"}
+        except Exception as e:
+            context.log.error(f"Document ingestion failed: {e}")
             return {"status": "failed", "error": str(e)}
 
     # -------------------------------------------------------------------

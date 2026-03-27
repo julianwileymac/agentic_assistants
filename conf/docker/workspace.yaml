@@ -1,0 +1,11 @@
+# Dagster Workspace Configuration (Docker Compose)
+# https://docs.dagster.io/concepts/code-locations/workspace-files
+#
+# Uses gRPC code server running in the dagster-code container.
+# For local development, use conf/local/workspace.yaml instead.
+
+load_from:
+  - grpc_server:
+      host: dagster-code
+      port: 4000
+      location_name: "agentic_code"

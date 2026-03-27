@@ -4,6 +4,7 @@
 FROM python:3.11-slim AS base
 
 WORKDIR /app
+ENV PYTHONPATH=/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,19 +33,24 @@ COPY src/ ./src/
 # Install the package
 RUN pip install --no-cache-dir -e .
 
-# Create dagster home directory
-RUN mkdir -p /opt/dagster/dagster_home
+# Templates copied into the image; entrypoint seeds $DAGSTER_HOME when using a
+# named volume (which otherwise hides these files and leaves the UI unreachable).
+RUN mkdir -p /opt/dagster/dagster_home /opt/dagster/dagster_config_templates
 
-# Copy Dagster configuration
-COPY conf/base/dagster.yaml /opt/dagster/dagster_home/dagster.yaml
-COPY conf/base/workspace.yaml /opt/dagster/dagster_home/workspace.yaml
+COPY conf/base/dagster.yaml /opt/dagster/dagster_config_templates/dagster.yaml
+COPY conf/docker/workspace.yaml /opt/dagster/dagster_config_templates/workspace.yaml
+
+COPY docker/dagster-entrypoint.sh /dagster-entrypoint.sh
+RUN sed -i 's/\r$//' /dagster-entrypoint.sh && chmod +x /dagster-entrypoint.sh
 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home
+ENV DAGSTER_TEMPLATE_DIR=/opt/dagster/dagster_config_templates
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000/server_info || exit 1
+ENTRYPOINT ["/dagster-entrypoint.sh"]
 
-# Default: run the webserver
+# No image-level HEALTHCHECK: this image runs webserver, daemon, and gRPC code
+# server; only the webserver listens on :3000. Use compose-level checks per service.
+
+# Default: run the webserver with explicit workspace path
 EXPOSE 3000
-CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/opt/dagster/dagster_home/workspace.yaml"]

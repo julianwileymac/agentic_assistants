@@ -136,6 +136,7 @@ services:
     restart: unless-stopped
     profiles:
       - postgres
+      - dagster
 
   # ===========================================================================
   # Prefect Server (optional orchestration)
@@ -329,21 +330,31 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.dagster
-    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+    command:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "3000"
+      - -w
+      - /opt/dagster/dagster_home/workspace.yaml
     ports:
       - "3100:3000"
     environment:
       DAGSTER_HOME: /opt/dagster/dagster_home
+      PYTHONPATH: /app
       DAGSTER_PG_HOST: postgres
       DAGSTER_PG_PORT: "5432"
-      DAGSTER_PG_DB: dagster
-      DAGSTER_PG_USERNAME: postgres
-      DAGSTER_PG_PASSWORD: postgres
+      DAGSTER_PG_DB: agentic
+      DAGSTER_PG_USERNAME: agentic
+      DAGSTER_PG_PASSWORD: agentic123
     volumes:
       - dagster_data:/opt/dagster/dagster_home
     depends_on:
-      - postgres
-      - dagster-code
+      postgres:
+        condition: service_healthy
+      dagster-code:
+        condition: service_healthy
     profiles:
       - dagster
     restart: unless-stopped
@@ -355,16 +366,19 @@ services:
     command: ["dagster-daemon", "run"]
     environment:
       DAGSTER_HOME: /opt/dagster/dagster_home
+      PYTHONPATH: /app
       DAGSTER_PG_HOST: postgres
       DAGSTER_PG_PORT: "5432"
-      DAGSTER_PG_DB: dagster
-      DAGSTER_PG_USERNAME: postgres
-      DAGSTER_PG_PASSWORD: postgres
+      DAGSTER_PG_DB: agentic
+      DAGSTER_PG_USERNAME: agentic
+      DAGSTER_PG_PASSWORD: agentic123
     volumes:
       - dagster_data:/opt/dagster/dagster_home
     depends_on:
-      - postgres
-      - dagster-code
+      postgres:
+        condition: service_healthy
+      dagster-code:
+        condition: service_healthy
     profiles:
       - dagster
     restart: unless-stopped
@@ -373,22 +387,40 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.dagster
-    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "agentic_assistants.orchestration.dagster_code"]
+    working_dir: /app
+    command:
+      - dagster
+      - api
+      - grpc
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "4000"
+      - -m
+      - agentic_assistants.orchestration.dagster_code
     ports:
       - "4000:4000"
     environment:
       DAGSTER_HOME: /opt/dagster/dagster_home
+      PYTHONPATH: /app
       DAGSTER_PG_HOST: postgres
       DAGSTER_PG_PORT: "5432"
-      DAGSTER_PG_DB: dagster
-      DAGSTER_PG_USERNAME: postgres
-      DAGSTER_PG_PASSWORD: postgres
+      DAGSTER_PG_DB: agentic
+      DAGSTER_PG_USERNAME: agentic
+      DAGSTER_PG_PASSWORD: agentic123
       DAGSTER_CURRENT_IMAGE: agentic-assistants-dagster:latest
     volumes:
       - dagster_data:/opt/dagster/dagster_home
       - ./src:/app/src
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
     profiles:
       - dagster
     restart: unless-stopped

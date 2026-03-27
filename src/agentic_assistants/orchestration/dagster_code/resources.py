@@ -64,6 +64,29 @@ if DAGSTER_AVAILABLE:
             from agentic_assistants.kubernetes.client import KubernetesClient
             return KubernetesClient(namespace=self.namespace)
 
+    class TelemetryResource(dg.ConfigurableResource):
+        """Dagster resource wrapping TelemetryManager for OpenTelemetry integration."""
+
+        enabled: bool = False
+        service_name: str = "agentic-dagster"
+
+        def get_telemetry(self):
+            """Return a TelemetryManager instance, initialized if enabled."""
+            from agentic_assistants.core.telemetry import TelemetryManager
+            from agentic_assistants.config import AgenticConfig
+            config = AgenticConfig()
+            tm = TelemetryManager(config)
+            if self.enabled:
+                tm.initialize()
+            return tm
+
+        def get_dagster_telemetry(self):
+            """Return a DagsterTelemetry instance for Dagster-specific tracing."""
+            from agentic_assistants.orchestration.dagster_callbacks import DagsterTelemetry
+            from agentic_assistants.config import AgenticConfig
+            config = AgenticConfig()
+            return DagsterTelemetry(config)
+
 
 def get_default_resources() -> Dict[str, Any]:
     """
@@ -101,6 +124,12 @@ def get_default_resources() -> Dict[str, Any]:
     resources["kubernetes"] = KubernetesResource(
         kubeconfig_path=kubeconfig,
         namespace=k8s_namespace,
+    )
+
+    # OpenTelemetry resource
+    resources["telemetry"] = TelemetryResource(
+        enabled=os.getenv("OTEL_ENABLED", "false").lower() == "true",
+        service_name=os.getenv("OTEL_SERVICE_NAME", "agentic-dagster"),
     )
 
     return resources
