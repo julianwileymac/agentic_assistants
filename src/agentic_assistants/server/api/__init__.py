@@ -44,6 +44,16 @@ from agentic_assistants.server.api.ollama import router as ollama_router
 from agentic_assistants.server.api.testing import router as testing_router
 from agentic_assistants.server.api.huggingface import router as huggingface_router
 
+# Additional routers (execution, sync, cybersec, lineage, cache, upload, memory, discovery)
+from agentic_assistants.server.api.execution import router as execution_router
+from agentic_assistants.server.api.sync import router as sync_router
+from agentic_assistants.server.api.cybersec import router as cybersec_router
+from agentic_assistants.server.api.lineage import router as lineage_router
+from agentic_assistants.server.api.cache import router as cache_router
+from agentic_assistants.server.api.upload import router as upload_router
+from agentic_assistants.server.api.memory import router as memory_router
+from agentic_assistants.server.api.discovery import router as discovery_router
+
 __all__ = [
     # Original routers
     "experiments_router",
@@ -72,4 +82,13 @@ __all__ = [
     "framework_assistant_router",
     "ollama_router",
     "huggingface_router",
+    # Additional routers
+    "execution_router",
+    "sync_router",
+    "cybersec_router",
+    "lineage_router",
+    "cache_router",
+    "upload_router",
+    "memory_router",
+    "discovery_router",
 ]

@@ -20,6 +20,10 @@ Example:
 
 from typing import Any, Dict, Optional
 
+from agentic_assistants.core.foundation.types import DataCatalogProtocol
+from agentic_assistants.pipelines.node import Node
+from agentic_assistants.pipelines.pipeline import Pipeline
+
 # Try to import pluggy, fall back to simple implementation
 try:
     import pluggy
@@ -54,8 +58,8 @@ class PipelineHookSpec:
     @hookspec
     def before_pipeline_run(
         self,
-        pipeline: Any,
-        catalog: Any,
+        pipeline: Pipeline,
+        catalog: DataCatalogProtocol,
         run_id: Optional[str] = None,
     ) -> None:
         """
@@ -71,7 +75,7 @@ class PipelineHookSpec:
     @hookspec
     def after_pipeline_run(
         self,
-        pipeline: Any,
+        pipeline: Pipeline,
         run_result: Dict[str, Any],
     ) -> None:
         """
@@ -86,7 +90,7 @@ class PipelineHookSpec:
     @hookspec
     def on_pipeline_error(
         self,
-        pipeline: Any,
+        pipeline: Pipeline,
         error: Exception,
     ) -> None:
         """
@@ -109,7 +113,7 @@ class NodeHookSpec:
     @hookspec
     def before_node_run(
         self,
-        node: Any,
+        node: Node,
         inputs: Dict[str, Any],
     ) -> Optional[Dict[str, Any]]:
         """
@@ -127,7 +131,7 @@ class NodeHookSpec:
     @hookspec
     def after_node_run(
         self,
-        node: Any,
+        node: Node,
         outputs: Dict[str, Any],
         inputs: Optional[Dict[str, Any]] = None,
     ) -> Optional[Dict[str, Any]]:
@@ -147,7 +151,7 @@ class NodeHookSpec:
     @hookspec
     def on_node_error(
         self,
-        node: Any,
+        node: Node,
         error: Exception,
         inputs: Optional[Dict[str, Any]] = None,
     ) -> None:
@@ -242,7 +246,7 @@ class CatalogHookSpec:
     @hookspec
     def after_catalog_created(
         self,
-        catalog: Any,
+        catalog: DataCatalogProtocol,
     ) -> None:
         """
         Called after a catalog is created.

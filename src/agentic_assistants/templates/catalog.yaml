@@ -216,3 +216,299 @@ templates:
     asset_dir: offline-agent-workspace
     run_hint: python app.py
 
+  - id: library-pydantic-models
+    name: Pydantic Models Patterns
+    category: library
+    level: intermediate
+    description: Pydantic v2 models for validation, settings, generics, and schema-oriented APIs.
+    tags: [pydantic, validation, settings, serialization]
+    asset_dir: examples/library/pydantic_models
+    run_hint: python advanced_validation.py
+
+  - id: library-sqlalchemy-models
+    name: SQLAlchemy Model Patterns
+    category: library
+    level: intermediate
+    description: Declarative models, async sessions, repositories, and advanced query patterns.
+    tags: [sqlalchemy, orm, async, repository]
+    asset_dir: examples/library/sqlalchemy_models
+    run_hint: python declarative_base.py
+
+  - id: library-litestar-patterns
+    name: Litestar API Patterns
+    category: library
+    level: advanced
+    description: Layered Litestar APIs, DTO boundaries, repository/service layers, and msgspec integration.
+    tags: [litestar, api, msgspec, dto]
+    asset_dir: examples/library/litestar_patterns
+    run_hint: python layered_api.py
+
+  - id: library-msgspec-structs
+    name: Msgspec Structs
+    category: library
+    level: intermediate
+    description: High-performance structs, validation, serialization, and integration patterns.
+    tags: [msgspec, serialization, validation, structs]
+    asset_dir: examples/library/msgspec_structs
+    run_hint: python basic_structs.py
+
+  - id: library-pydantic-ai-agents
+    name: PydanticAI Agents
+    category: library
+    level: advanced
+    description: Structured agents, tools, streaming, self-correction, and Ollama-backed runs.
+    tags: [pydantic-ai, agents, tools, ollama]
+    asset_dir: examples/library/pydantic_ai_agents
+    run_hint: python structured_agent.py
+
+  - id: library-advanced-alchemy
+    name: Advanced Alchemy Patterns
+    category: library
+    level: advanced
+    description: SQLAlchemy 2 service layers, generic repositories, DTOs, and base model patterns.
+    tags: [sqlalchemy, advanced-alchemy, repository, service-layer]
+    asset_dir: examples/library/advanced_alchemy_patterns
+    run_hint: python base_models.py
+
+  - id: library-crewai-patterns
+    name: CrewAI Patterns
+    category: library
+    level: intermediate
+    description: Multi-agent crews for research, code review, data pipelines, and hierarchical workflows.
+    tags: [crewai, multi-agent, crews]
+    asset_dir: examples/library/crewai_patterns
+    run_hint: python research_crew.py
+
+  - id: library-langgraph-workflows
+    name: LangGraph Workflows
+    category: library
+    level: advanced
+    description: State graphs, ReAct agents, persistence, human-in-the-loop, and multi-agent graphs.
+    tags: [langgraph, workflows, agents, state-machine]
+    asset_dir: examples/library/langgraph_workflows
+    run_hint: python basic_state_graph.py
+
+  - id: library-marvin-ai
+    name: Marvin AI Utilities
+    category: library
+    level: intermediate
+    description: AI functions, classifiers, models, planning helpers, and integration patterns.
+    tags: [marvin, ai-functions, classifiers]
+    asset_dir: examples/library/marvin_ai
+    run_hint: python ai_models.py
+
+  - id: library-prefect-workflows
+    name: Prefect Workflows
+    category: library
+    level: intermediate
+    description: Flows, state, deployments, data pipelines, and observability with Prefect.
+    tags: [prefect, orchestration, workflows]
+    asset_dir: examples/library/prefect_workflows
+    run_hint: python basic_flow.py
+
+  - id: library-beanie-odm
+    name: Beanie ODM
+    category: library
+    level: intermediate
+    description: Async MongoDB document models, CRUD, queries, relationships, and multi-model setups.
+    tags: [beanie, mongodb, odm, async]
+    asset_dir: examples/library/beanie_odm
+    run_hint: python document_models.py
+
+  - id: library-piccolo-orm
+    name: Piccolo ORM
+    category: library
+    level: intermediate
+    description: Async table definitions, queries, migrations, and playground patterns with Piccolo.
+    tags: [piccolo, orm, async, migrations]
+    asset_dir: examples/library/piccolo_orm
+    run_hint: python table_definitions.py
+
+  - id: library-strawberry-graphql
+    name: Strawberry GraphQL
+    category: library
+    level: intermediate
+    description: Schema basics, resolvers, DataLoaders, FastAPI integration, and federation sketches.
+    tags: [strawberry, graphql, fastapi, dataloaders]
+    asset_dir: examples/library/strawberry_graphql
+    run_hint: python schema_basics.py
+
+  - id: library-logfire-observability
+    name: Logfire Observability
+    category: library
+    level: intermediate
+    description: Instrument FastAPI, Pydantic, SQLAlchemy, and LLM calls with Logfire.
+    tags: [logfire, observability, opentelemetry, llm]
+    asset_dir: examples/library/logfire_observability
+    run_hint: python basic_instrumentation.py
+
+  - id: library-sqlmodel-unified
+    name: SQLModel Unified Stack
+    category: library
+    level: advanced
+    description: SQLModel with FastAPI CRUD, relationships, migrations, and unified Pydantic/SQL patterns.
+    tags: [sqlmodel, fastapi, sql, pydantic]
+    asset_dir: examples/library/sqlmodel_unified
+    run_hint: python unified_models.py
+
+  - id: library-scikit-learn
+    name: Scikit-Learn ML Patterns
+    category: library
+    level: starter
+    description: Supervised and unsupervised learning, pipelines, evaluation, and dimensionality reduction with scikit-learn.
+    tags: [sklearn, classification, regression, clustering, pca]
+    asset_dir: examples/library/scikit_learn
+    run_hint: python supervised_basics.py
+
+  - id: library-gradient-boosting
+    name: Gradient Boosting Trio
+    category: library
+    level: intermediate
+    description: XGBoost, LightGBM, and CatBoost patterns with head-to-head benchmarks.
+    tags: [xgboost, lightgbm, catboost, gradient-boosting]
+    asset_dir: examples/library/gradient_boosting
+    run_hint: python boosting_comparison.py
+
+  - id: library-river-streaming
+    name: River Streaming ML
+    category: library
+    level: intermediate
+    description: Online/streaming machine learning with River including drift detection and composable pipelines.
+    tags: [river, streaming, online-learning, drift]
+    asset_dir: examples/library/river_streaming
+    run_hint: python online_learning.py
+
+  - id: library-pytorch-foundations
+    name: PyTorch Foundations
+    category: library
+    level: intermediate
+    description: Custom modules, training loops, datasets, transfer learning, and distributed patterns with PyTorch.
+    tags: [pytorch, deep-learning, training, modules]
+    asset_dir: examples/library/pytorch_foundations
+    run_hint: python base_model_patterns.py
+
+  - id: library-jax-fundamentals
+    name: JAX Fundamentals
+    category: library
+    level: advanced
+    description: Automatic differentiation, JIT compilation, Flax modules, and Optax optimizers with JAX.
+    tags: [jax, flax, optax, autodiff]
+    asset_dir: examples/library/jax_fundamentals
+    run_hint: python autodiff_and_jit.py
+
+  - id: library-transformers-hub
+    name: Transformers Hub
+    category: library
+    level: intermediate
+    description: HuggingFace model loading, text classification, generation, and custom Trainer patterns.
+    tags: [transformers, huggingface, bert, gpt, fine-tuning]
+    asset_dir: examples/library/transformers_hub
+    run_hint: python model_loading.py
+
+  - id: library-autogen-agents
+    name: AutoGen Agents
+    category: library
+    level: intermediate
+    description: Microsoft AutoGen multi-agent conversations, code execution, group chat, and tool use.
+    tags: [autogen, multi-agent, code-execution, tools]
+    asset_dir: examples/library/autogen_agents
+    run_hint: python basic_conversation.py
+
+  - id: library-agno-agents
+    name: Agno Agents
+    category: library
+    level: intermediate
+    description: Agno/Phidata tool-centric agent building, multi-tool agents, and team coordination.
+    tags: [agno, phidata, agents, tools, teams]
+    asset_dir: examples/library/agno_agents
+    run_hint: python basic_agent.py
+
+  - id: library-openai-swarm
+    name: OpenAI Swarm
+    category: library
+    level: intermediate
+    description: Minimalist agent handoffs, triage routing, and context variable sharing with OpenAI Swarm.
+    tags: [swarm, openai, handoffs, triage]
+    asset_dir: examples/library/openai_swarm
+    run_hint: python basic_handoff.py
+
+  - id: library-mlflow-tracking
+    name: MLflow Tracking
+    category: library
+    level: starter
+    description: Experiment tracking, model registry, autolog, and custom pyfunc models with MLflow.
+    tags: [mlflow, tracking, registry, autolog]
+    asset_dir: examples/library/mlflow_tracking
+    run_hint: python experiment_basics.py
+
+  - id: library-feast-features
+    name: Feast Feature Store
+    category: library
+    level: advanced
+    description: Feature definitions, materialization, and online/offline retrieval with Feast.
+    tags: [feast, feature-store, features, retrieval]
+    asset_dir: examples/library/feast_features
+    run_hint: python feature_definitions.py
+
+  - id: library-temporal-workflows
+    name: Temporal Workflows
+    category: library
+    level: advanced
+    description: Durable workflows, saga compensation, child workflows, and agentic orchestration with Temporal.
+    tags: [temporal, workflows, durable, saga]
+    asset_dir: examples/library/temporal_workflows
+    run_hint: python basic_workflow.py
+
+  - id: library-ragas-evaluation
+    name: RAGAS Evaluation
+    category: library
+    level: advanced
+    description: RAG evaluation metrics, synthetic test sets, agent metrics, and custom rubrics with RAGAS.
+    tags: [ragas, evaluation, rag, metrics, faithfulness]
+    asset_dir: examples/library/ragas_evaluation
+    run_hint: python rag_metrics.py
+
+  - id: library-deepeval-testing
+    name: DeepEval Testing
+    category: library
+    level: intermediate
+    description: LLM unit testing with hallucination checks, RAG evaluation, and Pytest integration via DeepEval.
+    tags: [deepeval, testing, hallucination, llm-eval]
+    asset_dir: examples/library/deepeval_testing
+    run_hint: python basic_test_cases.py
+
+  - id: library-great-expectations
+    name: Great Expectations Validation
+    category: library
+    level: intermediate
+    description: Data quality validation with expectation suites, checkpoints, and pipeline gates.
+    tags: [great-expectations, data-quality, validation]
+    asset_dir: examples/library/great_expectations_validation
+    run_hint: python expectation_suites.py
+
+  - id: library-sdv-synthetic
+    name: Synthetic Data Vault
+    category: library
+    level: intermediate
+    description: Synthetic data generation with GaussianCopula, CTGAN, relational HMA, and quality metrics.
+    tags: [sdv, synthetic-data, ctgan, copula, sdmetrics]
+    asset_dir: examples/library/sdv_synthetic
+    run_hint: python single_table.py
+
+  - id: library-faker-data
+    name: Faker Data Generation
+    category: library
+    level: starter
+    description: Procedural mock data with Faker including domain-specific factories for ML datasets.
+    tags: [faker, mock-data, generation, datasets]
+    asset_dir: examples/library/faker_data
+    run_hint: python basic_providers.py
+
+  - id: library-design-patterns
+    name: ML Design Patterns
+    category: library
+    level: advanced
+    description: GoF design patterns for ML platforms including Factory, Strategy, Observer, Command, Adapter, and Proxy.
+    tags: [design-patterns, factory, strategy, observer, command, skills]
+    asset_dir: examples/library/design_patterns
+    run_hint: python creational_patterns.py

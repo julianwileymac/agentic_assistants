@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Header } from "@/components/layout/header";
 import { HelpPanel } from "@/components/help/help-panel";
 import { NotesPanel } from "@/components/learning/notes-panel";
+import { FloatingActions } from "@/components/layout/floating-actions";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
                 </main>
                 <HelpPanel />
                 <NotesPanel />
+                <FloatingActions />
               </div>
             </SidebarInset>
           </SidebarProvider>

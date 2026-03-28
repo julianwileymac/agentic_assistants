@@ -117,6 +117,22 @@ class AgenticConfig(BaseSettings):
 - Metrics recording
 - NoOp implementations when disabled
 
+### Core Foundation Layer
+
+The reusable foundation layer lives in `src/agentic_assistants/core/foundation/` and
+provides cross-cutting abstractions used by adapters, runners, and API boundaries:
+
+- `base_models.py`: generic entities, mixins, envelope and pagination models
+- `types.py`: canonical aliases plus protocols for catalogs/hooks/execution payloads
+- `dto.py`: configurable model<->DTO transformations for boundary safety
+- `repository.py` / `service.py`: persistence and orchestration contracts
+- `serialization.py`: pluggable json/pydantic/msgspec serializer backends
+- `state_machine.py`: typed graph execution with optional checkpointing
+- `clients/` and `utils/`: optional MLOps/DataOps facades and helper primitives
+
+Legacy modules under `src/agentic_assistants/core/` re-export these implementations
+to preserve backward compatibility for existing imports.
+
 ### Adapters Pattern
 
 Adapters wrap external frameworks with:

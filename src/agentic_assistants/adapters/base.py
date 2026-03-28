@@ -14,9 +14,10 @@ Example:
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from agentic_assistants.config import AgenticConfig
+from agentic_assistants.core.foundation.types import AdapterRunMetadata
 from agentic_assistants.core.mlflow_tracker import MLFlowTracker
 from agentic_assistants.core.telemetry import TelemetryManager
 from agentic_assistants.utils.logging import get_logger
@@ -248,8 +249,8 @@ class BaseAdapter(ABC):
     def track_run(
         self,
         run_name: str,
-        tags: Optional[Dict[str, str]] = None,
-        params: Optional[Dict[str, Any]] = None,
+        tags: Optional[dict[str, str]] = None,
+        params: Optional[dict[str, Any]] = None,
         agent_name: Optional[str] = None,
         model: Optional[str] = None,
     ):
@@ -270,13 +271,21 @@ class BaseAdapter(ABC):
             >>> with self.track_run("agent-task", params={"model": "llama3.2"}):
             ...     result = self.execute()
         """
-        all_tags = {"adapter": self.name, "framework": self.framework_name}
+        all_tags: dict[str, str] = {"adapter": self.name, "framework": self.framework_name}
         if tags:
             all_tags.update(tags)
 
         start_time = time.time()
         success = True
         error_message = None
+        metadata: AdapterRunMetadata = {
+            "framework": self.framework_name,
+            "run_name": run_name,
+            "agent_name": agent_name or run_name,
+            "model": model or (params.get("model", "unknown") if params else "unknown"),
+            "tags": all_tags,
+            "params": params or {},
+        }
         
         with self.tracker.start_run(run_name=run_name, tags=all_tags) as mlflow_run:
             with self.telemetry.span(
@@ -302,11 +311,11 @@ class BaseAdapter(ABC):
                         self.usage_tracker.track_agent_run(
                             agent_name=agent_name or run_name,
                             framework=self.framework_name,
-                            model=model or params.get("model", "unknown") if params else "unknown",
+                            model=metadata["model"],
                             duration_seconds=duration,
                             success=success,
                             error_message=error_message,
-                            metadata={"run_name": run_name, "tags": all_tags},
+                            metadata=dict(metadata),
                         )
 
     @contextmanager

@@ -39,6 +39,15 @@ import {
   Table2,
   Workflow,
   FileBox,
+  Terminal,
+  Shield,
+  MemoryStick,
+  Archive,
+  Upload,
+  RefreshCw,
+  AlertTriangle,
+  Network,
+  Gauge,
 } from "lucide-react";
 
 import {
@@ -61,6 +70,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { openJupyterLab, getMlflowUrl } from "@/lib/api";
+import { getBackendUrl, getExternalToolUrl } from "@/lib/api-client";
 
 const mainNavItems = [
   {
@@ -105,6 +115,16 @@ const observabilityItems = [
     title: "Monitoring",
     url: "/monitoring",
     icon: Activity,
+  },
+  {
+    title: "Error Browser",
+    url: "/errors",
+    icon: AlertTriangle,
+  },
+  {
+    title: "Lineage",
+    url: "/lineage",
+    icon: Network,
   },
 ];
 
@@ -180,6 +200,11 @@ const modelItems = [
     url: "/models/deployment",
     icon: Rocket,
   },
+  {
+    title: "Nemotron",
+    url: "/models/nemotron",
+    icon: Gauge,
+  },
 ];
 
 const dataItems = [
@@ -228,6 +253,39 @@ const dbtItems = [
     title: "dbt Models",
     url: "/dbt",
     icon: Code2,
+  },
+];
+
+const toolsItems = [
+  {
+    title: "Execution",
+    url: "/execution",
+    icon: Terminal,
+  },
+  {
+    title: "Cybersecurity",
+    url: "/cybersec",
+    icon: Shield,
+  },
+  {
+    title: "Memory Store",
+    url: "/memory",
+    icon: MemoryStick,
+  },
+  {
+    title: "Solution Cache",
+    url: "/cache",
+    icon: Archive,
+  },
+  {
+    title: "Upload & Import",
+    url: "/upload",
+    icon: Upload,
+  },
+  {
+    title: "Session Sync",
+    url: "/sync",
+    icon: RefreshCw,
   },
 ];
 
@@ -284,6 +342,36 @@ const infrastructureItems = [
     icon: HardDrive,
   },
 ];
+
+function ConnectionStatus() {
+  const [status, setStatus] = React.useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const backendUrl = getBackendUrl();
+
+  React.useEffect(() => {
+    const check = async () => {
+      try {
+        const resp = await fetch(`${backendUrl}/ready`, { signal: AbortSignal.timeout(3000) });
+        setStatus(resp.ok ? 'connected' : 'disconnected');
+      } catch {
+        setStatus('disconnected');
+      }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
+  }, [backendUrl]);
+
+  return (
+    <SidebarMenuButton size="sm" tooltip={`Backend: ${backendUrl}`}>
+      <div className="flex items-center gap-2">
+        <div className={`size-2 rounded-full ${status === 'connected' ? 'bg-green-500' : status === 'disconnected' ? 'bg-red-500' : 'bg-yellow-500 animate-pulse'}`} />
+        <span className="text-xs text-muted-foreground">
+          {status === 'connected' ? 'Connected' : status === 'disconnected' ? 'Disconnected' : 'Checking...'}
+        </span>
+      </div>
+    </SidebarMenuButton>
+  );
+}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -581,6 +669,38 @@ export function AppSidebar() {
           </Collapsible>
         </SidebarGroup>
 
+        {/* Tools & Services */}
+        <SidebarGroup>
+          <Collapsible className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Tools
+                <ChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {toolsItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.url)}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.url}>
+                          <item.icon className="size-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
         {/* Settings */}
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
@@ -672,7 +792,7 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => window.open('http://localhost:3100', '_blank')}
+                      onClick={() => window.open(getExternalToolUrl('dagster'), '_blank')}
                       tooltip="Open Dagster UI"
                     >
                       <ExternalLink className="size-4" />
@@ -681,7 +801,7 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => window.open('http://datahub.local', '_blank')}
+                      onClick={() => window.open(getExternalToolUrl('datahub'), '_blank')}
                       tooltip="Open DataHub UI"
                     >
                       <ExternalLink className="size-4" />
@@ -698,12 +818,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="sm" tooltip="Backend: localhost:8080">
-              <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-green-500" />
-                <span className="text-xs text-muted-foreground">Connected</span>
-              </div>
-            </SidebarMenuButton>
+            <ConnectionStatus />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

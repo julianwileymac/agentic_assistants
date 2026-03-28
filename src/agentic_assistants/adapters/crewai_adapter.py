@@ -74,7 +74,12 @@ class CrewAIAdapter(BaseAdapter):
         super().__init__(config, name="CrewAI", **kwargs)
         self.default_model = default_model or self.config.ollama.default_model
 
-    def run(self, crew: Any, inputs: Optional[dict] = None, **kwargs) -> Any:
+    def run(
+        self,
+        crew: Any,
+        inputs: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
         """
         Run a CrewAI crew with tracking.
         
@@ -93,7 +98,7 @@ class CrewAIAdapter(BaseAdapter):
     def run_crew(
         self,
         crew: Any,
-        inputs: Optional[dict] = None,
+        inputs: Optional[dict[str, Any]] = None,
         experiment_name: Optional[str] = None,
         run_name: Optional[str] = None,
         tags: Optional[dict[str, str]] = None,
@@ -268,10 +273,10 @@ class CrewAIAdapter(BaseAdapter):
 
     def create_crew(
         self,
-        agents: list,
-        tasks: list,
+        agents: list[Any],
+        tasks: list[Any],
         verbose: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         """
         Create a CrewAI crew.
@@ -410,7 +415,7 @@ class CrewAIAdapter(BaseAdapter):
         self,
         name: str,
         namespace: Optional[str] = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Get the status of a crew deployment.
         

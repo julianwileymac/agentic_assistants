@@ -104,6 +104,7 @@ import {
 } from "@/lib/api";
 import { toast } from "sonner";
 import { TestingSection } from "@/components/testing/testing-section";
+import { getBackendUrl } from "@/lib/api-client";
 
 export default function ProjectDetailPage() {
   const router = useRouter();
@@ -1310,7 +1311,7 @@ function ProjectIndexingTab({ projectId }: { projectId: string }) {
 // Git Tab Component
 // ============================================================================
 
-const API_BASE = "http://localhost:8080/api/v1";
+const API_BASE = getBackendUrl() + "/api/v1";
 
 interface GitStatus {
   project_id: string;

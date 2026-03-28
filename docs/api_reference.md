@@ -1,8 +1,27 @@
-﻿# API Reference
+# API Reference
 
 This document covers the Python API for the Agentic Assistants framework.
 
 ## Core Classes
+
+### Core Foundation
+
+The reusable base package is available at `agentic_assistants.core.foundation` and can
+be used directly when building new integrations and internal modules.
+
+```python
+from agentic_assistants.core.foundation import (
+    AgenticEntity,
+    PaginatedResponse,
+    BaseDTO,
+    InMemoryRepository,
+    BaseService,
+    StateMachine,
+)
+```
+
+Legacy imports from `agentic_assistants.core.*` remain supported and forward to the
+same foundation implementations.
 
 ### AgenticConfig
 

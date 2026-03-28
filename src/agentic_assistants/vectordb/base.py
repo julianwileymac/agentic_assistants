@@ -403,16 +403,29 @@ class VectorStore(ABC):
 
     def _generate_embedding(self, text: str) -> list[float]:
         """
-        Generate an embedding for text.
+        Generate an embedding for text using the configured EmbeddingProvider.
         
-        This method uses Ollama by default but can be overridden.
+        Falls back to direct Ollama HTTP call if EmbeddingProvider is unavailable.
         
         Args:
             text: Text to embed
         
         Returns:
             Embedding vector
+        
+        Raises:
+            RuntimeError: If embedding generation fails completely.
         """
+        try:
+            from agentic_assistants.embeddings import EmbeddingProvider
+            provider = EmbeddingProvider.from_config(self.config)
+            result = provider.embed(text)
+            return result.embedding
+        except ImportError:
+            logger.debug("EmbeddingProvider not available, falling back to direct Ollama call")
+        except Exception as e:
+            logger.warning("EmbeddingProvider failed: %s, trying direct Ollama", e)
+
         try:
             import httpx
             
@@ -427,9 +440,10 @@ class VectorStore(ABC):
             response.raise_for_status()
             return response.json()["embedding"]
         except Exception as e:
-            logger.error(f"Failed to generate embedding: {e}")
-            # Return zero vector as fallback
-            return [0.0] * self.embedding_dimension
+            raise RuntimeError(
+                f"Failed to generate embedding for text ({len(text)} chars): {e}. "
+                "Ensure an embedding provider (Ollama, SentenceTransformers, or OpenAI) is configured."
+            ) from e
 
     # === Utility methods ===
 

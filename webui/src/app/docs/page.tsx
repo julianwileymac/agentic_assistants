@@ -24,8 +24,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { getBackendUrl } from "@/lib/api-client";
 
-const API_BASE = "http://localhost:8080/api/v1";
+const API_BASE = getBackendUrl() + "/api/v1";
 
 interface DocEntry {
   slug: string;

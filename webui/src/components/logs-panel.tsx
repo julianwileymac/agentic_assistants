@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { getWsUrl } from "@/lib/api-client";
 
 // === Types ===
 
@@ -49,10 +50,6 @@ interface LogEntry {
 
 type LogLevel = "DEBUG" | "INFO" | "WARNING" | "ERROR" | "CRITICAL" | "ALL";
 
-// === WebSocket Hook ===
-
-const WS_URL = "ws://localhost:8080/ws/logs";
-
 function useLogStream() {
   const [logs, setLogs] = React.useState<LogEntry[]>([]);
   const [isConnected, setIsConnected] = React.useState(false);
@@ -63,7 +60,7 @@ function useLogStream() {
   const connect = React.useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(getWsUrl('/ws/logs'));
 
     ws.onopen = () => {
       setIsConnected(true);

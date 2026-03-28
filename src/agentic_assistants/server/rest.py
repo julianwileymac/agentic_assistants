@@ -51,6 +51,14 @@ from agentic_assistants.server.api import (
     framework_assistant_router,
     ollama_router,
     huggingface_router,
+    execution_router,
+    sync_router,
+    cybersec_router,
+    lineage_router,
+    cache_router,
+    upload_router,
+    memory_router,
+    discovery_router,
 )
 
 # Import examples router
@@ -440,6 +448,30 @@ def create_rest_app(
 
     # Document Stores (ephemeral document collections)
     app.include_router(document_stores_router, prefix="/api/v1/document-stores", tags=["document-stores"])
+
+    # Execution engine (script execution, run management)
+    app.include_router(execution_router, tags=["execution"])
+
+    # Sync (session sync, conflict resolution)
+    app.include_router(sync_router, tags=["sync"])
+
+    # Cybersecurity tools and scanning
+    app.include_router(cybersec_router, tags=["cybersecurity"])
+
+    # Document lineage and tag management
+    app.include_router(lineage_router, prefix="/api/v1", tags=["lineage"])
+
+    # Solution cache and workflow management
+    app.include_router(cache_router, prefix="/api/v1", tags=["cache"])
+
+    # File upload (file, URL, GitHub, S3)
+    app.include_router(upload_router, prefix="/api/v1", tags=["upload"])
+
+    # Semantic memory store
+    app.include_router(memory_router, prefix="/api/v1", tags=["memory"])
+
+    # Data source discovery
+    app.include_router(discovery_router, tags=["discovery"])
     
     # === Managed Jupyter Endpoints ===
 

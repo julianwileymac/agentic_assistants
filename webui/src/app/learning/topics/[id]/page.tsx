@@ -282,7 +282,10 @@ export default function TopicDetailPage() {
       // Update topic progress
       if (lessonPlan) {
         const totalSections = lessonPlan.total_sections || 1;
-        const completedSections = lessonPlan.completed_sections + (completed ? 1 : -1);
+        const completedSections = Math.max(0, Math.min(
+          totalSections,
+          lessonPlan.completed_sections + (completed ? 1 : -1)
+        ));
         const progress = (completedSections / totalSections) * 100;
         await updateTopic({ id: topicId, progress_percent: progress });
         mutateTopic();

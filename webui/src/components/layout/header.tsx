@@ -27,7 +27,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useUIStore, useAuthStore, useHelpStore } from "@/lib/store";
 import { HelpTooltip } from "@/components/help/help-tooltip";
-import { LogsPanel } from "@/components/logs-panel";
+import { EnhancedLogsPanel } from "@/components/logs";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 // Map paths to readable names
 const pathNames: Record<string, string> = {
@@ -40,6 +41,26 @@ const pathNames: Record<string, string> = {
   monitoring: "Monitoring",
   knowledge: "Knowledge Bases",
   settings: "Settings",
+  execution: "Script Execution",
+  cybersec: "Cybersecurity",
+  memory: "Memory Store",
+  cache: "Solution Cache",
+  upload: "Upload & Import",
+  sync: "Session Sync",
+  errors: "Error Browser",
+  lineage: "Lineage",
+  pipelines: "Pipelines",
+  dagster: "Dagster",
+  dbt: "dbt",
+  catalog: "Data Catalog",
+  iceberg: "Iceberg",
+  models: "Models",
+  assistant: "Assistant",
+  learning: "Learning",
+  datasources: "Data Sources",
+  kubernetes: "Infrastructure",
+  huggingface: "HuggingFace",
+  docs: "Documentation",
 };
 
 export function Header() {
@@ -49,6 +70,8 @@ export function Header() {
   const { isAuthenticated, logout } = useAuthStore();
   const { toggle: toggleHelp } = useHelpStore();
   const [mounted, setMounted] = React.useState(false);
+
+  useKeyboardShortcuts();
 
   React.useEffect(() => {
     setMounted(true);
@@ -101,6 +124,7 @@ export function Header() {
             className="pl-9 bg-muted/50"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            data-search-input
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
             <span className="text-xs">⌘</span>K
@@ -111,7 +135,7 @@ export function Header() {
       {/* Right side: Actions */}
       <div className="flex items-center gap-2">
         {/* Logs */}
-        <LogsPanel
+        <EnhancedLogsPanel
           trigger={
             <Button variant="ghost" size="icon">
               <ScrollText className="size-4" />

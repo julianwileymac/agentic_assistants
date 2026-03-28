@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSystemHealth } from "@/lib/api";
+import { useSystemHealth, useSystemStats } from "@/lib/api";
 import { openJupyterLab, getMlflowUrl } from "@/lib/api";
 
 // Quick action cards
@@ -141,12 +141,12 @@ function StatsCard({
 export default function DashboardPage() {
   const { data: health, isLoading: healthLoading, mutate: refreshHealth } = useSystemHealth();
 
-  // Mock stats for now - will be replaced with real API
+  const { data: realStats } = useSystemStats();
   const stats = {
-    projects: 3,
-    agents: 12,
-    flows: 5,
-    components: 24,
+    projects: realStats?.projects ?? 0,
+    agents: realStats?.agents ?? 0,
+    flows: realStats?.flows ?? 0,
+    components: realStats?.components ?? 0,
   };
 
   return (

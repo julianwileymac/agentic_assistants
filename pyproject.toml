@@ -16,7 +16,7 @@ include = [
 agentic = "agentic_assistants.cli:cli"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.13"
 click = "^8.1"
 pydantic = "^2.0"
 pydantic-settings = "^2.0"
@@ -178,6 +178,68 @@ unsloth = {version = ">=2024.8", optional = true}
 # Deep Agents (optional)
 deepagents = {version = "^0.1", optional = true}
 
+# Classical ML (optional)
+scikit-learn = {version = "^1.4", optional = true}
+xgboost = {version = "^3.0", optional = true}
+lightgbm = {version = "^4.0", optional = true}
+catboost = {version = "^1.2", optional = true}
+river = {version = "^0.21", optional = true}
+
+# Evaluation (optional)
+ragas = {version = "^0.2", optional = true}
+deepeval = {version = "^1.0", optional = true}
+great-expectations = {version = "^1.0", optional = true}
+
+# Synthetic Data (optional)
+sdv = {version = "^1.10", optional = true}
+faker = {version = "^33.0", optional = true}
+
+# Durable Workflows (optional)
+temporalio = {version = "^1.24", optional = true}
+
+# Feature Store (optional)
+feast = {version = "^0.40", optional = true}
+
+# Deep Learning Research (optional)
+jax = {version = "^0.4", optional = true}
+flax = {version = "^0.8", optional = true}
+optax = {version = "^0.2", optional = true}
+
+# TensorFlow (optional)
+tensorflow = {version = ">=2.16", optional = true}
+
+# Model Serving (optional)
+bentoml = {version = ">=1.2", optional = true}
+
+# Workflow Orchestration (optional)
+apache-airflow = {version = ">=2.9", optional = true}
+
+# Data Versioning (optional)
+dvc = {version = ">=3.50", optional = true}
+
+# Advanced Clustering / Reduction (optional)
+hdbscan = {version = ">=0.8", optional = true}
+umap-learn = {version = ">=0.5", optional = true}
+
+# ML Helpers (optional)
+mlxtend = {version = ">=0.23", optional = true}
+
+# LLM Observability (optional)
+arize-phoenix = {version = ">=4.0", optional = true}
+
+# Library Examples (optional) -- reference implementations for the 42-topic example library
+msgspec = {version = ">=0.18", optional = true}
+pydantic-ai = {version = ">=0.1", optional = true}
+advanced-alchemy = {version = ">=1.0", optional = true}
+beanie = {version = ">=2.0", optional = true}
+motor = {version = ">=3.3", optional = true}
+piccolo = {version = ">=1.0", extras = ["postgres"], optional = true}
+strawberry-graphql = {version = ">=0.230", optional = true}
+logfire = {version = ">=4.0", optional = true}
+sqlmodel = {version = ">=0.0.16", optional = true}
+marvin = {version = ">=2.0", optional = true}
+litestar = {version = ">=2.0", optional = true}
+
 [tool.poetry.extras]
 pytorch = ["torch", "torchvision", "torchaudio"]
 training = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers"]
@@ -202,7 +264,52 @@ scraping = ["firecrawl-py", "composio-core"]
 notebooks = ["papermill", "nbconvert"]
 fine-tuning = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "unsloth"]
 nemotron = ["torch", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "huggingface-hub", "unsloth"]
-all = ["torch", "torchvision", "torchaudio", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy", "paramiko", "gitpython", "mem0ai", "sentence-transformers", "boto3", "pypdf", "python-docx", "openai", "anthropic", "cohere", "pyautogen", "agno", "llama-cpp-python", "prefect", "prefect-kubernetes", "prefect-docker", "dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker", "psycopg", "asyncpg", "alembic", "supabase", "firecrawl-py", "composio-core", "papermill", "nbconvert", "acryl-datahub", "pyiceberg", "dbt-core", "dbt-postgres", "unsloth", "deepagents"]
+classical-ml = ["scikit-learn", "xgboost", "lightgbm", "catboost"]
+streaming-ml = ["river"]
+evaluation = ["ragas", "deepeval", "great-expectations", "arize-phoenix"]
+synthetic-data = ["sdv", "faker"]
+durable = ["temporalio"]
+feature-store = ["feast"]
+jax = ["jax", "flax", "optax"]
+tensorflow = ["tensorflow"]
+serving = ["bentoml"]
+airflow = ["apache-airflow"]
+versioning = ["dvc"]
+library = [
+  "msgspec",
+  "pydantic-ai",
+  "advanced-alchemy",
+  "beanie",
+  "motor",
+  "piccolo",
+  "strawberry-graphql",
+  "logfire",
+  "sqlmodel",
+  "marvin",
+  "litestar",
+  "sqlalchemy",
+  "asyncpg",
+  "prefect",
+  "scikit-learn",
+  "xgboost",
+  "lightgbm",
+  "catboost",
+  "river",
+  "ragas",
+  "deepeval",
+  "great-expectations",
+  "sdv",
+  "faker",
+  "temporalio",
+  "feast",
+  "pyautogen",
+  "agno",
+  "openai",
+  "mlxtend",
+  "hdbscan",
+  "umap-learn",
+]
+all = ["torch", "torchvision", "torchaudio", "trl", "peft", "bitsandbytes", "accelerate", "datasets", "safetensors", "transformers", "tokenizers", "ray", "pymongo", "redis", "elasticsearch", "opensearch-py", "google-cloud-bigquery", "snowflake-connector-python", "sqlalchemy", "paramiko", "gitpython", "mem0ai", "sentence-transformers", "boto3", "pypdf", "python-docx", "openai", "anthropic", "cohere", "pyautogen", "agno", "llama-cpp-python", "prefect", "prefect-kubernetes", "prefect-docker", "dagster", "dagster-webserver", "dagster-postgres", "dagster-k8s", "dagster-docker", "psycopg", "asyncpg", "alembic", "supabase", "firecrawl-py", "composio-core", "papermill", "nbconvert", "acryl-datahub", "pyiceberg", "dbt-core", "dbt-postgres", "unsloth", "deepagents", "msgspec", "pydantic-ai", "advanced-alchemy", "beanie", "motor", "piccolo", "strawberry-graphql", "logfire", "sqlmodel", "marvin", "litestar", "scikit-learn", "xgboost", "lightgbm", "catboost", "river", "ragas", "deepeval", "great-expectations", "sdv", "faker", "temporalio", "feast", "jax", "flax", "optax", "tensorflow", "bentoml", "apache-airflow", "dvc", "hdbscan", "umap-learn", "mlxtend", "arize-phoenix"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

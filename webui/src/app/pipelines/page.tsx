@@ -3,21 +3,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Play, 
-  Pause, 
   RefreshCw, 
-  ChevronRight, 
   GitBranch,
   Clock,
   CheckCircle2,
   XCircle,
   Loader2,
-  Filter,
   Search,
-  LayoutGrid,
-  List,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TestingSection } from '@/components/testing/testing-section';
+import { getBackendUrl } from "@/lib/api-client";
+import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+function ReactFlowInner({ nodes, edges }: { nodes: any[]; edges: any[] }) {
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      fitView
+      proOptions={{ hideAttribution: true }}
+      style={{ background: 'transparent' }}
+    >
+      <Background color="#1e293b" gap={16} />
+      <Controls showInteractive={false} />
+      <MiniMap style={{ background: '#0f172a' }} />
+    </ReactFlow>
+  );
+}
 
 // Types
 interface PipelineNode {
@@ -47,7 +61,7 @@ interface PipelineRunStatus {
   completed_at: string | null;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = getBackendUrl();
 
 // API functions
 async function fetchPipelines(): Promise<string[]> {
@@ -80,95 +94,61 @@ async function fetchRunStatus(name: string, runId: string): Promise<PipelineRunS
 
 // Pipeline DAG Visualization Component
 function PipelineDAG({ pipeline }: { pipeline: PipelineInfo }) {
-  // Group nodes by layer (inputs -> processing -> outputs)
-  const inputDatasets = new Set(pipeline.inputs);
-  const outputDatasets = new Set(pipeline.outputs);
-  
-  // Calculate node positions for DAG layout
-  const nodesByLevel: Map<number, PipelineNode[]> = new Map();
-  const nodeLevel: Map<string, number> = new Map();
-  
-  // BFS to determine levels
-  pipeline.nodes.forEach((node, idx) => {
-    const level = 1; // Simple horizontal layout for now
-    nodeLevel.set(node.name, level);
-    
-    if (!nodesByLevel.has(level)) {
-      nodesByLevel.set(level, []);
-    }
-    nodesByLevel.get(level)!.push(node);
-  });
+  const rfNodes = React.useMemo(() => {
+    const nodes: Array<{ id: string; data: { label: string }; position: { x: number; y: number }; style?: React.CSSProperties }> = [];
+    const ySpacing = 80;
+
+    pipeline.inputs.forEach((input, i) => {
+      nodes.push({
+        id: `input-${input}`,
+        data: { label: `[Input] ${input}` },
+        position: { x: 0, y: i * ySpacing },
+        style: { background: 'rgba(14,165,233,0.15)', border: '1px solid rgba(14,165,233,0.4)', color: '#38bdf8', fontSize: 12, borderRadius: 8 },
+      });
+    });
+
+    pipeline.nodes.forEach((node, i) => {
+      nodes.push({
+        id: `node-${node.name}`,
+        data: { label: node.name },
+        position: { x: 300, y: i * ySpacing },
+        style: { background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#34d399', fontSize: 12, borderRadius: 8 },
+      });
+    });
+
+    pipeline.outputs.forEach((output, i) => {
+      nodes.push({
+        id: `output-${output}`,
+        data: { label: `[Output] ${output}` },
+        position: { x: 600, y: i * ySpacing },
+        style: { background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#fbbf24', fontSize: 12, borderRadius: 8 },
+      });
+    });
+
+    return nodes;
+  }, [pipeline]);
+
+  const rfEdges = React.useMemo(() => {
+    const edges: Array<{ id: string; source: string; target: string; animated?: boolean; style?: React.CSSProperties }> = [];
+    const edgeStyle = { stroke: '#475569' };
+
+    pipeline.nodes.forEach((node) => {
+      node.inputs.forEach((inp) => {
+        const sourceId = pipeline.inputs.includes(inp) ? `input-${inp}` : `node-${inp}`;
+        edges.push({ id: `e-${sourceId}-${node.name}`, source: sourceId, target: `node-${node.name}`, animated: true, style: edgeStyle });
+      });
+      node.outputs.forEach((out) => {
+        const targetId = pipeline.outputs.includes(out) ? `output-${out}` : `node-${out}`;
+        edges.push({ id: `e-${node.name}-${targetId}`, source: `node-${node.name}`, target: targetId, style: edgeStyle });
+      });
+    });
+
+    return edges;
+  }, [pipeline]);
 
   return (
-    <div className="relative bg-slate-950 rounded-xl p-6 overflow-x-auto border border-slate-800">
-      <div className="flex items-start gap-8 min-w-max">
-        {/* Input Datasets */}
-        <div className="flex flex-col gap-3">
-          <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
-            Inputs
-          </div>
-          {Array.from(inputDatasets).map((input) => (
-            <div
-              key={input}
-              className="px-4 py-2 bg-sky-500/10 border border-sky-500/30 rounded-lg text-sky-400 text-sm font-mono"
-            >
-              {input}
-            </div>
-          ))}
-        </div>
-
-        {/* Arrow */}
-        <div className="flex items-center pt-8">
-          <ChevronRight className="w-6 h-6 text-slate-600" />
-        </div>
-
-        {/* Processing Nodes */}
-        <div className="flex flex-col gap-3">
-          <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
-            Nodes
-          </div>
-          {pipeline.nodes.map((node) => (
-            <div
-              key={node.name}
-              className="px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg"
-            >
-              <div className="text-emerald-400 text-sm font-medium">{node.name}</div>
-              <div className="flex gap-1 mt-1 flex-wrap">
-                {node.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-1.5 py-0.5 bg-emerald-500/20 rounded text-xs text-emerald-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-2 text-xs text-slate-500">
-                {node.inputs.length} inputs → {node.outputs.length} outputs
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Arrow */}
-        <div className="flex items-center pt-8">
-          <ChevronRight className="w-6 h-6 text-slate-600" />
-        </div>
-
-        {/* Output Datasets */}
-        <div className="flex flex-col gap-3">
-          <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
-            Outputs
-          </div>
-          {Array.from(outputDatasets).map((output) => (
-            <div
-              key={output}
-              className="px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-400 text-sm font-mono"
-            >
-              {output}
-            </div>
-          ))}
-        </div>
+    <div className="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800" style={{ height: 350 }}>
+      <ReactFlowInner nodes={rfNodes} edges={rfEdges} />
       </div>
     </div>
   );

@@ -243,8 +243,219 @@ class LearningAnnotation(BaseModel):
 # Database Helper Functions
 # ============================================================================
 
+_tables_initialized = False
+
+
+def _init_learning_tables(conn):
+    """Create all learning framework tables if they don't already exist."""
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS learning_goals (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT,
+            level TEXT NOT NULL DEFAULT 'user',
+            project_id TEXT,
+            user_id TEXT,
+            status TEXT NOT NULL DEFAULT 'active',
+            priority TEXT DEFAULT 'medium',
+            target_date TEXT,
+            completed_at TEXT,
+            progress_percent REAL DEFAULT 0.0,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            tags TEXT DEFAULT '[]',
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_goals_level ON learning_goals(level);
+        CREATE INDEX IF NOT EXISTS idx_learning_goals_project ON learning_goals(project_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_goals_status ON learning_goals(status);
+        CREATE INDEX IF NOT EXISTS idx_learning_goals_user ON learning_goals(user_id);
+
+        CREATE TABLE IF NOT EXISTS learning_topics (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            goal_id TEXT REFERENCES learning_goals(id) ON DELETE SET NULL,
+            project_id TEXT,
+            status TEXT NOT NULL DEFAULT 'not_started',
+            progress_percent REAL DEFAULT 0.0,
+            source_type TEXT DEFAULT 'manual',
+            source_reference TEXT,
+            lesson_plan_id TEXT,
+            difficulty_level TEXT DEFAULT 'intermediate',
+            estimated_hours REAL,
+            actual_hours REAL DEFAULT 0.0,
+            started_at TEXT,
+            completed_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            tags TEXT DEFAULT '[]',
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_topics_goal ON learning_topics(goal_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_topics_project ON learning_topics(project_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_topics_status ON learning_topics(status);
+        CREATE INDEX IF NOT EXISTS idx_learning_topics_source ON learning_topics(source_type);
+
+        CREATE TABLE IF NOT EXISTS lesson_plans (
+            id TEXT PRIMARY KEY,
+            topic_id TEXT NOT NULL REFERENCES learning_topics(id) ON DELETE CASCADE,
+            title TEXT NOT NULL,
+            overview TEXT,
+            objectives TEXT,
+            prerequisites TEXT,
+            generated_by TEXT,
+            generation_prompt TEXT,
+            generation_config TEXT,
+            status TEXT DEFAULT 'draft',
+            version INTEGER DEFAULT 1,
+            total_sections INTEGER DEFAULT 0,
+            completed_sections INTEGER DEFAULT 0,
+            estimated_duration_minutes INTEGER,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_lesson_plans_topic ON lesson_plans(topic_id);
+        CREATE INDEX IF NOT EXISTS idx_lesson_plans_status ON lesson_plans(status);
+
+        CREATE TABLE IF NOT EXISTS lesson_plan_sections (
+            id TEXT PRIMARY KEY,
+            lesson_plan_id TEXT NOT NULL REFERENCES lesson_plans(id) ON DELETE CASCADE,
+            title TEXT NOT NULL,
+            content TEXT,
+            summary TEXT,
+            section_order INTEGER NOT NULL DEFAULT 0,
+            parent_section_id TEXT REFERENCES lesson_plan_sections(id) ON DELETE CASCADE,
+            section_type TEXT DEFAULT 'content',
+            is_completed BOOLEAN DEFAULT FALSE,
+            completed_at TEXT,
+            estimated_minutes INTEGER,
+            actual_minutes INTEGER,
+            resources TEXT DEFAULT '[]',
+            exercises TEXT DEFAULT '[]',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_lesson_sections_plan ON lesson_plan_sections(lesson_plan_id);
+        CREATE INDEX IF NOT EXISTS idx_lesson_sections_order ON lesson_plan_sections(lesson_plan_id, section_order);
+        CREATE INDEX IF NOT EXISTS idx_lesson_sections_parent ON lesson_plan_sections(parent_section_id);
+
+        CREATE TABLE IF NOT EXISTS learning_annotations (
+            id TEXT PRIMARY KEY,
+            resource_type TEXT NOT NULL,
+            resource_id TEXT NOT NULL,
+            content TEXT NOT NULL,
+            annotation_type TEXT NOT NULL DEFAULT 'note',
+            position TEXT,
+            role TEXT,
+            user_id TEXT,
+            is_private BOOLEAN DEFAULT TRUE,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            tags TEXT DEFAULT '[]',
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_annotations_resource ON learning_annotations(resource_type, resource_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_annotations_type ON learning_annotations(annotation_type);
+        CREATE INDEX IF NOT EXISTS idx_learning_annotations_user ON learning_annotations(user_id);
+
+        CREATE TABLE IF NOT EXISTS learning_evaluations (
+            id TEXT PRIMARY KEY,
+            topic_id TEXT REFERENCES learning_topics(id) ON DELETE SET NULL,
+            lesson_plan_id TEXT REFERENCES lesson_plans(id) ON DELETE SET NULL,
+            section_id TEXT REFERENCES lesson_plan_sections(id) ON DELETE SET NULL,
+            evaluation_type TEXT DEFAULT 'comprehension',
+            question TEXT NOT NULL,
+            user_response TEXT NOT NULL,
+            score REAL,
+            grade TEXT,
+            feedback TEXT,
+            evaluation_result TEXT,
+            evaluated_by TEXT,
+            evaluation_prompt TEXT,
+            status TEXT DEFAULT 'pending',
+            submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+            evaluated_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            user_id TEXT,
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_topic ON learning_evaluations(topic_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_plan ON learning_evaluations(lesson_plan_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_user ON learning_evaluations(user_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_status ON learning_evaluations(status);
+
+        CREATE TABLE IF NOT EXISTS learning_artifacts (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            file_path TEXT,
+            file_type TEXT,
+            file_size INTEGER,
+            original_filename TEXT,
+            source_url TEXT,
+            extracted_text TEXT,
+            summary TEXT,
+            vector_collection TEXT,
+            chunk_count INTEGER DEFAULT 0,
+            topic_id TEXT REFERENCES learning_topics(id) ON DELETE SET NULL,
+            goal_id TEXT REFERENCES learning_goals(id) ON DELETE SET NULL,
+            project_id TEXT,
+            processing_status TEXT DEFAULT 'pending',
+            processing_error TEXT,
+            uploaded_by TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            processed_at TEXT,
+            tags TEXT DEFAULT '[]',
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_artifacts_topic ON learning_artifacts(topic_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_artifacts_goal ON learning_artifacts(goal_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_artifacts_project ON learning_artifacts(project_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_artifacts_status ON learning_artifacts(processing_status);
+
+        CREATE TABLE IF NOT EXISTS learning_chat_sessions (
+            id TEXT PRIMARY KEY,
+            topic_id TEXT REFERENCES learning_topics(id) ON DELETE CASCADE,
+            lesson_plan_id TEXT REFERENCES lesson_plans(id) ON DELETE SET NULL,
+            section_id TEXT REFERENCES lesson_plan_sections(id) ON DELETE SET NULL,
+            title TEXT,
+            system_prompt TEXT,
+            model TEXT,
+            message_count INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            user_id TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            last_message_at TEXT,
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_chat_sessions_topic ON learning_chat_sessions(topic_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_chat_sessions_user ON learning_chat_sessions(user_id);
+
+        CREATE TABLE IF NOT EXISTS learning_progress_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entity_type TEXT NOT NULL,
+            entity_id TEXT NOT NULL,
+            progress_percent REAL,
+            status TEXT,
+            completed_items INTEGER,
+            total_items INTEGER,
+            time_spent_minutes INTEGER,
+            snapshot_at TEXT NOT NULL DEFAULT (datetime('now')),
+            user_id TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_progress_entity ON learning_progress_snapshots(entity_type, entity_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_progress_time ON learning_progress_snapshots(snapshot_at);
+    """)
+
+
 def _get_db_connection():
     """Get database connection - uses existing app database."""
+    global _tables_initialized
     import sqlite3
     from agentic_assistants.config import AgenticConfig
     
@@ -254,6 +465,9 @@ def _get_db_connection():
     
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
+    if not _tables_initialized:
+        _init_learning_tables(conn)
+        _tables_initialized = True
     return conn
 
 

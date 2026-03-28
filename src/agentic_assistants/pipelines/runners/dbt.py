@@ -5,15 +5,22 @@ Follows the same interface as SequentialRunner and DagsterRunner
 so it can be selected via the pipeline execution API.
 """
 
-from typing import Any, Dict
+from datetime import datetime
+from typing import Any, List, Optional
 
 from agentic_assistants.integrations.dbt import DbtClient, get_dbt_client
+from agentic_assistants.pipelines.pipeline import Pipeline
+from agentic_assistants.pipelines.runners.base import (
+    AbstractRunner,
+    NodeRunResult,
+    PipelineRunResult,
+)
 from agentic_assistants.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-class DbtRunner:
+class DbtRunner(AbstractRunner):
     """
     Pipeline runner that delegates tagged nodes to dbt-core.
 
@@ -23,46 +30,103 @@ class DbtRunner:
     """
 
     def __init__(self, client: DbtClient | None = None):
+        super().__init__(is_async=False)
         self.client = client or get_dbt_client()
 
-    def run(self, pipeline, catalog: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def run(
+        self,
+        pipeline: Pipeline,
+        catalog: Any,
+        run_id: Optional[str] = None,
+        hook_manager: Optional[Any] = None,
+    ) -> PipelineRunResult:
         """Execute a pipeline, routing dbt-tagged nodes to dbt CLI."""
-        catalog = catalog or {}
-        results: Dict[str, Any] = {}
+        _ = run_id
+        if hook_manager:
+            self.set_hook_manager(hook_manager)
+
+        start_time = datetime.utcnow()
+        node_results: List[NodeRunResult] = []
+        errors_list: List[str] = []
+        data_store: dict[str, Any] = {}
 
         sorted_nodes = pipeline.topological_sort()
 
         for node in sorted_nodes:
             tags = set(node.tags)
+            n_start = datetime.utcnow()
 
             if "dbt" in tags:
                 logger.info("Running dbt model for node '%s'", node.name)
                 result = self.client.run(select=node.name)
-                results[node.name] = result
-                if not result.get("success", False):
-                    logger.error("dbt run failed for %s: %s", node.name, result.get("stderr", ""))
+                n_end = datetime.utcnow()
+                ok = bool(result.get("success", False))
+                node_results.append(
+                    NodeRunResult(
+                        node_name=node.name,
+                        outputs={},
+                        start_time=n_start,
+                        end_time=n_end,
+                        success=ok,
+                        error=None if ok else result.get("stderr", "dbt run failed"),
+                    )
+                )
+                if not ok:
+                    logger.error(
+                        "dbt run failed for %s: %s",
+                        node.name,
+                        result.get("stderr", ""),
+                    )
+                    errors_list.append(
+                        f"Node '{node.name}': {result.get('stderr', 'dbt run failed')}"
+                    )
                     break
 
             elif "dbt-test" in tags:
                 logger.info("Running dbt tests for node '%s'", node.name)
                 result = self.client.test(select=node.name)
-                results[node.name] = result
+                n_end = datetime.utcnow()
+                ok = bool(result.get("success", False))
+                node_results.append(
+                    NodeRunResult(
+                        node_name=node.name,
+                        outputs={},
+                        start_time=n_start,
+                        end_time=n_end,
+                        success=ok,
+                        error=None if ok else result.get("stderr", "dbt test failed"),
+                    )
+                )
+                if not ok:
+                    errors_list.append(
+                        f"Node '{node.name}': {result.get('stderr', 'dbt test failed')}"
+                    )
+                    break
 
             else:
                 logger.info("Running node '%s' in-process", node.name)
-                inputs = {name: catalog.get(name) for name in node.inputs}
-                try:
-                    output = node.func(inputs)
-                    if isinstance(output, dict):
-                        catalog.update(output)
-                    results[node.name] = {"success": True}
-                except Exception as exc:
-                    logger.error("Node '%s' failed: %s", node.name, exc)
-                    results[node.name] = {"success": False, "error": str(exc)}
+                nr = self._run_node(node, catalog, data_store)
+                node_results.append(nr)
+                if not nr.success:
+                    errors_list.append(
+                        f"Node '{node.name}': {nr.error or 'unknown error'}"
+                    )
                     break
 
-        return {
-            "runner": "dbt",
-            "nodes_executed": len(results),
-            "results": results,
+        end_time = datetime.utcnow()
+        success = len(errors_list) == 0
+        outputs = {
+            name: data_store[name]
+            for name in pipeline.outputs
+            if name in data_store
         }
+
+        return PipelineRunResult(
+            pipeline=pipeline,
+            node_results=node_results,
+            outputs=outputs if success else {},
+            start_time=start_time,
+            end_time=end_time,
+            success=success,
+            errors=errors_list,
+        )

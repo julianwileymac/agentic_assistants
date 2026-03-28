@@ -9,7 +9,7 @@ submission (production).
 import time
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from agentic_assistants.pipelines.runners.base import (
     AbstractRunner,
@@ -103,14 +103,15 @@ class DagsterRunner(AbstractRunner):
         all_outputs: Dict[str, Any] = {}
         errors: List[str] = []
 
+        sorted_nodes = pipeline.topological_sort()
+        execution_order = [n.name for n in sorted_nodes]
+
         logger.info(
-            f"DagsterRunner: executing pipeline '{pipeline.name}' "
+            f"DagsterRunner: executing pipeline {pipeline!r} "
             f"(run_id={actual_run_id})"
         )
 
         try:
-            # Get execution order
-            execution_order = pipeline.get_execution_order()
             logger.info(
                 f"Execution order: {execution_order} "
                 f"({len(execution_order)} nodes)"
@@ -118,8 +119,8 @@ class DagsterRunner(AbstractRunner):
 
             # Build Dagster ops from pipeline nodes
             ops_map = {}
-            for node_name in execution_order:
-                node = pipeline.nodes[node_name]
+            for node in sorted_nodes:
+                node_name = node.name
                 safe_name = node_name.replace(".", "_").replace("-", "_")
 
                 @dg.op(name=safe_name)
@@ -153,7 +154,7 @@ class DagsterRunner(AbstractRunner):
                 ops_map[node_name] = make_op
 
             # Build and execute the job
-            job_name = f"pipeline_{pipeline.name}".replace(".", "_").replace("-", "_")
+            job_name = f"pipeline_{actual_run_id}".replace(".", "_").replace("-", "_")
 
             @dg.job(name=job_name, tags=self._default_tags)
             def dynamic_job():
@@ -185,10 +186,18 @@ class DagsterRunner(AbstractRunner):
                 except Exception:
                     pass
 
+                node_obj = pipeline.get_node(node_name)
+                per_node_outputs: Dict[str, Any] = {}
+                if node_obj is not None:
+                    per_node_outputs = {
+                        k: all_outputs[k]
+                        for k in node_obj.output_names
+                        if k in all_outputs
+                    }
                 node_results.append(
                     NodeRunResult(
                         node_name=node_name,
-                        outputs=all_outputs,
+                        outputs=per_node_outputs,
                         start_time=node_start,
                         end_time=datetime.utcnow(),
                         success=step_success,
@@ -202,14 +211,10 @@ class DagsterRunner(AbstractRunner):
             overall_success = result.success if hasattr(result, "success") else len(errors) == 0
 
             # Save outputs to catalog
-            pipeline_outputs = set()
-            for node_name, node in pipeline.nodes.items():
-                for out_name in node.output_names:
-                    pipeline_outputs.add(out_name)
-            self._save_outputs(catalog, all_outputs, pipeline_outputs)
+            self._save_outputs(catalog, all_outputs, pipeline.outputs)
 
         except Exception as e:
-            logger.error(f"Pipeline '{pipeline.name}' failed: {e}")
+            logger.error(f"Pipeline {pipeline!r} failed: {e}")
             errors.append(str(e))
             overall_success = False
 
@@ -227,7 +232,7 @@ class DagsterRunner(AbstractRunner):
         )
 
         logger.info(
-            f"Pipeline '{pipeline.name}' {'succeeded' if overall_success else 'failed'} "
+            f"Pipeline {pipeline!r} {'succeeded' if overall_success else 'failed'} "
             f"in {duration:.2f}s ({len(node_results)} nodes)"
         )
         return run_result

@@ -23,8 +23,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getBackendUrl } from "@/lib/api-client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_BASE = getBackendUrl();
 
 const SOURCE_TYPES = [
   { type: "files" as const, label: "Local Files", icon: FolderOpen, placeholder: "/path/to/documents" },

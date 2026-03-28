@@ -109,8 +109,43 @@ class EvaluationStats(BaseModel):
 # Database Helper Functions
 # ============================================================================
 
+_tables_initialized = False
+
+
+def _init_evaluations_table(conn):
+    """Create the learning_evaluations table if it doesn't already exist."""
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS learning_evaluations (
+            id TEXT PRIMARY KEY,
+            topic_id TEXT,
+            lesson_plan_id TEXT,
+            section_id TEXT,
+            evaluation_type TEXT DEFAULT 'comprehension',
+            question TEXT NOT NULL,
+            user_response TEXT NOT NULL,
+            score REAL,
+            grade TEXT,
+            feedback TEXT,
+            evaluation_result TEXT,
+            evaluated_by TEXT,
+            evaluation_prompt TEXT,
+            status TEXT DEFAULT 'pending',
+            submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+            evaluated_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            user_id TEXT,
+            metadata TEXT DEFAULT '{}'
+        );
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_topic ON learning_evaluations(topic_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_plan ON learning_evaluations(lesson_plan_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_user ON learning_evaluations(user_id);
+        CREATE INDEX IF NOT EXISTS idx_learning_evaluations_status ON learning_evaluations(status);
+    """)
+
+
 def _get_db_connection():
     """Get database connection."""
+    global _tables_initialized
     import sqlite3
     from agentic_assistants.config import AgenticConfig
     
@@ -120,6 +155,9 @@ def _get_db_connection():
     
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
+    if not _tables_initialized:
+        _init_evaluations_table(conn)
+        _tables_initialized = True
     return conn
 
 

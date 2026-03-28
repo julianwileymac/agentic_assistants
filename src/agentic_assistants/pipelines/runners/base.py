@@ -7,7 +7,13 @@ This module defines the interface that all runners must implement.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
+
+from agentic_assistants.core.foundation.types import (
+    DataCatalogProtocol,
+    HookManagerProtocol,
+    NodeOutputs,
+)
 
 from agentic_assistants.pipelines.node import Node
 from agentic_assistants.pipelines.pipeline import Pipeline, PipelineOutput
@@ -25,7 +31,7 @@ class RunnerError(Exception):
 class NodeRunResult:
     """Result of running a single node."""
     node_name: str
-    outputs: Dict[str, Any]
+    outputs: NodeOutputs
     start_time: datetime
     end_time: datetime
     success: bool
@@ -41,7 +47,7 @@ class PipelineRunResult:
     """Result of running a pipeline."""
     pipeline: Pipeline
     node_results: List[NodeRunResult]
-    outputs: Dict[str, Any]
+    outputs: NodeOutputs
     start_time: datetime
     end_time: datetime
     success: bool
@@ -85,9 +91,9 @@ class AbstractRunner(ABC):
             is_async: Whether to run asynchronously
         """
         self.is_async = is_async
-        self._hook_manager = None
+        self._hook_manager: Optional[HookManagerProtocol] = None
     
-    def set_hook_manager(self, hook_manager: Any) -> None:
+    def set_hook_manager(self, hook_manager: HookManagerProtocol) -> None:
         """
         Set the hook manager for lifecycle callbacks.
         
@@ -100,9 +106,9 @@ class AbstractRunner(ABC):
     def run(
         self,
         pipeline: Pipeline,
-        catalog: Any,
+        catalog: DataCatalogProtocol,
         run_id: Optional[str] = None,
-        hook_manager: Optional[Any] = None,
+        hook_manager: Optional[HookManagerProtocol] = None,
     ) -> PipelineRunResult:
         """
         Run a pipeline with the given catalog.
@@ -121,7 +127,7 @@ class AbstractRunner(ABC):
     def _run_node(
         self,
         node: Node,
-        catalog: Any,
+        catalog: DataCatalogProtocol,
         data_store: Dict[str, Any],
     ) -> NodeRunResult:
         """
@@ -156,7 +162,7 @@ class AbstractRunner(ABC):
                 self._call_hook("before_node_run", node=node, inputs=inputs)
             
             # Execute node
-            outputs = node.run(inputs)
+            outputs = dict(node.run(inputs))
             
             # Store outputs
             for output_name, output_value in outputs.items():
@@ -194,7 +200,7 @@ class AbstractRunner(ABC):
                 error=str(e),
             )
     
-    def _load_params(self, catalog: Any, param_path: str) -> Any:
+    def _load_params(self, catalog: DataCatalogProtocol, param_path: str) -> Any:
         """
         Load parameters from the catalog.
         
@@ -224,7 +230,7 @@ class AbstractRunner(ABC):
     
     def _save_outputs(
         self,
-        catalog: Any,
+        catalog: DataCatalogProtocol,
         data_store: Dict[str, Any],
         output_names: Set[str],
     ) -> None:

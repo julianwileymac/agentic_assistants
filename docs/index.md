@@ -18,6 +18,7 @@ Agentic Assistants is designed for:
 - [API Reference](api_reference.md) - Python API documentation
 - [Configuration](configuration.md) - Configuration options
 - [Architecture](architecture.md) - System design overview
+- [Core Foundation](core-foundation.md) - Base abstractions, DTOs, repositories, services
 - [Server](server.md) - REST + WebSocket + MCP server overview
 - [Web UI Control Panel](control_panel_webui.md) - Next.js control panel usage and architecture
 - [Indexing & Context](indexing_and_context.md) - Vector indexing/search and `.index/` context packs
@@ -95,7 +96,7 @@ agentic run examples/simple_ollama_chat.py
 ```
 agentic_assistants/
 ├── src/agentic_assistants/    # Main package
-│   ├── core/                   # Core components (Ollama, MLFlow, Telemetry)
+│   ├── core/                   # Core components + foundation abstractions
 │   ├── adapters/               # Framework adapters (CrewAI, LangGraph)
 │   ├── server/                 # FastAPI REST + WebSocket + MCP server
 │   ├── indexing/               # Chunking + codebase indexing

@@ -17,8 +17,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { getBackendUrl } from "@/lib/api-client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = getBackendUrl();
 
 interface DatasetResult {
   entity: string;

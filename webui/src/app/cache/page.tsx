@@ -3,59 +3,31 @@
 import * as React from "react";
 import {
   Database,
-  Code,
-  Workflow,
-  Tag,
   Search,
-  Plus,
-  MoreHorizontal,
   Trash2,
-  Eye,
-  Copy,
-  Play,
-  CheckCircle,
-  XCircle,
-  Clock,
   RefreshCw,
   Loader2,
-  Activity,
-  Archive,
+  CheckCircle2,
+  Clock,
+  Workflow,
+  Plus,
+  BarChart3,
+  Tag,
+  ThumbsUp,
+  Eye,
+  AlertTriangle,
+  XCircle,
+  ArrowRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -63,281 +35,352 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
+import { getBackendUrl } from "@/lib/api-client";
 
-interface Solution {
-  id: string;
+interface CachedSolution {
   name: string;
-  description: string;
-  solution_type: string;
-  content: any;
-  code: string;
+  type: string;
   tags: string[];
-  metadata: Record<string, any>;
-  use_count: number;
-  success_rate: number;
+  success_count: number;
   created_at: string;
   updated_at: string;
-  project_id?: string;
-  is_global: boolean;
+  description?: string;
+  metadata?: Record<string, unknown>;
 }
 
-interface WorkflowState {
-  workflow_id: string;
+interface CacheWorkflow {
+  id: string;
   name: string;
-  status: string;
-  current_step: number;
-  steps: any[];
-  results: Record<string, any>;
-  context: Record<string, any>;
-  error?: string;
+  status: "pending" | "running" | "completed" | "failed";
+  steps: WorkflowStep[];
   created_at: string;
   updated_at: string;
+}
+
+interface WorkflowStep {
+  name: string;
+  status: "pending" | "running" | "completed" | "failed" | "skipped";
+  order: number;
 }
 
 interface CacheStats {
   total_solutions: number;
-  total_tags: number;
+  cache_hit_rate: number;
   active_workflows: number;
-  by_type: Record<string, number>;
-  cache_info: Record<string, any>;
+  total_hits: number;
+  total_misses: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-const SOLUTION_TYPES = [
-  { value: "code", label: "Code", icon: Code },
-  { value: "workflow", label: "Workflow", icon: Workflow },
-  { value: "pattern", label: "Pattern", icon: Archive },
-  { value: "prompt", label: "Prompt", icon: Activity },
-];
+const stepStatusIcon: Record<string, React.ReactNode> = {
+  pending: <Clock className="size-3.5 text-muted-foreground" />,
+  running: <Loader2 className="size-3.5 text-blue-500 animate-spin" />,
+  completed: <CheckCircle2 className="size-3.5 text-green-500" />,
+  failed: <XCircle className="size-3.5 text-red-500" />,
+  skipped: <ArrowRight className="size-3.5 text-muted-foreground" />,
+};
 
 export default function CachePage() {
-  const [activeTab, setActiveTab] = React.useState("solutions");
-  const [solutions, setSolutions] = React.useState<Solution[]>([]);
-  const [workflows, setWorkflows] = React.useState<WorkflowState[]>([]);
   const [stats, setStats] = React.useState<CacheStats | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [solutions, setSolutions] = React.useState<CachedSolution[]>([]);
+  const [workflows, setWorkflows] = React.useState<CacheWorkflow[]>([]);
+  const [loadingSolutions, setLoadingSolutions] = React.useState(true);
+  const [loadingWorkflows, setLoadingWorkflows] = React.useState(true);
+  const [loadingStats, setLoadingStats] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedType, setSelectedType] = React.useState("all");
-  const [allTags, setAllTags] = React.useState<string[]>([]);
+  const [tagFilter, setTagFilter] = React.useState("all");
+  const [clearing, setClearing] = React.useState(false);
+  const [selectedSolution, setSelectedSolution] =
+    React.useState<CachedSolution | null>(null);
+  const [showNewWorkflow, setShowNewWorkflow] = React.useState(false);
+  const [newWorkflowName, setNewWorkflowName] = React.useState("");
+  const [newWorkflowSteps, setNewWorkflowSteps] = React.useState("");
+  const [creatingWorkflow, setCreatingWorkflow] = React.useState(false);
 
-  // Dialog states
-  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
-  const [viewDialogOpen, setViewDialogOpen] = React.useState(false);
-  const [selectedSolution, setSelectedSolution] = React.useState<Solution | null>(null);
-
-  // New solution form
-  const [newSolution, setNewSolution] = React.useState({
-    name: "",
-    description: "",
-    solution_type: "code",
-    code: "",
-    tags: [] as string[],
-  });
-  const [tagInput, setTagInput] = React.useState("");
-
-  const fetchData = async () => {
-    setLoading(true);
+  const loadStats = React.useCallback(async () => {
+    setLoadingStats(true);
     try {
-      // Fetch solutions
-      const solutionsRes = await fetch(`${API_URL}/api/cache/solutions`);
-      if (solutionsRes.ok) {
-        setSolutions(await solutionsRes.json());
-      }
-
-      // Fetch workflows
-      const workflowsRes = await fetch(`${API_URL}/api/cache/workflows`);
-      if (workflowsRes.ok) {
-        setWorkflows(await workflowsRes.json());
-      }
-
-      // Fetch stats
-      const statsRes = await fetch(`${API_URL}/api/cache/stats`);
-      if (statsRes.ok) {
-        setStats(await statsRes.json());
-      }
-
-      // Fetch tags
-      const tagsRes = await fetch(`${API_URL}/api/cache/tags`);
-      if (tagsRes.ok) {
-        const tagsData = await tagsRes.json();
-        setAllTags(tagsData.tags || []);
-      }
-    } catch (error) {
-      console.error("Error fetching cache data:", error);
+      const data = await apiFetch<CacheStats>("/api/v1/cache/stats");
+      setStats(data);
+    } catch {
+      setStats({
+        total_solutions: 0,
+        cache_hit_rate: 0,
+        active_workflows: 0,
+        total_hits: 0,
+        total_misses: 0,
+      });
     } finally {
-      setLoading(false);
+      setLoadingStats(false);
     }
-  };
-
-  React.useEffect(() => {
-    fetchData();
   }, []);
 
-  const handleCreateSolution = async () => {
+  const loadSolutions = React.useCallback(async () => {
+    setLoadingSolutions(true);
     try {
-      const response = await fetch(`${API_URL}/api/cache/solutions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSolution),
-      });
+      const params: Record<string, string> = {};
+      if (searchQuery) params.q = searchQuery;
+      if (tagFilter !== "all") params.tag = tagFilter;
 
-      if (response.ok) {
-        toast.success("Solution created successfully");
-        setCreateDialogOpen(false);
-        setNewSolution({
-          name: "",
-          description: "",
-          solution_type: "code",
-          code: "",
-          tags: [],
-        });
-        fetchData();
-      } else {
-        toast.error("Failed to create solution");
-      }
-    } catch (error) {
-      toast.error(`Error: ${error}`);
+      const endpoint = searchQuery
+        ? "/api/v1/cache/solutions/search"
+        : "/api/v1/cache/solutions";
+      const data = await apiFetch<CachedSolution[] | { results: CachedSolution[] }>(
+        endpoint,
+        { params }
+      );
+      setSolutions(Array.isArray(data) ? data : data.results ?? []);
+    } catch {
+      setSolutions([]);
+    } finally {
+      setLoadingSolutions(false);
     }
-  };
+  }, [searchQuery, tagFilter]);
+
+  const loadWorkflows = React.useCallback(async () => {
+    setLoadingWorkflows(true);
+    try {
+      const data = await apiFetch<
+        CacheWorkflow[] | { workflows: CacheWorkflow[] }
+      >("/api/v1/cache/workflows");
+      setWorkflows(Array.isArray(data) ? data : data.workflows ?? []);
+    } catch {
+      setWorkflows([]);
+    } finally {
+      setLoadingWorkflows(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    loadStats();
+    loadSolutions();
+    loadWorkflows();
+  }, [loadStats, loadSolutions, loadWorkflows]);
 
   const handleDeleteSolution = async (name: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/cache/solutions/${name}`, {
+      await apiFetch(`/api/v1/cache/solutions`, {
         method: "DELETE",
+        body: JSON.stringify({ name }),
       });
-
-      if (response.ok) {
-        toast.success("Solution deleted");
-        fetchData();
-      } else {
-        toast.error("Failed to delete solution");
-      }
-    } catch (error) {
-      toast.error(`Error: ${error}`);
+      toast.success(`Solution "${name}" deleted`);
+      loadSolutions();
+      loadStats();
+    } catch (err) {
+      toast.error(`Failed to delete: ${err}`);
     }
   };
 
-  const handleCopySolution = (solution: Solution) => {
-    navigator.clipboard.writeText(solution.code || JSON.stringify(solution.content, null, 2));
-    toast.success("Copied to clipboard");
-  };
-
-  const addTag = () => {
-    if (tagInput && !newSolution.tags.includes(tagInput.toLowerCase())) {
-      setNewSolution({
-        ...newSolution,
-        tags: [...newSolution.tags, tagInput.toLowerCase()],
+  const handleRecordSuccess = async (name: string) => {
+    try {
+      await apiFetch(`/api/v1/cache/solutions`, {
+        method: "POST",
+        body: JSON.stringify({ name, action: "record_success" }),
       });
-      setTagInput("");
+      toast.success("Success recorded");
+      loadSolutions();
+      loadStats();
+    } catch (err) {
+      toast.error(`Failed: ${err}`);
     }
   };
 
-  const removeTag = (tag: string) => {
-    setNewSolution({
-      ...newSolution,
-      tags: newSolution.tags.filter((t) => t !== tag),
+  const handleClearCache = async () => {
+    setClearing(true);
+    try {
+      await apiFetch("/api/v1/cache/clear", { method: "POST" });
+      toast.success("Cache cleared");
+      loadSolutions();
+      loadWorkflows();
+      loadStats();
+    } catch (err) {
+      toast.error(`Failed to clear cache: ${err}`);
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  const handleCreateWorkflow = async () => {
+    if (!newWorkflowName.trim()) return;
+    setCreatingWorkflow(true);
+    try {
+      const steps = newWorkflowSteps
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      await apiFetch("/api/v1/cache/workflows", {
+        method: "POST",
+        body: JSON.stringify({
+          name: newWorkflowName,
+          steps: steps.map((s, i) => ({ name: s, order: i })),
+        }),
+      });
+      toast.success("Workflow created");
+      setShowNewWorkflow(false);
+      setNewWorkflowName("");
+      setNewWorkflowSteps("");
+      loadWorkflows();
+      loadStats();
+    } catch (err) {
+      toast.error(`Failed: ${err}`);
+    } finally {
+      setCreatingWorkflow(false);
+    }
+  };
+
+  const allTags = React.useMemo(() => {
+    const set = new Set<string>();
+    solutions.forEach((s) => s.tags?.forEach((t) => set.add(t)));
+    return Array.from(set).sort();
+  }, [solutions]);
+
+  const filteredSolutions = React.useMemo(() => {
+    return solutions.filter((s) => {
+      if (tagFilter !== "all" && !s.tags?.includes(tagFilter)) return false;
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        s.name.toLowerCase().includes(q) ||
+        s.type?.toLowerCase().includes(q) ||
+        s.tags?.some((t) => t.toLowerCase().includes(q))
+      );
     });
-  };
+  }, [solutions, searchQuery, tagFilter]);
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString();
+  const workflowStatusBadge = (status: CacheWorkflow["status"]) => {
+    const map: Record<
+      string,
+      { variant: "default" | "secondary" | "destructive" | "outline"; label: string }
+    > = {
+      pending: { variant: "outline", label: "Pending" },
+      running: { variant: "default", label: "Running" },
+      completed: { variant: "secondary", label: "Completed" },
+      failed: { variant: "destructive", label: "Failed" },
+    };
+    const cfg = map[status] ?? map.pending;
+    return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
   };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "failed":
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case "running":
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
-      default:
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-    }
-  };
-
-  const getSolutionTypeIcon = (type: string) => {
-    const found = SOLUTION_TYPES.find((t) => t.value === type);
-    if (found) {
-      const Icon = found.icon;
-      return <Icon className="h-4 w-4" />;
-    }
-    return <Code className="h-4 w-4" />;
-  };
-
-  const filteredSolutions = solutions.filter((sol) => {
-    if (selectedType !== "all" && sol.solution_type !== selectedType) return false;
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      sol.name.toLowerCase().includes(query) ||
-      sol.description.toLowerCase().includes(query) ||
-      sol.tags.some((t) => t.toLowerCase().includes(query))
-    );
-  });
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Solution Cache</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Solution Cache</h1>
           <p className="text-muted-foreground">
-            Manage cached solutions, workflows, and reusable patterns
+            Manage cached solutions and active cache workflows
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Solution
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              loadStats();
+              loadSolutions();
+              loadWorkflows();
+            }}
+          >
+            <RefreshCw className="size-4 mr-2" />
+            Refresh
+          </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={clearing}>
+                {clearing ? (
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="size-4 mr-2" />
+                )}
+                Clear Cache
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear entire cache?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete all cached solutions and reset
+                  statistics. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleClearCache}>
+                  Clear Cache
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-4 gap-4">
+      {loadingStats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 rounded-lg" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Solutions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total_solutions}</div>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Database className="size-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {stats?.total_solutions ?? 0}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Total Solutions
+                </p>
+              </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Active Workflows
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.active_workflows}</div>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <BarChart3 className="size-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {stats ? `${(stats.cache_hit_rate * 100).toFixed(1)}%` : "—"}
+                </p>
+                <p className="text-xs text-muted-foreground">Cache Hit Rate</p>
+              </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Tags in Use
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total_tags}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Code Snippets
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {stats.by_type?.code || 0}
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Workflow className="size-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {stats?.active_workflows ?? 0}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Active Workflows
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -345,395 +388,341 @@ export default function CachePage() {
       )}
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="solutions">
         <TabsList>
           <TabsTrigger value="solutions">Solutions</TabsTrigger>
           <TabsTrigger value="workflows">Workflows</TabsTrigger>
-          <TabsTrigger value="tags">Tags</TabsTrigger>
         </TabsList>
 
+        {/* Solutions Tab */}
         <TabsContent value="solutions" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search solutions..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    {SOLUTION_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={fetchData}>
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search solutions..."
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select value={tagFilter} onValueChange={setTagFilter}>
+              <SelectTrigger className="w-[160px]">
+                <Tag className="size-3.5 mr-1.5" />
+                <SelectValue placeholder="Filter by tag" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tags</SelectItem>
+                {allTags.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          {/* Solutions Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Cached Solutions</CardTitle>
-              <CardDescription>
-                {filteredSolutions.length} solutions found
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Tags</TableHead>
-                    <TableHead>Uses</TableHead>
-                    <TableHead>Success Rate</TableHead>
-                    <TableHead>Updated</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSolutions.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          {loading ? "Loading..." : "No solutions found"}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredSolutions.map((sol) => (
-                      <TableRow key={sol.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{sol.name}</div>
-                            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                              {sol.description}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getSolutionTypeIcon(sol.solution_type)}
-                            <span className="capitalize">{sol.solution_type}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {sol.tags.slice(0, 2).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {sol.tags.length > 2 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{sol.tags.length - 2}
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{sol.use_count}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className={`h-2 w-2 rounded-full ${
-                                sol.success_rate >= 0.8
-                                  ? "bg-green-500"
-                                  : sol.success_rate >= 0.5
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                              }`}
-                            />
-                            {(sol.success_rate * 100).toFixed(0)}%
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDate(sol.updated_at)}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedSolution(sol);
-                                  setViewDialogOpen(true);
-                                }}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleCopySolution(sol)}>
-                                <Copy className="h-4 w-4 mr-2" />
-                                Copy
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-red-600"
-                                onClick={() => handleDeleteSolution(sol.name)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          {loadingSolutions ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-40 rounded-lg" />
+              ))}
+            </div>
+          ) : filteredSolutions.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Database className="size-12 mx-auto mb-4 opacity-40" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {searchQuery || tagFilter !== "all"
+                    ? "No matching solutions"
+                    : "No cached solutions"}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {searchQuery || tagFilter !== "all"
+                    ? "Try adjusting your search or filter"
+                    : "Solutions will appear here once the cache is populated"}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSolutions.map((sol) => (
+                <Card
+                  key={sol.name}
+                  className="hover:shadow-md transition-shadow"
+                >
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0">
+                        <p className="font-semibold truncate">{sol.name}</p>
+                        <Badge variant="outline" className="mt-1 text-xs">
+                          {sol.type}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <ThumbsUp className="size-3" />
+                        {sol.success_count}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {sol.tags?.slice(0, 4).map((t) => (
+                        <Badge
+                          key={t}
+                          variant="secondary"
+                          className="text-[10px]"
+                        >
+                          {t}
+                        </Badge>
+                      ))}
+                      {(sol.tags?.length ?? 0) > 4 && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          +{sol.tags.length - 4}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs gap-1"
+                        onClick={() => setSelectedSolution(sol)}
+                      >
+                        <Eye className="size-3" />
+                        Details
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs gap-1"
+                        onClick={() => handleRecordSuccess(sol.name)}
+                      >
+                        <ThumbsUp className="size-3" />
+                        Success
+                      </Button>
+                      <div className="flex-1" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteSolution(sol.name)}
+                      >
+                        <Trash2 className="size-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
+        {/* Workflows Tab */}
         <TabsContent value="workflows" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Workflows</CardTitle>
-              <CardDescription>
-                {workflows.length} workflows in progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Workflow</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Started</TableHead>
-                    <TableHead>Last Update</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workflows.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No active workflows
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    workflows.map((wf) => (
-                      <TableRow key={wf.workflow_id}>
-                        <TableCell>
-                          <div className="font-medium">{wf.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {wf.workflow_id}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(wf.status)}
-                            <span className="capitalize">{wf.status}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {wf.current_step + 1} / {wf.steps.length} steps
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDate(wf.created_at)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDate(wf.updated_at)}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {workflows.length} workflow{workflows.length !== 1 && "s"}
+            </p>
+            <Button
+              size="sm"
+              onClick={() => setShowNewWorkflow(true)}
+            >
+              <Plus className="size-4 mr-1.5" />
+              New Workflow
+            </Button>
+          </div>
 
-        <TabsContent value="tags" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tags</CardTitle>
-              <CardDescription>
-                All tags used in the solution cache
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {allTags.length === 0 ? (
-                  <div className="text-muted-foreground">No tags found</div>
-                ) : (
-                  allTags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-sm">
-                      <Tag className="h-3 w-3 mr-1" />
-                      {tag}
-                    </Badge>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {loadingWorkflows ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-28 rounded-lg" />
+              ))}
+            </div>
+          ) : workflows.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Workflow className="size-12 mx-auto mb-4 opacity-40" />
+                <h3 className="text-lg font-semibold mb-2">
+                  No active workflows
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Create a workflow to orchestrate cache operations
+                </p>
+                <Button onClick={() => setShowNewWorkflow(true)}>
+                  <Plus className="size-4 mr-1.5" />
+                  Create Workflow
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {workflows.map((wf) => (
+                <Card key={wf.id}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Workflow className="size-4 text-muted-foreground" />
+                        <p className="font-semibold">{wf.name}</p>
+                      </div>
+                      {workflowStatusBadge(wf.status)}
+                    </div>
+
+                    {wf.steps?.length > 0 && (
+                      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+                        {wf.steps
+                          .sort((a, b) => a.order - b.order)
+                          .map((step, idx) => (
+                            <React.Fragment key={step.name}>
+                              {idx > 0 && (
+                                <ArrowRight className="size-3 text-muted-foreground shrink-0" />
+                              )}
+                              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-md shrink-0">
+                                {stepStatusIcon[step.status] ??
+                                  stepStatusIcon.pending}
+                                <span className="text-xs font-medium">
+                                  {step.name}
+                                </span>
+                              </div>
+                            </React.Fragment>
+                          ))}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground">
+                      Created{" "}
+                      {new Date(wf.created_at).toLocaleString()}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
-      {/* Create Solution Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Create New Solution</DialogTitle>
-            <DialogDescription>
-              Add a reusable solution to the cache
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input
-                placeholder="Solution name"
-                value={newSolution.name}
-                onChange={(e) =>
-                  setNewSolution({ ...newSolution, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Input
-                placeholder="Brief description"
-                value={newSolution.description}
-                onChange={(e) =>
-                  setNewSolution({ ...newSolution, description: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Type</Label>
-              <Select
-                value={newSolution.solution_type}
-                onValueChange={(v) =>
-                  setNewSolution({ ...newSolution, solution_type: v })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SOLUTION_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Code/Content</Label>
-              <Textarea
-                placeholder="Enter code or content..."
-                rows={6}
-                value={newSolution.code}
-                onChange={(e) =>
-                  setNewSolution({ ...newSolution, code: e.target.value })
-                }
-                className="font-mono text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add tag..."
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && addTag()}
-                />
-                <Button variant="outline" onClick={addTag}>
-                  Add
-                </Button>
-              </div>
-              {newSolution.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {newSolution.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                      <button
-                        onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-red-500"
-                      >
-                        ×
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateSolution}>Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* View Solution Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+      {/* Solution Detail Dialog */}
+      <Dialog
+        open={!!selectedSolution}
+        onOpenChange={(open) => !open && setSelectedSolution(null)}
+      >
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{selectedSolution?.name}</DialogTitle>
-            <DialogDescription>{selectedSolution?.description}</DialogDescription>
           </DialogHeader>
           {selectedSolution && (
             <div className="space-y-4">
-              <div className="flex gap-2">
-                <Badge>{selectedSolution.solution_type}</Badge>
-                {selectedSolution.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Type</p>
+                  <p className="font-medium">{selectedSolution.type}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Success Count</p>
+                  <p className="font-medium">{selectedSolution.success_count}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Created</p>
+                  <p className="font-medium">
+                    {new Date(selectedSolution.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Updated</p>
+                  <p className="font-medium">
+                    {new Date(selectedSolution.updated_at).toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <ScrollArea className="h-[300px]">
-                <pre className="p-4 bg-muted rounded-lg font-mono text-sm whitespace-pre-wrap">
-                  {selectedSolution.code ||
-                    JSON.stringify(selectedSolution.content, null, 2)}
-                </pre>
-              </ScrollArea>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Uses: {selectedSolution.use_count}</span>
-                <span>
-                  Success Rate: {(selectedSolution.success_rate * 100).toFixed(0)}%
-                </span>
+              {selectedSolution.description && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Description
+                  </p>
+                  <p className="text-sm">{selectedSolution.description}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Tags</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedSolution.tags?.length ? (
+                    selectedSolution.tags.map((t) => (
+                      <Badge key={t} variant="secondary">
+                        {t}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      No tags
+                    </span>
+                  )}
+                </div>
               </div>
+              {selectedSolution.metadata &&
+                Object.keys(selectedSolution.metadata).length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Metadata
+                    </p>
+                    <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-40">
+                      {JSON.stringify(selectedSolution.metadata, null, 2)}
+                    </pre>
+                  </div>
+                )}
             </div>
           )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => selectedSolution && handleCopySolution(selectedSolution)}
-            >
-              <Copy className="h-4 w-4 mr-2" />
-              Copy
-            </Button>
-            <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
-          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Workflow Dialog */}
+      <Dialog open={showNewWorkflow} onOpenChange={setShowNewWorkflow}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Workflow</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="wf-name">Workflow Name</Label>
+              <Input
+                id="wf-name"
+                placeholder="e.g. nightly-cache-refresh"
+                value={newWorkflowName}
+                onChange={(e) => setNewWorkflowName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wf-steps">
+                Steps{" "}
+                <span className="text-muted-foreground font-normal">
+                  (one per line)
+                </span>
+              </Label>
+              <Textarea
+                id="wf-steps"
+                placeholder={"Fetch data\nProcess results\nUpdate cache"}
+                rows={4}
+                value={newWorkflowSteps}
+                onChange={(e) => setNewWorkflowSteps(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowNewWorkflow(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateWorkflow}
+                disabled={!newWorkflowName.trim() || creatingWorkflow}
+              >
+                {creatingWorkflow && (
+                  <Loader2 className="size-4 mr-1.5 animate-spin" />
+                )}
+                Create
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

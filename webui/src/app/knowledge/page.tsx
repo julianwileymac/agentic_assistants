@@ -22,8 +22,9 @@ import { useCollections } from "@/lib/api";
 import { toast } from "sonner";
 import { SetupWizard, type KBSetupConfig } from "@/components/knowledge/setup-wizard";
 import { KBCard, type KnowledgeBaseInfo } from "@/components/knowledge/kb-card";
+import { getBackendUrl } from "@/lib/api-client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_BASE = getBackendUrl();
 
 type TabId = "overview" | "setup" | "configuration";
 

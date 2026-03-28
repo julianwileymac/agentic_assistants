@@ -1,0 +1,1331 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Julian Wiley\\Documents\\GitHub\\agentic_assistants']
+INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
+INFO:     Started reloader process [37836] using WatchFiles
+INFO:     Started server process [40780]
+INFO:     Waiting for application startup.
+Overriding of current TracerProvider is not allowed
+Failed to register repo ingestion schedules: Config file not found: C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\examples\global-knowledgebase-starter\examples\global-knowledgebase-starter\repos.yaml
+Overriding of current TracerProvider is not allowed
+Overriding of current MeterProvider is not allowed
+INFO:     Application startup complete.
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+WARNING:  WatchFiles detected changes in 'examples\library\pytorch_foundations\base_model_patterns.py', 'examples\library\prefect_workflows\data_pipeline.py', 'examples\library\transformers_hub\text_classification.py', 'examples\library\great_expectations_validation\pipeline_integration.py', 'examples\library\marvin_ai\integration_patterns.py', 'examples\library\jax_fundamentals\autodiff_and_jit.py', 'examples\library\feast_features\feature_definitions.py', 'examples\library\temporal_workflows\saga_pattern.py', 'examples\library\marvin_ai\ai_functions.py', 'examples\library\pytorch_foundations\training_loop.py', 'examples\library\jax_fundamentals\flax_modules.py', 'examples\library\strawberry_graphql\dataloaders.py', 'examples\library\temporal_workflows\basic_workflow.py', 'examples\library\scikit_learn\dimensionality_reduction.py', 'examples\library\beanie_odm\async_crud.py', 'examples\library\design_patterns\behavioral_patterns.py', 'examples\library\transformers_hub\custom_training.py', 'examples\library\gradient_boosting\xgboost_patterns.py', 'examples\library\ragas_evaluation\synthetic_testset.py', 'examples\library\langgraph_workflows\multi_agent_graph.py', 'examples\library\piccolo_orm\migrations.py', 'examples\library\design_patterns\agent_patterns.py', 'examples\library\autogen_agents\basic_conversation.py', 'examples\library\pytorch_foundations\custom_datasets.py', 'examples\library\ragas_evaluation\rag_metrics.py', 'examples\library\beanie_odm\relationships.py', 'examples\library\piccolo_orm\table_definitions.py', 'examples\library\sdv_synthetic\relational_data.py', 'examples\library\design_patterns\pattern_composition.py', 'examples\library\crewai_patterns\hierarchical_crew.py', 'examples\library\river_streaming\online_learning.py', 'examples\library\mlflow_tracking\custom_models.py', 'examples\library\piccolo_orm\async_queries.py', 'examples\library\temporal_workflows\child_workflows.py', 'examples\library\scikit_learn\model_evaluation.py', 'examples\library\agno_agents\basic_agent.py', 'examples\library\gradient_boosting\catboost_patterns.py', 'examples\library\great_expectations_validation\data_validation.py', 'examples\library\temporal_workflows\durable_agent.py', 'examples\library\marvin_ai\ai_classifiers.py', 'examples\library\crewai_patterns\research_crew.py', 'examples\library\design_patterns\creational_patterns.py', 'examples\library\deepeval_testing\rag_evaluation.py', 'examples\library\openai_swarm\triage_agent.py', 'examples\library\prefect_workflows\basic_flow.py', 'examples\library\river_streaming\concept_drift.py', 'examples\library\crewai_patterns\data_pipeline_crew.py', 'examples\library\pytorch_foundations\distributed_basics.py', 'examples\library\agno_agents\agent_team.py', 'examples\library\river_streaming\streaming_pipeline.py', 'examples\library\feast_features\materialization.py', 'examples\library\deepeval_testing\hallucination_check.py', 'examples\library\deepeval_testing\basic_test_cases.py', 'examples\library\sdv_synthetic\ctgan_generation.py', 'examples\library\openai_swarm\context_variables.py', 'examples\library\autogen_agents\code_execution.py', 'examples\library\beanie_odm\query_patterns.py', 'examples\library\great_expectations_validation\expectation_suites.py', 'examples\library\autogen_agents\group_chat.py', 'examples\library\langgraph_workflows\react_agent.py', 'examples\library\prefect_workflows\deployment_pattern.py', 'examples\library\gradient_boosting\boosting_comparison.py', 'examples\library\transformers_hub\model_loading.py', 'examples\library\sqlmodel_unified\relationships.py', 'examples\library\autogen_agents\tool_use_agent.py', 'examples\library\gradient_boosting\lightgbm_patterns.py', 'examples\library\sdv_synthetic\quality_metrics.py', 'examples\library\faker_data\basic_providers.py', 'examples\library\beanie_odm\document_models.py', 'examples\library\jax_fundamentals\optimization_patterns.py', 'examples\library\piccolo_orm\playground.py', 'examples\library\logfire_observability\fastapi_instrumentation.py', 'examples\library\faker_data\dataset_generation.py', 'examples\library\prefect_workflows\state_management.py', 'examples\library\crewai_patterns\code_review_crew.py', 'examples\library\marvin_ai\ai_models.py', 'examples\library\sqlmodel_unified\unified_models.py', 'examples\library\advanced_alchemy_patterns\generic_repository.py', 'examples\library\mlflow_tracking\autolog_patterns.py', 'examples\library\scikit_learn\supervised_basics.py', 'examples\library\agno_agents\multi_tool_agent.py', 'examples\library\pytorch_foundations\transfer_learning.py', 'examples\library\beanie_odm\multi_model.py', 'examples\library\ragas_evaluation\agent_metrics.py', 'examples\library\ragas_evaluation\custom_metrics.py', 'examples\library\mlflow_tracking\experiment_basics.py', 'examples\library\feast_features\feature_retrieval.py', 'examples\library\sdv_synthetic\single_table.py', 'examples\library\openai_swarm\basic_handoff.py', 'examples\library\scikit_learn\pipeline_patterns.py', 'examples\library\sqlmodel_unified\fastapi_crud.py', 'examples\library\prefect_workflows\observability.py', 'examples\library\transformers_hub\text_generation.py', 'examples\library\design_patterns\structural_patterns.py', 'src\agentic_assistants\core\meta.py', 'examples\library\mlflow_tracking\model_registry.py', 'examples\library\scikit_learn\unsupervised_clustering.py', 'examples\library\faker_data\domain_specific.py', 'examples\library\marvin_ai\planning.py'. Reloading...
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [40780]
+INFO:     Started server process [61668]
+INFO:     Waiting for application startup.
+Overriding of current TracerProvider is not allowed
+Failed to register repo ingestion schedules: Config file not found: C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\examples\global-knowledgebase-starter\examples\global-knowledgebase-starter\repos.yaml
+Overriding of current TracerProvider is not allowed
+Overriding of current MeterProvider is not allowed
+INFO:     Application startup complete.
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_annotations
+Jupyter notebook server started but health-check timed out after 30s
+Unhandled exception: no such table: learning_artifacts
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1489, in list_artifacts
+    cursor.execute(count_query, params)
+sqlite3.OperationalError: no such table: learning_artifacts
+WARNING:  WatchFiles detected changes in 'src\agentic_assistants\server\api\learning.py'. Reloading...
+Unhandled exception: no such table: learning_annotations
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    # Create topics if auto_generate_plans is enabled
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: learning_annotations
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 122, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 108, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 532, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\AppData\Local\pypoetry\Cache\virtualenvs\agentic-assistants-iq0iFedS-py3.11\Lib\site-packages\fastapi\routing.py", line 316, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\src\agentic_assistants\server\api\learning.py", line 1366, in list_annotations
+    # Create topics if auto_generate_plans is enabled
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: learning_annotations
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61668]
+WARNING:  WatchFiles detected changes in 'src\agentic_assistants\server\api\evaluations.py'. Reloading...
+INFO:     Started server process [44644]
+INFO:     Waiting for application startup.
+Overriding of current TracerProvider is not allowed
+Failed to register repo ingestion schedules: Config file not found: C:\Users\Julian Wiley\Documents\GitHub\agentic_assistants\examples\global-knowledgebase-starter\examples\global-knowledgebase-starter\repos.yaml
+Overriding of current TracerProvider is not allowed
+Overriding of current MeterProvider is not allowed
+Kernel registration failed: Command '['C:\\Users\\Julian Wiley\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\agentic-assistants-iq0iFedS-py3.11\\Scripts\\python.exe', '-m', 'ipykernel', 'install', '--user', '--name', 'agentic', '--display-name', 'Agentic Assistants']' returned non-zero exit status 3221225794.
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44644]

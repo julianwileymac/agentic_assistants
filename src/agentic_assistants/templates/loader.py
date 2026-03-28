@@ -35,6 +35,26 @@ def _assets_root() -> Path:
     return Path(__file__).with_name("assets")
 
 
+def _find_repo_root() -> Path:
+    """Walk upward from this file to find a directory containing pyproject.toml."""
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / "pyproject.toml").exists():
+            return parent
+    return here.parents[3]
+
+
+def _resolve_template_source(asset_dir: str) -> Path:
+    """
+    Resolve template assets: packaged under templates/assets, or library examples
+    at repo ``examples/library/<name>`` when catalog uses that prefix.
+    """
+    normalized = asset_dir.replace("\\", "/").strip().strip("/")
+    if normalized.startswith("examples/library"):
+        return _find_repo_root() / Path(*normalized.split("/"))
+    return _assets_root() / asset_dir
+
+
 def load_template_catalog() -> List[TemplateDefinition]:
     """Load all templates from catalog.yaml."""
     path = _catalog_path()
@@ -210,7 +230,7 @@ def scaffold_template(
         raise ValueError(f"Unknown template: {template_id}")
 
     asset_dir = template.asset_dir or template.template_id
-    source_root = _assets_root() / asset_dir
+    source_root = _resolve_template_source(asset_dir)
 
     destination = output_dir
     if project_name:

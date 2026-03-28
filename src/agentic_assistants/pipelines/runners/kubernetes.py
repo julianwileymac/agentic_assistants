@@ -6,35 +6,45 @@ Supports integration with Dask and Ray for parallel execution.
 """
 
 import asyncio
-import json
 import logging
 import time
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from agentic_assistants.config import AgenticConfig
 from agentic_assistants.kubernetes.client import KubernetesClient
 from agentic_assistants.kubernetes.storage import MinIOStorage
-from agentic_assistants.pipelines.base import Pipeline, Node
-from agentic_assistants.pipelines.runners.base import PipelineRunner, RunResult
+from agentic_assistants.pipelines.node import Node
+from agentic_assistants.pipelines.pipeline import Pipeline
+from agentic_assistants.pipelines.runners.base import (
+    AbstractRunner,
+    NodeRunResult,
+    PipelineRunResult,
+    RunnerError,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class KubernetesRunner(PipelineRunner):
+def _node_run_remote(node: Node, inp: Dict[str, Any]) -> Dict[str, Any]:
+    """Module-level helper so Dask/Ray can serialize distributed tasks."""
+    return node.run(inp)
+
+
+class KubernetesRunner(AbstractRunner):
     """
     Execute pipeline nodes as Kubernetes Jobs.
-    
+
     This runner creates Kubernetes Jobs for each pipeline node,
     enabling distributed execution across the cluster. It supports:
-    - Parallel node execution based on DAG dependencies
+    - Sequential node execution in topological order
     - Resource requests and limits per node
     - Artifact storage via MinIO
     - Integration with Dask/Ray for data-parallel operations
-    
+
     Example:
         >>> runner = KubernetesRunner()
-        >>> result = await runner.run(pipeline, inputs={"data": df})
+        >>> result = runner.run(pipeline, catalog)
     """
 
     def __init__(
@@ -49,7 +59,7 @@ class KubernetesRunner(PipelineRunner):
     ):
         """
         Initialize the Kubernetes runner.
-        
+
         Args:
             config: Agentic configuration
             namespace: Kubernetes namespace for jobs
@@ -59,21 +69,22 @@ class KubernetesRunner(PipelineRunner):
             use_dask: Use Dask for distributed data processing
             use_ray: Use Ray for distributed execution
         """
-        super().__init__(config)
+        super().__init__(is_async=True)
+        self.config = config or AgenticConfig()
         self.namespace = namespace or self.config.kubernetes.default_deploy_namespace
         self.image = image
         self.default_cpu = default_cpu
         self.default_memory = default_memory
         self.use_dask = use_dask
         self.use_ray = use_ray
-        
+
         self._client: Optional[KubernetesClient] = None
         self._storage: Optional[MinIOStorage] = None
         self._k8s_available = False
-        
-        # Check if kubernetes library is available
+
         try:
-            from kubernetes import client
+            from kubernetes import client  # noqa: F401
+
             self._k8s_available = True
         except ImportError:
             logger.warning("kubernetes library not installed. K8s runner disabled.")
@@ -92,145 +103,147 @@ class KubernetesRunner(PipelineRunner):
             self._storage = MinIOStorage(config=self.config)
         return self._storage
 
-    async def run(
+    def run(
         self,
         pipeline: Pipeline,
-        inputs: Optional[Dict[str, Any]] = None,
+        catalog: Any,
         run_id: Optional[str] = None,
-    ) -> RunResult:
-        """
-        Execute the pipeline on Kubernetes.
-        
-        Args:
-            pipeline: Pipeline to execute
-            inputs: Initial input data
-            run_id: Optional run identifier
-            
-        Returns:
-            RunResult with execution details
-        """
-        if not self._k8s_available:
-            return RunResult(
-                run_id=run_id or f"k8s-{int(time.time())}",
-                pipeline_name=pipeline.name,
-                status="failed",
-                error="kubernetes library not installed",
-                start_time=datetime.utcnow(),
-                end_time=datetime.utcnow(),
-                outputs={},
-                node_results={},
-            )
-        
-        run_id = run_id or f"k8s-{pipeline.name}-{int(time.time())}"
-        start_time = datetime.utcnow()
-        
-        logger.info(f"Starting Kubernetes pipeline run: {run_id}")
-        
-        # Ensure namespace exists
-        await self.client.create_namespace(self.namespace)
-        
-        # Store inputs in MinIO
-        if inputs:
-            await self._store_inputs(run_id, inputs)
-        
-        # Build execution plan
-        execution_order = self._topological_sort(pipeline)
-        
-        # Track results
-        node_results: Dict[str, Dict[str, Any]] = {}
-        outputs: Dict[str, Any] = {}
-        error: Optional[str] = None
-        
+        hook_manager: Optional[Any] = None,
+    ) -> PipelineRunResult:
+        """Execute the pipeline on Kubernetes (blocking)."""
+        if hook_manager:
+            self.set_hook_manager(hook_manager)
         try:
-            # Execute nodes in dependency order
-            for node_batch in execution_order:
-                # Execute batch in parallel
-                batch_tasks = [
-                    self._execute_node(run_id, node, pipeline, inputs or {})
-                    for node in node_batch
-                ]
-                
-                batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
-                
-                # Process results
-                for node, result in zip(node_batch, batch_results):
-                    if isinstance(result, Exception):
-                        node_results[node.name] = {
-                            "status": "failed",
-                            "error": str(result),
-                        }
-                        raise result
-                    else:
-                        node_results[node.name] = result
-                        # Update inputs with outputs for downstream nodes
-                        if result.get("outputs"):
-                            inputs = inputs or {}
-                            inputs.update(result["outputs"])
-            
-            # Retrieve final outputs
-            outputs = await self._retrieve_outputs(run_id, pipeline)
-            status = "completed"
-            
-        except Exception as e:
-            logger.error(f"Pipeline execution failed: {e}")
-            error = str(e)
-            status = "failed"
-        
-        end_time = datetime.utcnow()
-        
-        # Cleanup jobs
-        await self._cleanup_jobs(run_id)
-        
-        return RunResult(
-            run_id=run_id,
-            pipeline_name=pipeline.name,
-            status=status,
-            error=error,
-            start_time=start_time,
-            end_time=end_time,
-            outputs=outputs,
-            node_results=node_results,
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._run_async(pipeline, catalog, run_id))
+        raise RunnerError(
+            "KubernetesRunner.run() cannot be used from a running event loop; "
+            "call asyncio.run(runner._run_async(...)) instead."
         )
 
-    def _topological_sort(self, pipeline: Pipeline) -> List[List[Node]]:
-        """
-        Sort nodes into execution batches based on dependencies.
-        
-        Returns a list of batches, where nodes in each batch can
-        be executed in parallel.
-        """
-        # Build dependency graph
-        in_degree: Dict[str, int] = {node.name: 0 for node in pipeline.nodes}
-        dependents: Dict[str, List[str]] = {node.name: [] for node in pipeline.nodes}
-        
-        for node in pipeline.nodes:
-            for dep in node.inputs:
-                # Find which node produces this input
-                for other in pipeline.nodes:
-                    if dep in other.outputs:
-                        in_degree[node.name] += 1
-                        dependents[other.name].append(node.name)
-        
-        # Build batches
-        batches: List[List[Node]] = []
-        remaining = set(node.name for node in pipeline.nodes)
-        node_map = {node.name: node for node in pipeline.nodes}
-        
-        while remaining:
-            # Find nodes with no dependencies
-            ready = [name for name in remaining if in_degree[name] == 0]
-            if not ready:
-                raise ValueError("Circular dependency detected in pipeline")
-            
-            batches.append([node_map[name] for name in ready])
-            
-            # Update dependencies
-            for name in ready:
-                remaining.remove(name)
-                for dep in dependents[name]:
-                    in_degree[dep] -= 1
-        
-        return batches
+    async def _run_async(
+        self,
+        pipeline: Pipeline,
+        catalog: Any,
+        run_id: Optional[str] = None,
+    ) -> PipelineRunResult:
+        start_time = datetime.utcnow()
+        node_results: List[NodeRunResult] = []
+        errors: List[str] = []
+
+        if not self._k8s_available:
+            end_time = datetime.utcnow()
+            return PipelineRunResult(
+                pipeline=pipeline,
+                node_results=[],
+                outputs={},
+                start_time=start_time,
+                end_time=end_time,
+                success=False,
+                errors=["kubernetes library not installed"],
+            )
+
+        run_id = run_id or f"k8s-{int(time.time())}"
+        logger.info("Starting Kubernetes pipeline run: %s", run_id)
+
+        await self.client.create_namespace(self.namespace)
+
+        data_store: Dict[str, Any] = {}
+        for name in pipeline.inputs:
+            try:
+                data_store[name] = catalog.load(name)
+            except Exception as exc:
+                logger.warning("Could not load pipeline input %s: %s", name, exc)
+
+        if data_store:
+            await self._store_inputs(run_id, data_store)
+
+        error: Optional[str] = None
+        success = True
+
+        try:
+            for node in pipeline.topological_sort():
+                n_start = datetime.utcnow()
+                try:
+                    raw = await self._execute_node(run_id, node, pipeline, data_store)
+                    n_end = datetime.utcnow()
+                    if isinstance(raw, dict) and raw.get("status") == "completed":
+                        outs = raw.get("outputs") or {}
+                        data_store.update(outs)
+                        node_results.append(
+                            NodeRunResult(
+                                node_name=node.name,
+                                outputs=outs,
+                                start_time=n_start,
+                                end_time=n_end,
+                                success=True,
+                            )
+                        )
+                    else:
+                        err = (
+                            (raw or {}).get("error", "Job execution failed")
+                            if isinstance(raw, dict)
+                            else "Job execution failed"
+                        )
+                        node_results.append(
+                            NodeRunResult(
+                                node_name=node.name,
+                                outputs={},
+                                start_time=n_start,
+                                end_time=n_end,
+                                success=False,
+                                error=str(err),
+                            )
+                        )
+                        errors.append(f"Node '{node.name}': {err}")
+                        success = False
+                        break
+                except Exception as exc:
+                    n_end = datetime.utcnow()
+                    node_results.append(
+                        NodeRunResult(
+                            node_name=node.name,
+                            outputs={},
+                            start_time=n_start,
+                            end_time=n_end,
+                            success=False,
+                            error=str(exc),
+                        )
+                    )
+                    errors.append(f"Node '{node.name}': {exc}")
+                    success = False
+                    error = str(exc)
+                    break
+
+            retrieved = await self._retrieve_outputs(run_id, pipeline)
+            final_outputs = {
+                name: data_store[name]
+                for name in pipeline.outputs
+                if name in data_store
+            }
+            final_outputs.update(retrieved)
+
+        except Exception as exc:
+            logger.error("Pipeline execution failed: %s", exc)
+            error = str(exc)
+            success = False
+            errors.append(str(exc))
+            final_outputs = {}
+
+        end_time = datetime.utcnow()
+
+        await self._cleanup_jobs(run_id)
+
+        return PipelineRunResult(
+            pipeline=pipeline,
+            node_results=node_results,
+            outputs=final_outputs if success else {},
+            start_time=start_time,
+            end_time=end_time,
+            success=success and error is None,
+            errors=errors,
+        )
 
     async def _execute_node(
         self,
@@ -241,34 +254,24 @@ class KubernetesRunner(PipelineRunner):
     ) -> Dict[str, Any]:
         """Execute a single node as a Kubernetes Job."""
         job_name = f"{run_id}-{node.name}".lower().replace("_", "-")[:63]
-        
-        logger.info(f"Creating job for node: {node.name}")
-        
+
+        logger.info("Creating job for node: %s", node.name)
+
         try:
             from kubernetes import client
-            
-            # Build job spec
-            job = self._build_job_spec(
-                job_name=job_name,
-                node=node,
-                run_id=run_id,
-                inputs=inputs,
-            )
-            
-            # Create job
+
+            job = self._build_job_spec(job_name, node, run_id, inputs)
+
             batch_api = client.BatchV1Api()
             batch_api.create_namespaced_job(
                 namespace=self.namespace,
                 body=job,
             )
-            
-            # Wait for completion
-            result = await self._wait_for_job(job_name)
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"Failed to execute node {node.name}: {e}")
+
+            return await self._wait_for_job(job_name)
+
+        except Exception as exc:
+            logger.error("Failed to execute node %s: %s", node.name, exc)
             raise
 
     def _build_job_spec(
@@ -276,29 +279,34 @@ class KubernetesRunner(PipelineRunner):
         job_name: str,
         node: Node,
         run_id: str,
-        inputs: Dict[str, Any],
+        _inputs: Dict[str, Any],
     ):
         """Build Kubernetes Job specification."""
         from kubernetes import client
-        
-        # Get resource requirements from node metadata
-        cpu_request = node.metadata.get("cpu", self.default_cpu)
-        memory_request = node.metadata.get("memory", self.default_memory)
-        
-        # Build environment variables
+
+        cpu_request = self.default_cpu
+        memory_request = self.default_memory
+
         env = [
             client.V1EnvVar(name="RUN_ID", value=run_id),
             client.V1EnvVar(name="NODE_NAME", value=node.name),
             client.V1EnvVar(name="MINIO_ENDPOINT", value=self.config.minio.endpoint),
             client.V1EnvVar(name="MINIO_BUCKET", value=self.config.minio.default_bucket),
         ]
-        
+
         if self.config.minio.access_key:
-            env.append(client.V1EnvVar(name="MINIO_ACCESS_KEY", value=self.config.minio.access_key))
+            env.append(
+                client.V1EnvVar(
+                    name="MINIO_ACCESS_KEY", value=self.config.minio.access_key
+                )
+            )
         if self.config.minio.secret_key:
-            env.append(client.V1EnvVar(name="MINIO_SECRET_KEY", value=self.config.minio.secret_key))
-        
-        # Build container spec
+            env.append(
+                client.V1EnvVar(
+                    name="MINIO_SECRET_KEY", value=self.config.minio.secret_key
+                )
+            )
+
         container = client.V1Container(
             name="node-runner",
             image=self.image,
@@ -309,18 +317,18 @@ class KubernetesRunner(PipelineRunner):
             ),
             command=["python", "-m", "agentic_assistants.pipelines.node_executor"],
             args=[
-                "--run-id", run_id,
-                "--node-name", node.name,
+                "--run-id",
+                run_id,
+                "--node-name",
+                node.name,
             ],
         )
-        
-        # Build pod spec
+
         pod_spec = client.V1PodSpec(
             containers=[container],
             restart_policy="Never",
         )
-        
-        # Build job spec
+
         job = client.V1Job(
             api_version="batch/v1",
             kind="Job",
@@ -341,7 +349,7 @@ class KubernetesRunner(PipelineRunner):
                 ttl_seconds_after_finished=3600,
             ),
         )
-        
+
         return job
 
     async def _wait_for_job(
@@ -352,32 +360,32 @@ class KubernetesRunner(PipelineRunner):
     ) -> Dict[str, Any]:
         """Wait for a job to complete and return its result."""
         from kubernetes import client
-        
+
         batch_api = client.BatchV1Api()
-        start_time = time.time()
-        
-        while time.time() - start_time < timeout:
+        start = time.time()
+
+        while time.time() - start < timeout:
             job = batch_api.read_namespaced_job(
                 name=job_name,
                 namespace=self.namespace,
             )
-            
+
             if job.status.succeeded:
-                logger.info(f"Job {job_name} completed successfully")
+                logger.info("Job %s completed successfully", job_name)
                 return {
                     "status": "completed",
                     "outputs": await self._retrieve_node_outputs(job_name),
                 }
-            
+
             if job.status.failed:
-                logger.error(f"Job {job_name} failed")
+                logger.error("Job %s failed", job_name)
                 return {
                     "status": "failed",
                     "error": "Job execution failed",
                 }
-            
+
             await asyncio.sleep(poll_interval)
-        
+
         raise TimeoutError(f"Job {job_name} timed out after {timeout}s")
 
     async def _store_inputs(self, run_id: str, inputs: Dict[str, Any]) -> None:
@@ -394,63 +402,55 @@ class KubernetesRunner(PipelineRunner):
         pipeline: Pipeline,
     ) -> Dict[str, Any]:
         """Retrieve final pipeline outputs from MinIO."""
-        outputs = {}
-        
-        # Get outputs from terminal nodes
+        outputs: Dict[str, Any] = {}
+
         for node in pipeline.nodes:
-            # Check if this is a terminal node (no other nodes depend on its outputs)
             is_terminal = True
             for other in pipeline.nodes:
-                if node.name != other.name:
-                    for inp in other.inputs:
-                        if inp in node.outputs:
-                            is_terminal = False
-                            break
-            
+                if other.name == node.name:
+                    continue
+                if other.all_inputs & node.all_outputs:
+                    is_terminal = False
+                    break
+
             if is_terminal:
-                node_outputs = await self.storage.download_json(
-                    self.config.minio.default_bucket,
-                    f"runs/{run_id}/nodes/{node.name}/outputs.json",
-                )
-                if node_outputs:
-                    outputs.update(node_outputs)
-        
+                try:
+                    node_outputs = await self.storage.download_json(
+                        self.config.minio.default_bucket,
+                        f"runs/{run_id}/nodes/{node.name}/outputs.json",
+                    )
+                    if node_outputs:
+                        outputs.update(node_outputs)
+                except Exception:
+                    pass
+
         return outputs
 
     async def _retrieve_node_outputs(self, job_name: str) -> Dict[str, Any]:
         """Retrieve outputs for a specific node."""
-        # Parse run_id and node_name from job_name
-        parts = job_name.rsplit("-", 1)
-        if len(parts) >= 2:
-            # Job name format: {run_id}-{node_name}
-            # This is simplified - in production, use labels
-            pass
-        
-        # For now, return empty dict - actual implementation would
-        # read from MinIO based on job labels
+        _ = job_name
         return {}
 
     async def _cleanup_jobs(self, run_id: str) -> None:
         """Clean up completed jobs for a run."""
         if not self._k8s_available:
             return
-        
+
         try:
             from kubernetes import client
-            
+
             batch_api = client.BatchV1Api()
-            
-            # Delete jobs with matching run-id label
+
             batch_api.delete_collection_namespaced_job(
                 namespace=self.namespace,
                 label_selector=f"agentic.io/run-id={run_id}",
                 propagation_policy="Background",
             )
-            
-            logger.info(f"Cleaned up jobs for run: {run_id}")
-            
-        except Exception as e:
-            logger.warning(f"Failed to cleanup jobs: {e}")
+
+            logger.info("Cleaned up jobs for run: %s", run_id)
+
+        except Exception as exc:
+            logger.warning("Failed to cleanup jobs: %s", exc)
 
     async def run_with_dask(
         self,
@@ -458,94 +458,101 @@ class KubernetesRunner(PipelineRunner):
         inputs: Optional[Dict[str, Any]] = None,
         run_id: Optional[str] = None,
         scheduler_address: Optional[str] = None,
-    ) -> RunResult:
+    ) -> PipelineRunResult:
         """
         Execute pipeline using Dask for distributed data processing.
-        
-        This method connects to a Dask scheduler running in the cluster
-        and uses Dask's distributed computing capabilities.
-        
-        Args:
-            pipeline: Pipeline to execute
-            inputs: Initial input data
-            run_id: Optional run identifier
-            scheduler_address: Dask scheduler address
         """
+        start_time = datetime.utcnow()
         try:
             from dask.distributed import Client
         except ImportError:
-            return RunResult(
-                run_id=run_id or f"dask-{int(time.time())}",
-                pipeline_name=pipeline.name,
-                status="failed",
-                error="dask library not installed",
-                start_time=datetime.utcnow(),
-                end_time=datetime.utcnow(),
+            end_time = datetime.utcnow()
+            return PipelineRunResult(
+                pipeline=pipeline,
+                node_results=[],
                 outputs={},
-                node_results={},
+                start_time=start_time,
+                end_time=end_time,
+                success=False,
+                errors=["dask library not installed"],
             )
-        
-        run_id = run_id or f"dask-{pipeline.name}-{int(time.time())}"
-        start_time = datetime.utcnow()
-        
-        # Default scheduler address
-        scheduler = scheduler_address or "tcp://dask-scheduler.data-services.svc.cluster.local:8786"
-        
+
+        run_id = run_id or f"dask-{int(time.time())}"
+        scheduler = (
+            scheduler_address
+            or "tcp://dask-scheduler.data-services.svc.cluster.local:8786"
+        )
+
+        data_store: Dict[str, Any] = dict(inputs or {})
+        node_results: List[NodeRunResult] = []
+        errors: List[str] = []
+
         try:
-            # Connect to Dask cluster
-            client = Client(scheduler)
-            logger.info(f"Connected to Dask scheduler: {scheduler}")
-            
-            # Execute pipeline nodes
-            outputs = {}
-            node_results = {}
-            
-            for node in pipeline.nodes:
-                # Submit node execution to Dask
-                future = client.submit(
-                    node.func,
-                    *[inputs.get(inp) for inp in node.inputs] if inputs else [],
-                )
-                result = future.result()
-                
-                node_results[node.name] = {"status": "completed"}
-                
-                # Update outputs
-                if node.outputs:
-                    for i, output_name in enumerate(node.outputs):
-                        if isinstance(result, tuple):
-                            outputs[output_name] = result[i]
-                        else:
-                            outputs[output_name] = result
-                
-                # Update inputs for downstream nodes
-                if inputs is None:
-                    inputs = {}
-                inputs.update(outputs)
-            
-            client.close()
-            
-            return RunResult(
-                run_id=run_id,
-                pipeline_name=pipeline.name,
-                status="completed",
-                start_time=start_time,
-                end_time=datetime.utcnow(),
-                outputs=outputs,
+            dask_client = Client(scheduler)
+            logger.info("Connected to Dask scheduler: %s", scheduler)
+
+            for node in pipeline.topological_sort():
+                n_start = datetime.utcnow()
+                try:
+                    inp = {k: data_store[k] for k in node.input_names}
+                    future = dask_client.submit(_node_run_remote, node, inp)
+                    out = future.result()
+                    data_store.update(out)
+                    n_end = datetime.utcnow()
+                    node_results.append(
+                        NodeRunResult(
+                            node_name=node.name,
+                            outputs=out,
+                            start_time=n_start,
+                            end_time=n_end,
+                            success=True,
+                        )
+                    )
+                except Exception as exc:
+                    n_end = datetime.utcnow()
+                    node_results.append(
+                        NodeRunResult(
+                            node_name=node.name,
+                            outputs={},
+                            start_time=n_start,
+                            end_time=n_end,
+                            success=False,
+                            error=str(exc),
+                        )
+                    )
+                    errors.append(f"Node '{node.name}': {exc}")
+                    break
+
+            dask_client.close()
+
+            end_time = datetime.utcnow()
+            success = len(errors) == 0
+            outputs = {
+                name: data_store[name]
+                for name in pipeline.outputs
+                if name in data_store
+            }
+            return PipelineRunResult(
+                pipeline=pipeline,
                 node_results=node_results,
-            )
-            
-        except Exception as e:
-            logger.error(f"Dask execution failed: {e}")
-            return RunResult(
-                run_id=run_id,
-                pipeline_name=pipeline.name,
-                status="failed",
-                error=str(e),
+                outputs=outputs if success else {},
                 start_time=start_time,
-                end_time=datetime.utcnow(),
+                end_time=end_time,
+                success=success,
+                errors=errors,
+            )
+
+        except Exception as exc:
+            logger.error("Dask execution failed: %s", exc)
+            end_time = datetime.utcnow()
+            return PipelineRunResult(
+                pipeline=pipeline,
+                node_results=node_results,
                 outputs={},
-                node_results={},
+                start_time=start_time,
+                end_time=end_time,
+                success=False,
+                errors=errors + [str(exc)],
             )
 
     async def run_with_ray(
@@ -554,92 +561,94 @@ class KubernetesRunner(PipelineRunner):
         inputs: Optional[Dict[str, Any]] = None,
         run_id: Optional[str] = None,
         ray_address: Optional[str] = None,
-    ) -> RunResult:
-        """
-        Execute pipeline using Ray for distributed execution.
-        
-        Args:
-            pipeline: Pipeline to execute
-            inputs: Initial input data
-            run_id: Optional run identifier
-            ray_address: Ray cluster address
-        """
+    ) -> PipelineRunResult:
+        """Execute pipeline using Ray for distributed execution."""
+        start_time = datetime.utcnow()
         try:
             import ray
         except ImportError:
-            return RunResult(
-                run_id=run_id or f"ray-{int(time.time())}",
-                pipeline_name=pipeline.name,
-                status="failed",
-                error="ray library not installed",
-                start_time=datetime.utcnow(),
-                end_time=datetime.utcnow(),
+            end_time = datetime.utcnow()
+            return PipelineRunResult(
+                pipeline=pipeline,
+                node_results=[],
                 outputs={},
-                node_results={},
+                start_time=start_time,
+                end_time=end_time,
+                success=False,
+                errors=["ray library not installed"],
             )
-        
-        run_id = run_id or f"ray-{pipeline.name}-{int(time.time())}"
-        start_time = datetime.utcnow()
-        
-        # Default Ray address
+
+        _ = run_id
         address = ray_address or "ray://ray-head.data-services.svc.cluster.local:10001"
-        
+
+        data_store: Dict[str, Any] = dict(inputs or {})
+        node_results: List[NodeRunResult] = []
+        errors: List[str] = []
+
         try:
-            # Connect to Ray cluster
             ray.init(address=address, ignore_reinit_error=True)
-            logger.info(f"Connected to Ray cluster: {address}")
-            
-            # Execute pipeline nodes
-            outputs = {}
-            node_results = {}
-            
-            for node in pipeline.nodes:
-                # Create remote function
-                @ray.remote
-                def execute_node(func, *args):
-                    return func(*args)
-                
-                # Submit node execution to Ray
-                future = execute_node.remote(
-                    node.func,
-                    *[inputs.get(inp) for inp in node.inputs] if inputs else [],
-                )
-                result = ray.get(future)
-                
-                node_results[node.name] = {"status": "completed"}
-                
-                # Update outputs
-                if node.outputs:
-                    for i, output_name in enumerate(node.outputs):
-                        if isinstance(result, tuple):
-                            outputs[output_name] = result[i]
-                        else:
-                            outputs[output_name] = result
-                
-                # Update inputs for downstream nodes
-                if inputs is None:
-                    inputs = {}
-                inputs.update(outputs)
-            
-            return RunResult(
-                run_id=run_id,
-                pipeline_name=pipeline.name,
-                status="completed",
-                start_time=start_time,
-                end_time=datetime.utcnow(),
-                outputs=outputs,
+            logger.info("Connected to Ray cluster: %s", address)
+
+            execute_node_run = ray.remote(_node_run_remote)
+
+            for node in pipeline.topological_sort():
+                n_start = datetime.utcnow()
+                try:
+                    inp = {k: data_store[k] for k in node.input_names}
+                    future = execute_node_run.remote(node, inp)
+                    out = ray.get(future)
+                    data_store.update(out)
+                    n_end = datetime.utcnow()
+                    node_results.append(
+                        NodeRunResult(
+                            node_name=node.name,
+                            outputs=out,
+                            start_time=n_start,
+                            end_time=n_end,
+                            success=True,
+                        )
+                    )
+                except Exception as exc:
+                    n_end = datetime.utcnow()
+                    node_results.append(
+                        NodeRunResult(
+                            node_name=node.name,
+                            outputs={},
+                            start_time=n_start,
+                            end_time=n_end,
+                            success=False,
+                            error=str(exc),
+                        )
+                    )
+                    errors.append(f"Node '{node.name}': {exc}")
+                    break
+
+            end_time = datetime.utcnow()
+            success = len(errors) == 0
+            outputs = {
+                name: data_store[name]
+                for name in pipeline.outputs
+                if name in data_store
+            }
+            return PipelineRunResult(
+                pipeline=pipeline,
                 node_results=node_results,
-            )
-            
-        except Exception as e:
-            logger.error(f"Ray execution failed: {e}")
-            return RunResult(
-                run_id=run_id,
-                pipeline_name=pipeline.name,
-                status="failed",
-                error=str(e),
+                outputs=outputs if success else {},
                 start_time=start_time,
-                end_time=datetime.utcnow(),
+                end_time=end_time,
+                success=success,
+                errors=errors,
+            )
+
+        except Exception as exc:
+            logger.error("Ray execution failed: %s", exc)
+            end_time = datetime.utcnow()
+            return PipelineRunResult(
+                pipeline=pipeline,
+                node_results=node_results,
                 outputs={},
-                node_results={},
+                start_time=start_time,
+                end_time=end_time,
+                success=False,
+                errors=errors + [str(exc)],
             )

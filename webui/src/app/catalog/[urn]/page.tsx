@@ -14,8 +14,9 @@ import {
   Tag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getBackendUrl } from "@/lib/api-client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = getBackendUrl();
 
 interface ColumnInfo {
   fieldPath: string;

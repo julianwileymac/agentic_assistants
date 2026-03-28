@@ -106,7 +106,9 @@ interface CollectionStats {
   last_ingestion?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { getBackendUrl } from "@/lib/api-client";
+
+const API_URL = getBackendUrl();
 
 export default function LineagePage() {
   const [activeTab, setActiveTab] = React.useState("documents");
@@ -134,7 +136,7 @@ export default function LineagePage() {
       if (selectedSourceType !== "all") body.source_type = selectedSourceType;
       if (selectedTags.length > 0) body.tags = selectedTags;
 
-      const response = await fetch(`${API_URL}/api/lineage/query`, {
+      const response = await fetch(`${API_URL}/api/v1/lineage/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -152,7 +154,7 @@ export default function LineagePage() {
 
   const fetchTagStats = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/lineage/tags/stats`);
+      const response = await fetch(`${API_URL}/api/v1/lineage/tags/stats`);
       if (response.ok) {
         setTagStats(await response.json());
       }
@@ -163,7 +165,7 @@ export default function LineagePage() {
 
   const fetchTagHierarchy = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/lineage/tags/hierarchy`);
+      const response = await fetch(`${API_URL}/api/v1/lineage/tags/hierarchy`);
       if (response.ok) {
         const data = await response.json();
         setTagHierarchy(data.hierarchy || {});
@@ -175,7 +177,7 @@ export default function LineagePage() {
 
   const fetchCollectionStats = async (collection: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/lineage/collection/${collection}/stats`);
+      const response = await fetch(`${API_URL}/api/v1/lineage/collection/${collection}/stats`);
       if (response.ok) {
         setCollectionStats(await response.json());
       }
@@ -192,7 +194,7 @@ export default function LineagePage() {
 
   const viewDocumentDetails = async (docId: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/lineage/document/${docId}`);
+      const response = await fetch(`${API_URL}/api/v1/lineage/document/${docId}`);
       if (response.ok) {
         setSelectedDocument(await response.json());
         setDetailDialogOpen(true);

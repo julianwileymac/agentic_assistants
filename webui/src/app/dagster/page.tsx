@@ -16,6 +16,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getBackendUrl } from "@/lib/api-client";
 
 // Types
 interface DagsterHealth {
@@ -56,7 +57,7 @@ interface RunInfo {
   tags: Record<string, string>;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = getBackendUrl();
 
 async function safeFetch<T>(url: string, fallback: T, options?: RequestInit): Promise<T> {
   try {
