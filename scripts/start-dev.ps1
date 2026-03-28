@@ -59,6 +59,54 @@ function Write-Error {
     Write-Host "  [ERROR] $Message" -ForegroundColor Red
 }
 
+function Stop-ProcessTree {
+    param(
+        [int]$ProcessId,
+        [string]$ServiceName
+    )
+    try {
+        $childProcesses = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ProcessId }
+        foreach ($child in $childProcesses) {
+            Stop-ProcessTree -ProcessId $child.ProcessId -ServiceName "$ServiceName child"
+        }
+        $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+        if ($process) {
+            Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+            Write-Step "Stopped $ServiceName (PID: $ProcessId)"
+            return $true
+        }
+    } catch {}
+    return $false
+}
+
+function Stop-ProcessOnPort {
+    param([int]$Port)
+    try {
+        $connections = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
+        foreach ($conn in $connections) {
+            $procId = $conn.OwningProcess
+            if ($procId -and $procId -ne 0) {
+                $process = Get-Process -Id $procId -ErrorAction SilentlyContinue
+                if ($process) {
+                    Stop-ProcessTree -ProcessId $procId -ServiceName "$($process.ProcessName) on port $Port"
+                }
+            }
+        }
+    } catch {}
+}
+
+function Stop-OrphanedNodeProcesses {
+    Get-Process -Name "node" -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine
+            if ($cmdLine -and ($cmdLine -like "*webui*" -or $cmdLine -like "*next*dev*")) {
+                Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
+                Write-Step "Killed orphaned node process (PID: $($_.Id))"
+            }
+        } catch {}
+    }
+}
+
 function Show-Help {
     Write-Host "Usage: .\scripts\start-dev.ps1 [OPTIONS]"
     Write-Host ""
@@ -366,6 +414,19 @@ function Start-WebUI {
         return $false
     }
 
+    # Clean up any existing webui processes to prevent accumulation
+    Write-Step "Cleaning up previous Web UI processes..."
+    $existingPidFile = Join-Path $ProjectDir ".webui.pid"
+    if (Test-Path $existingPidFile) {
+        $oldPid = Get-Content $existingPidFile -ErrorAction SilentlyContinue
+        if ($oldPid) {
+            Stop-ProcessTree -ProcessId ([int]$oldPid) -ServiceName "Previous Web UI" | Out-Null
+        }
+        Remove-Item $existingPidFile -ErrorAction SilentlyContinue
+    }
+    Stop-ProcessOnPort -Port $WebUIPort
+    Stop-OrphanedNodeProcesses
+
     Set-Location $webuiDir
 
     if (-not (Test-Path "node_modules")) {
@@ -377,7 +438,15 @@ function Start-WebUI {
 
     $env:PORT = $WebUIPort
     $webuiLog = Join-Path $ProjectDir "webui.log"
-    $webuiProcess = Start-Process -FilePath "npm" -ArgumentList "run","dev","--","--hostname","127.0.0.1","--port",$WebUIPort -RedirectStandardOutput $webuiLog -RedirectStandardError "$webuiLog.err" -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+    $nextBin = Join-Path $webuiDir "node_modules\.bin\next.cmd"
+    if (-not (Test-Path $nextBin)) {
+        Write-Step "next.cmd not found, falling back to npm"
+        $nextBin = "npm"
+        $nextArgs = "run","dev","--","--hostname","127.0.0.1","--port",$WebUIPort
+    } else {
+        $nextArgs = "dev","--hostname","127.0.0.1","--port",$WebUIPort
+    }
+    $webuiProcess = Start-Process -FilePath $nextBin -ArgumentList $nextArgs -WorkingDirectory $webuiDir -RedirectStandardOutput $webuiLog -RedirectStandardError "$webuiLog.err" -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
     if ($webuiProcess) {
         $webuiProcess.Id | Out-File (Join-Path $ProjectDir ".webui.pid")
         Write-Success "Web UI started on http://localhost:$WebUIPort (PID: $($webuiProcess.Id))"

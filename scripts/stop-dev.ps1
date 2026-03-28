@@ -147,22 +147,25 @@ foreach ($port in $ports) {
     }
 }
 
-# Additional cleanup: Find any node/python processes that might be related
+# Always scan for orphaned node processes related to the webui
+Write-Host ""
+Write-Host "  Scanning for orphaned Node.js processes..." -ForegroundColor Yellow
+
+Get-Process -Name "node" -ErrorAction SilentlyContinue | ForEach-Object {
+    try {
+        $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine
+        if ($cmdLine -and ($cmdLine -like "*webui*" -or $cmdLine -like "*next*" -or $cmdLine -like "*3000*")) {
+            if (Stop-ProcessTree -ProcessId $_.Id -ServiceName "Node (webui related)") {
+                $script:stopped = $true
+            }
+        }
+    } catch {}
+}
+
+# Additional cleanup with -Force: also scan for orphaned python processes
 if ($Force) {
     Write-Host ""
-    Write-Host "  Force mode: Looking for related processes..." -ForegroundColor Yellow
-    
-    # Kill any node processes running from webui directory
-    Get-Process -Name "node" -ErrorAction SilentlyContinue | ForEach-Object {
-        try {
-            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine
-            if ($cmdLine -and ($cmdLine -like "*webui*" -or $cmdLine -like "*next*" -or $cmdLine -like "*3000*")) {
-                if (Stop-ProcessTree -ProcessId $_.Id -ServiceName "Node (webui related)") {
-                    $script:stopped = $true
-                }
-            }
-        } catch {}
-    }
+    Write-Host "  Force mode: Looking for related Python processes..." -ForegroundColor Yellow
     
     # Kill any uvicorn processes
     Get-Process -Name "python" -ErrorAction SilentlyContinue | ForEach-Object {
@@ -218,5 +221,5 @@ if ($stopped) {
     Write-Host "No running services found." -ForegroundColor Yellow
 }
 Write-Host ""
-Write-Host "Tip: Use -Force flag to also kill orphaned node/python processes." -ForegroundColor Gray
+Write-Host "Tip: Use -Force flag to also kill orphaned python/uvicorn/jupyter processes." -ForegroundColor Gray
 Write-Host ""
